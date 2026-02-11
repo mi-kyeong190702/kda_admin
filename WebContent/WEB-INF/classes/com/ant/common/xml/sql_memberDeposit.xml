@@ -1,0 +1,1463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- /*
+ * 프로그램명 : 쿼리 xml (회원 > 예수금현황)
+ * 제작자 : 김성훈
+ * 제작일 : 2012..
+ * 설   명 : 회원>예수금현황 쿼리
+ */ -->
+ 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="memberDeposit">
+	
+
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.24
+	 * 작   업 : getMemberDepositCount_1and2	회원>예수금현황>예수금집계표(tab_1, tab_2) 페이징 카운터
+	 -->
+<select id="getMemberDepositCount_1and2" resultClass="java.util.HashMap">
+select COUNT(number)+1 ncount
+  from(select ROW_NUMBER() over(order by a.code_bran) number
+         from dues_P a 
+         LEFT JOIN dues_h_tbl   b on b.code_pers = a.code_pers
+                   and a.dues_gubun = b.dues_gubun 
+                   and a.dues_h_seq = b.dues_h_seq
+                   AND ISNULL(regi_dt, '') != ''
+			       AND incom_flag = 'Y'
+  		LEFT JOIN ( select  z.* 
+					  from dues_b_tbl z, dues_h_tbl x
+				     where z.code_pers  = x.code_pers
+				       AND x.incom_flag = 'Y'
+					   and x.dues_gubun = z.dues_gubun
+				       and x.dues_h_seq = z.dues_h_seq
+				   ) c on c.code_pers  = a.code_pers
+	 			          and c.conform_yn = '3'
+                       left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+                       left join com_code e on e.groupcode = '006' and e.detcode = b.code_member
+        where a.dues_gubun = '1'
+                  AND b.incom_flag = 'Y'
+                  <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+                  and c.code_receipt = #code_receipt#
+                  and a.receipt_dt <![CDATA[>=]]> #startdate#
+                  and a.receipt_dt <![CDATA[<=]]> #enddate#
+                  and b.code_pers = c.code_pers
+                  and b.dues_gubun = c.dues_gubun
+                  and b.dues_h_seq = c.dues_h_seq
+        group by a.code_bran
+         
+) aa
+</select> 
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.24
+	 * 작   업 : getMemberDepositList_1and2	회원>예수금현황>예수금집계표(tab_1, tab_2) 조회 출력
+	 -->
+<select id="getMemberDepositList_1" resultClass="java.util.HashMap">
+select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
+
+		, code_bran , tempcd1
+        , isnull(SUM(col1)  ,0) col1
+        , isnull(SUM(col2)  ,0) col2
+     	, isnull(SUM(col3)  ,0) col3
+     	, isnull(SUM(col4)  ,0) col4
+     	, isnull(SUM(col5)  ,0) col5
+     	, isnull(SUM(col6)  ,0) col6
+     	, isnull(SUM(col7)  ,0) col7
+     	, isnull(SUM(col8)  ,0) col8 /* 2015년 회비변경으로 코드멤버 추가 */
+     	, isnull(SUM(col9)  ,0) col9
+     	, isnull(SUM(col10),0) col10
+     	, isnull(SUM(col11),0) col11
+     	, isnull(SUM(col12),0) col12
+     	, isnull(SUM(col13),0) col13
+     	, isnull(SUM(col14),0) col14
+     	, isnull(SUM(col15),0) col15
+     	, isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
+     								    + isnull(SUM(col3) ,0)
+     								    + isnull(SUM(col4) ,0)
+     								    + isnull(SUM(col5) ,0)
+     								    + isnull(SUM(col6) ,0)
+     								    + isnull(SUM(col7) ,0) 
+     								    + isnull(SUM(col8)  ,0) 
+						   			    + isnull(SUM(col9)  ,0) 
+									    + isnull(SUM(col10),0) 
+									    + isnull(SUM(col11),0) 
+									    + isnull(SUM(col12),0)
+									    + isnull(SUM(col13),0)
+									    + isnull(SUM(col14),0)
+									    + isnull(SUM(col15),0) totcount
+     <!-- , code_bran , tempcd1
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col3),0) col3
+     , isnull(SUM(col4),0) col4
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col3),0)
+     + isnull(SUM(col4),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0) totcount -->
+     
+     , isnull(SUM(bran_money),0) bran_money
+  from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
+            , code_bran, tempcd1, code_member, detcodename
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1 /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6
+            , case when code_member = '07' then SUM(pers_count) end col7
+            
+            , case when code_member = '39' then SUM(pers_count) end col8	    /* 2015년 회비변경으로 코드멤버 추가 */
+			, case when code_member = '40' then SUM(pers_count) end col9  
+            , case when code_member = '41' then SUM(pers_count) end col10
+			, case when code_member = '42' then SUM(pers_count) end col11  
+			, case when code_member = '45' then SUM(pers_count) end col12
+			, case when code_member = '46' then SUM(pers_count) end col13 
+			, case when code_member = '48' then SUM(pers_count) end col14
+			, case when code_member = '49' then SUM(pers_count) end col15 
+            	  
+            , bran_money
+     
+         from (select ROW_NUMBER() over(order by b.code_member) number
+                    , a.code_bran, d.tempcd1, b.code_member, e.detcodename
+                    , count(a.code_pers) pers_count
+                    , sum(a.bran_money) bran_money
+                 from dues_P a 
+			         LEFT JOIN dues_h_tbl   b on b.code_pers = a.code_pers
+			                   and a.dues_gubun = b.dues_gubun 
+			                   and a.dues_h_seq = b.dues_h_seq
+			                   AND ISNULL(regi_dt, '') != ''
+						       AND incom_flag = 'Y'
+			  		LEFT JOIN ( select  z.* 
+								  from dues_b_tbl z, dues_h_tbl x
+							     where z.code_pers  = x.code_pers
+							       AND x.incom_flag = 'Y'
+								   and x.dues_gubun = z.dues_gubun
+							       and x.dues_h_seq = z.dues_h_seq
+							   ) c on c.code_pers  = a.code_pers
+	 			                      and c.conform_yn = '3'
+                               left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+                               left join com_code e on e.groupcode = '006' and e.detcode = b.code_member
+                where a.dues_gubun in('1','4')  /* 2015년 회비변경으로 '4' 추가 */
+                  AND b.incom_flag = 'Y'
+                  <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+                  and c.code_receipt = #code_receipt#
+                  and a.receipt_dt <![CDATA[>=]]> #startdate#
+                  and a.receipt_dt <![CDATA[<=]]> #enddate#
+                  and b.code_pers = c.code_pers
+                  and b.dues_gubun = c.dues_gubun
+                  and b.dues_h_seq = c.dues_h_seq
+                group by a.code_bran, d.tempcd1, b.code_member, e.detcodename
+         
+       ) aa
+ group by code_bran, tempcd1, code_member, detcodename, bran_money
+      )bb
+ group by code_bran, tempcd1
+union all
+select '99'   ncount
+     , ''     code_bran
+     , 'TOTAL' tempcd1
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col3),0) col3
+     , isnull(SUM(col4),0) col4
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     
+     , isnull(SUM(col8)  ,0) col8 /* 2015년 회비변경으로 코드멤버 추가 */
+     , isnull(SUM(col9)  ,0) col9
+     , isnull(SUM(col10),0) col10
+     , isnull(SUM(col11),0) col11
+     , isnull(SUM(col12),0) col12
+     , isnull(SUM(col13),0) col13
+     , isnull(SUM(col14),0) col14
+     , isnull(SUM(col15),0) col15
+     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
+     							    + isnull(SUM(col3) ,0)
+     							    + isnull(SUM(col4) ,0)
+     							    + isnull(SUM(col5) ,0)
+     							    + isnull(SUM(col6) ,0)
+     							    + isnull(SUM(col7) ,0) 
+     							    + isnull(SUM(col8)  ,0) 
+					   			    + isnull(SUM(col9)  ,0) 
+								    + isnull(SUM(col10),0) 
+								    + isnull(SUM(col11),0) 
+								    + isnull(SUM(col12),0)
+								    + isnull(SUM(col13),0)
+								    + isnull(SUM(col14),0)
+								    + isnull(SUM(col15),0) totcount
+   <!--   , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col3),0)
+     + isnull(SUM(col4),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0) totcount -->
+     
+     
+     
+     , isnull(SUM(bran_money),0) bran_money
+  from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
+            , code_bran, tempcd1, code_member, detcodename
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1 /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6
+            , case when code_member = '07' then SUM(pers_count) end col7
+            
+            , case when code_member = '39' then SUM(pers_count) end col8   /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '40' then SUM(pers_count) end col9
+            , case when code_member = '41' then SUM(pers_count) end col10
+            , case when code_member = '42' then SUM(pers_count) end col11  
+            , case when code_member = '45' then SUM(pers_count) end col12 
+            , case when code_member = '46' then SUM(pers_count) end col13 
+            , case when code_member = '48' then SUM(pers_count) end col14 
+            , case when code_member = '49' then SUM(pers_count) end col15       
+            
+            , bran_money
+     
+         from (select ROW_NUMBER() over(order by b.code_member) number
+                    , a.code_bran, d.tempcd1, b.code_member, e.detcodename
+                    , count(a.code_pers) pers_count
+                    , sum(a.bran_money) bran_money
+                 from dues_P a 
+			         LEFT JOIN dues_h_tbl   b on b.code_pers = a.code_pers
+			                   and a.dues_gubun = b.dues_gubun 
+			                   and a.dues_h_seq = b.dues_h_seq
+			                   AND ISNULL(regi_dt, '') != ''
+						       AND incom_flag = 'Y'
+			  		LEFT JOIN ( select  z.* 
+								  from dues_b_tbl z, dues_h_tbl x
+							     where z.code_pers  = x.code_pers
+							       AND x.incom_flag = 'Y'
+								   and x.dues_gubun = z.dues_gubun
+							       and x.dues_h_seq = z.dues_h_seq
+							   ) c on c.code_pers  = a.code_pers
+	 			  					  and c.conform_yn = '3'
+                               left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+                               left join com_code e on e.groupcode = '006' and e.detcode = b.code_member
+                where a.dues_gubun in('1','4')  /* 2015년 회비변경으로 '4' 추가 */
+                  AND b.incom_flag = 'Y'
+                  <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+                  and c.code_receipt = #code_receipt#
+                  and a.receipt_dt <![CDATA[>=]]> #startdate#
+                  and a.receipt_dt <![CDATA[<=]]> #enddate#
+                  and b.code_pers = c.code_pers
+                  and b.dues_gubun = c.dues_gubun
+                  and b.dues_h_seq = c.dues_h_seq
+                group by a.code_bran, d.tempcd1, b.code_member, e.detcodename
+         
+       ) aa
+ group by code_bran, tempcd1, code_member, detcodename, bran_money
+      )bb
+</select>
+
+<select id="getMemberDepositList_2" resultClass="java.util.HashMap">
+select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
+     , code_bran , tempcd1
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col3),0) col3
+     , isnull(SUM(col4),0) col4
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     
+     , isnull(SUM(col8)  ,0) col8
+     , isnull(SUM(col9)  ,0) col9
+     , isnull(SUM(col10),0) col10
+     , isnull(SUM(col11),0) col11
+     , isnull(SUM(col12),0) col12
+     , isnull(SUM(col13),0) col13
+     , isnull(SUM(col14),0) col14
+     , isnull(SUM(col15),0) col15
+     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
+     							    + isnull(SUM(col3) ,0)
+     							    + isnull(SUM(col4) ,0)
+     							    + isnull(SUM(col5) ,0)
+     							    + isnull(SUM(col6) ,0)
+     							    + isnull(SUM(col7) ,0) 
+     							    + isnull(SUM(col8)  ,0) 
+					   			    + isnull(SUM(col9)  ,0) 
+								    + isnull(SUM(col10),0) 
+								    + isnull(SUM(col11),0) 
+								    + isnull(SUM(col12),0)
+								    + isnull(SUM(col13),0)
+								    + isnull(SUM(col14),0)
+								    + isnull(SUM(col15),0) totcount
+     
+    <!--  , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col3),0)
+     + isnull(SUM(col4),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0) totcount -->
+     
+     , isnull(SUM(bran_money),0) bran_money
+  from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
+            , code_bran, tempcd1, code_member, detcodename
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1  /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6            
+            , case when code_member = '07' then SUM(pers_count) end col7
+            
+            , case when code_member = '39' then SUM(pers_count) end col8    /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '40' then SUM(pers_count) end col9
+            , case when code_member = '41' then SUM(pers_count) end col10
+            , case when code_member = '42' then SUM(pers_count) end col11  
+            , case when code_member = '45' then SUM(pers_count) end col12
+            , case when code_member = '46' then SUM(pers_count) end col13 
+            , case when code_member = '48' then SUM(pers_count) end col14
+          	, case when code_member = '49' then SUM(pers_count) end col15 
+            
+            
+            , bran_money
+     
+         from (select ROW_NUMBER() over(order by b.code_member) number
+                    , a.code_bran, d.tempcd1, b.code_member, e.detcodename
+                    , count(a.code_pers) pers_count
+                    , sum(a.center_money) bran_money
+                 from dues_P a 
+			         LEFT JOIN dues_h_tbl   b on b.code_pers = a.code_pers
+			                   and a.dues_gubun = b.dues_gubun 
+			                   and a.dues_h_seq = b.dues_h_seq
+			                   AND ISNULL(regi_dt, '') != ''
+						       AND incom_flag = 'Y'
+			  		LEFT JOIN ( select  z.* 
+								  from dues_b_tbl z, dues_h_tbl x
+							     where z.code_pers  = x.code_pers
+							       AND x.incom_flag = 'Y'
+								   and x.dues_gubun = z.dues_gubun
+							       and x.dues_h_seq = z.dues_h_seq
+							   ) c on c.code_pers  = a.code_pers
+			  	 			          and c.conform_yn = '3'
+                               left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+                               left join com_code e on e.groupcode = '006' and e.detcode = b.code_member
+                where a.dues_gubun in('1','4') /* 2015년 회비변경으로 코드멤버 추가 */
+                  AND b.incom_flag = 'Y'
+                  <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+                  and c.code_receipt = #code_receipt#
+                  and a.receipt_dt <![CDATA[>=]]> #startdate#
+                  and a.receipt_dt <![CDATA[<=]]> #enddate#
+                  and b.code_pers = c.code_pers
+                  and b.dues_gubun = c.dues_gubun
+                  and b.dues_h_seq = c.dues_h_seq
+                group by a.code_bran, d.tempcd1, b.code_member, e.detcodename
+         
+       ) aa
+ group by code_bran, tempcd1, code_member, detcodename, bran_money
+      )bb
+ group by code_bran, tempcd1
+union all
+select '99'   ncount
+     , ''     code_bran
+     , 'TOTAL' tempcd1
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col3),0) col3
+     , isnull(SUM(col4),0) col4
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     
+     , isnull(SUM(col8)  ,0) col8
+     , isnull(SUM(col9)  ,0) col9
+     , isnull(SUM(col10),0) col10
+     , isnull(SUM(col11),0) col11
+     , isnull(SUM(col12),0) col12
+     , isnull(SUM(col13),0) col13
+     , isnull(SUM(col14),0) col14
+     , isnull(SUM(col15),0) col15
+     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
+     							    + isnull(SUM(col3) ,0)
+     							    + isnull(SUM(col4) ,0)
+     							    + isnull(SUM(col5) ,0)
+     							    + isnull(SUM(col6) ,0)
+     							    + isnull(SUM(col7) ,0) 
+     							    + isnull(SUM(col8)  ,0) 
+					   			    + isnull(SUM(col9)  ,0) 
+								    + isnull(SUM(col10),0) 
+								    + isnull(SUM(col11),0) 
+								    + isnull(SUM(col12),0)
+								    + isnull(SUM(col13),0)
+								    + isnull(SUM(col14),0)
+								    + isnull(SUM(col15),0) totcount
+     
+     
+   <!--   , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col3),0)
+     + isnull(SUM(col4),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0) totcount -->
+     
+     , isnull(SUM(bran_money),0) bran_money
+  from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
+            , code_bran, tempcd1, code_member, detcodename
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1  /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6            
+            , case when code_member = '07' then SUM(pers_count) end col7
+            
+            , case when code_member = '39' then SUM(pers_count) end col8    /* 2015년 회비변경으로 코드멤버 추가 */
+            , case when code_member = '40' then SUM(pers_count) end col9
+            , case when code_member = '41' then SUM(pers_count) end col10
+            , case when code_member = '42' then SUM(pers_count) end col11  
+            , case when code_member = '45' then SUM(pers_count) end col12
+            , case when code_member = '46' then SUM(pers_count) end col13 
+            , case when code_member = '48' then SUM(pers_count) end col14
+          	, case when code_member = '49' then SUM(pers_count) end col15 
+          	
+            , bran_money
+     
+         from (select ROW_NUMBER() over(order by b.code_member) number
+                    , a.code_bran, d.tempcd1, b.code_member, e.detcodename
+                    , count(a.code_pers) pers_count
+                    , sum(a.center_money) bran_money
+                 from dues_P a 
+			         LEFT JOIN dues_h_tbl   b on b.code_pers = a.code_pers
+			                   and a.dues_gubun = b.dues_gubun 
+			                   and a.dues_h_seq = b.dues_h_seq
+			                   AND ISNULL(regi_dt, '') != ''
+						       AND incom_flag = 'Y'
+			  		LEFT JOIN ( select  z.* 
+								  from dues_b_tbl z, dues_h_tbl x
+							     where z.code_pers  = x.code_pers
+							       AND x.incom_flag = 'Y'
+								   and x.dues_gubun = z.dues_gubun
+							       and x.dues_h_seq = z.dues_h_seq
+							   ) c on c.code_pers  = a.code_pers
+				 			          and c.conform_yn = '3'
+                               left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+                               left join com_code e on e.groupcode = '006' and e.detcode = b.code_member
+                where a.dues_gubun in('1','4') /* 2015년 회비변경으로 코드멤버 추가 */
+                  AND b.incom_flag = 'Y'
+                  <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+                  and c.code_receipt = #code_receipt#
+                  and a.receipt_dt <![CDATA[>=]]> #startdate#
+                  and a.receipt_dt <![CDATA[<=]]> #enddate#
+                  and b.code_pers = c.code_pers
+                  and b.dues_gubun = c.dues_gubun
+                  and b.dues_h_seq = c.dues_h_seq
+                group by a.code_bran, d.tempcd1, b.code_member, e.detcodename
+         
+       ) aa
+ group by code_bran, tempcd1, code_member, detcodename, bran_money
+      )bb
+</select>
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.25
+	 * 작   업 : getMemberDepositCount_3	회원>예수금현황>평생회비 예수금(tab_3) 페이징 카운터
+	 -->
+<select id="getMemberDepositCount_3" resultClass="java.util.HashMap">
+select count(ncount) ncount
+  from(select ROW_NUMBER() over (order by b.pers_name) ncount
+         from dues_P a left join Person_M_TBL b on a.code_pers = b.code_pers and b.mem_gubun = 1
+			         LEFT JOIN dues_h_tbl   c on c.code_pers = a.code_pers
+			                   and a.dues_gubun = c.dues_gubun 
+			                   and a.dues_h_seq = c.dues_h_seq
+			                   AND c.auth_end   = (select MAX(auth_end)
+			                                        FROM dues_h_tbl
+			                                       WHERE code_pers = a.code_pers
+			                                        /* AND ISNULL(regi_dt, '') != '' */
+			                                         AND incom_flag = 'Y')
+					  LEFT JOIN ( select  w.code_pers, (w.conform_dt) conform_dt, w.dues_h_seq dues_h_seq
+					                   , (w.dues_gubun) dues_gubun, (w.code_inout_gubun) code_inout_gubun
+								from dues_b_tbl w, (
+								select  z.code_pers, z.dues_gubun, z.dues_h_seq, z.dues_b_seq,  max(z.conform_dt) conform_dt
+												from dues_b_tbl z, dues_h_tbl x
+											  where z.code_pers  = x.code_pers
+							  	                and z.dues_gubun = x.dues_gubun
+							  	                and z.dues_h_seq = x.dues_h_seq
+					          					and x.incom_flag = 'Y'
+												AND z.dues_gubun = (select MAX(dues_gubun)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   and conform_yn = '3')    
+												AND z.dues_h_seq = (select MAX(dues_h_seq)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   AND dues_gubun = x.dues_gubun
+																	   and conform_yn = '3')   
+												AND z.dues_b_seq = (select MAX(dues_b_seq)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   AND dues_gubun = x.dues_gubun
+																	   AND dues_h_seq = x.dues_h_seq
+																	   and conform_yn = '3')  
+											  group by z.code_pers, z.dues_gubun, z.dues_h_seq, z.dues_b_seq) q
+								  where w.code_pers = q.code_pers
+								    and w.dues_gubun = q.dues_gubun
+								    and w.dues_h_seq = q.dues_h_seq
+								    and w.dues_b_seq = q.dues_b_seq
+									and w.conform_dt = q.conform_dt
+					            ) d on d.code_pers  = a.code_pers
+                        left join com_code    e on e.groupcode = '006' and e.detcode = b.code_member
+                        left join com_code    f on f.groupcode = '007' and f.detcode = b.code_bran 
+                        left join com_code    g on g.groupcode = '015' and g.detcode = d.code_inout_gubun
+                        left join com_code    h on h.groupcode = '025' and h.detcode = b.code_email_comp
+                        left join com_code    i on i.groupcode = '038' and i.detcode = a.dues_gubun
+                        
+                        left join pers_company j on j.code_pers = a.code_pers
+                                                and j.primary_flag = '1'
+                                                and j.comp_seq = (select MAX(comp_seq)
+                                                                    from pers_company ZZ
+                                                                   where zz.primary_flag = '1'
+                                                                     and ZZ.code_pers = a.code_pers)
+        where 1=1
+          and a.dues_gubun         = '2'
+          and c.incom_flag           = 'Y'
+          and d.code_inout_gubun = '1'
+         /* and ISNULL(a.receipt_dt, '') != '' */ 
+          and d.code_pers = c.code_pers
+          and d.dues_gubun = c.dues_gubun
+          and d.dues_h_seq = c.dues_h_seq
+          <dynamic prepend="and">	<isNotEmpty property="receipt_year">			a.receipt_year        = #receipt_year#			</isNotEmpty>	</dynamic>
+          <dynamic prepend="and">	<isNotEmpty property="pers_mem_order">	a.pers_mem_order   = #pers_mem_order#		</isNotEmpty>	</dynamic>
+      )sout
+</select> 
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.25
+	 * 작   업 : getMemberDepositList_3	회원>예수금현황>평생회비 예수금(tab_3) 조회 출력
+	 -->
+<select id="getMemberDepositList_3" resultClass="java.util.HashMap">
+
+select SOUT.*
+  from(select ROW_NUMBER() over (order by b.pers_name) NCOUNT
+            , ISNULL(b.pers_name,'') pers_name
+<!--             JUMIN_DEL -->
+<!--             , ISNULL([DBO].[GetPersNodecord](b.pers_no,#check#),'') pers_no -->
+            , ISNULL(b.pers_birth,'') pers_birth
+            , ISNULL(b.lic_no,'') lic_no
+            , ISNULL(b.regi_dt,'') regi_dt
+            , ISNULL(f.tempcd1,'') code_bran
+            , ISNULL(j.company_name,'') company_name
+            , ISNULL(b.pers_tel,'') pers_tel
+            , case when b.code_email_comp = '01' or ISNULL(b.code_email_comp, '') = '' then b.email
+                   else RTRIM(b.email) + '@' + g.detcodename end email
+            , ISNULL(d.conform_dt,'') pers_lert_st
+            , ISNULL(a.pers_mem_order,'' ) pers_mem_order
+            , isnull(l.detcodename	, '') han_code_member
+		    , isnull(m.detcodename	, '') han_code_big
+		    , isnull(n.detcodename	, '') han_code_sect
+		    , isnull(j.company_add,'') + ' ' + isnull(j.company_add_detail,'') comp_addr
+		    , isnull(b.pers_add,'') + ' ' + isnull(b.pers_add_detail,'') pers_addr
+         from dues_P a left join Person_M_TBL b on a.code_pers = b.code_pers and b.mem_gubun = 1
+			         LEFT JOIN dues_h_tbl   c on c.code_pers = a.code_pers
+			                   and a.dues_gubun = c.dues_gubun 
+			                   and a.dues_h_seq = c.dues_h_seq
+			                   AND c.auth_end   = (select MAX(auth_end)
+			                                        FROM dues_h_tbl
+			                                       WHERE code_pers = a.code_pers
+			                                        /* AND ISNULL(regi_dt, '') != '' */
+			                                         AND incom_flag = 'Y')
+					  LEFT JOIN ( select  w.code_pers, (w.conform_dt) conform_dt, w.dues_h_seq dues_h_seq
+					                   , (w.dues_gubun) dues_gubun, (w.code_inout_gubun) code_inout_gubun
+								from dues_b_tbl w, (
+								select  z.code_pers, z.dues_gubun, z.dues_h_seq, z.dues_b_seq,  max(z.conform_dt) conform_dt
+												from dues_b_tbl z, dues_h_tbl x
+											  where z.code_pers  = x.code_pers
+							  	                and z.dues_gubun = x.dues_gubun
+							  	                and z.dues_h_seq = x.dues_h_seq
+					          					and x.incom_flag = 'Y'
+					          					<!-- 17.12.22 dues_gubun 개선 (평생회비만 조회되도록) by areum
+												AND z.dues_gubun = (select MAX(dues_gubun)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   and conform_yn = '3') 
+												-->
+												AND z.dues_gubun = '2'					      
+												AND z.dues_h_seq = (select MAX(dues_h_seq)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   AND dues_gubun = x.dues_gubun
+																	   and conform_yn = '3')   
+												AND z.dues_b_seq = (select MAX(dues_b_seq)
+																	  FROM dues_b_tbl
+																	 WHERE code_pers  = x.code_pers
+																	   AND dues_gubun = x.dues_gubun
+																	   AND dues_h_seq = x.dues_h_seq
+																	   and conform_yn = '3')  
+											  group by z.code_pers, z.dues_gubun, z.dues_h_seq, z.dues_b_seq) q
+								  where w.code_pers = q.code_pers
+								    and w.dues_gubun = q.dues_gubun
+								    and w.dues_h_seq = q.dues_h_seq
+								    and w.dues_b_seq = q.dues_b_seq
+									and w.conform_dt = q.conform_dt
+					            ) d on d.code_pers  = a.code_pers
+                        left join com_code    e on e.groupcode = '006' and e.detcode = b.code_member
+                        left join com_code    f on f.groupcode = '007' and f.detcode = a.code_bran 
+                        left join com_code    g on g.groupcode = '015' and g.detcode = d.code_inout_gubun
+                        left join com_code    h on h.groupcode = '025' and h.detcode = b.code_email_comp
+                        left join com_code    i on i.groupcode = '038' and i.detcode = a.dues_gubun
+                        left join com_code    l on l.groupcode = '006' and l.detcode = b.code_member
+						left join com_code    m on m.groupcode = '004' and m.detcode = b.code_big
+						left join com_code    n on n.groupcode = '009' and n.detcode = b.code_sect
+      
+                        left join pers_company j on j.code_pers = a.code_pers
+                                                and j.primary_flag = '1'
+                                                and j.comp_seq = (select MAX(comp_seq)
+                                                                    from pers_company ZZ
+                                                                   where zz.primary_flag = '1'
+                                                                     and ZZ.code_pers = a.code_pers)
+                        
+        where 1=1
+          and a.dues_gubun         = '2'
+          and c.incom_flag           = 'Y'
+          and d.code_inout_gubun = '1'
+         /* and ISNULL(a.receipt_dt, '') != '' */ 
+          and d.code_pers = c.code_pers
+          and d.dues_gubun = c.dues_gubun
+          and d.dues_h_seq = c.dues_h_seq
+          <dynamic prepend="and">	<isNotEmpty property="receipt_year">			a.receipt_year        = #receipt_year#			</isNotEmpty>	</dynamic>
+          <dynamic prepend="and">	<isNotEmpty property="pers_mem_order">	a.pers_mem_order   = #pers_mem_order#		</isNotEmpty>	</dynamic>
+
+       
+      )SOUT
+ where sout.ncount > #nstart#
+    and sout.ncount <![CDATA[<=]]> #nend#
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.29
+	 * 작   업 : getMemberDepositList_4	회원>예수금현황>평생회비 예수금 현황(tab_4) 조회 출력
+	 -->
+<select id="getMemberDepositList_4" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by receipt_year desc, pers_mem_order) number
+     , receipt_year
+     , pers_mem_order
+     , SUM(isnull(col2,0)) col2
+     , SUM(isnull(col3,0)) col3
+     , SUM(isnull(col4,0)) col4
+     , SUM(isnull(col5,0)) col5
+     , SUM(isnull(col6,0)) col6
+     , SUM(isnull(col7,0)) col7
+     , SUM(isnull(col8,0)) col8
+     , SUM(isnull(col9,0)) col9
+     , SUM(isnull(col10,0)) col10
+     , SUM(isnull(col11,0)) col11
+     , SUM(isnull(col12,0)) col12
+     , SUM(isnull(col13,0)) col13
+     , SUM(isnull(col14,0)) col14
+     
+     , sum(isnull(col2,0)) + sum(isnull(col3,0)) + sum(isnull(col4,0)) + sum(isnull(col5,0)) + sum(isnull(col6,0))
+     + sum(isnull(col7,0)) + sum(isnull(col8,0)) + sum(isnull(col9,0)) + sum(isnull(col10,0))+ sum(isnull(col11,0))
+     + sum(isnull(col12,0))+ sum(isnull(col13,0))+ sum(isnull(col14,0)) totcount
+  from(select ROW_NUMBER() over(order by pers_mem_order, code_bran) number
+            , receipt_year
+            , pers_mem_order
+            , case when code_bran = '02' then pers_count end col2
+            , case when code_bran = '03' then pers_count end col3
+            , case when code_bran = '04' then pers_count end col4
+            , case when code_bran = '05' then pers_count end col5
+            , case when code_bran = '06' then pers_count end col6
+            , case when code_bran = '07' then pers_count end col7
+            , case when code_bran = '08' then pers_count end col8
+            , case when code_bran = '09' then pers_count end col9
+            , case when code_bran = '10' then pers_count end col10
+            , case when code_bran = '11' then pers_count end col11
+            , case when code_bran = '12' then pers_count end col12
+            , case when code_bran = '13' then pers_count end col13
+            , case when code_bran = '14' then pers_count end col14
+        from (select ROW_NUMBER() over(order by a.code_bran, a.pers_mem_order) number
+                   , a.code_bran
+                   , c.tempcd1
+                   , a.pers_mem_order
+                   , count(b.code_bran) pers_count
+                   , b.receipt_year
+                   , a.receipt_year inParam
+                from dues_P a left join dues_P	b on b.code_pers      = a.code_pers
+                                                   and b.dues_gubun     = a.dues_gubun
+                                                   and b.dues_h_seq     = a.dues_h_seq
+                                                   and b.pers_mem_order = '1'
+                              left join com_code	c on c.groupcode = '007' and c.detcode = a.code_bran 
+               where a.dues_gubun = '2'            /* 평생회비이고 */
+                 and a.auth_flag = 'Y'             /* 배치처리 되었는것 */
+          
+                 and a.receipt_year = #receipt_year#
+               group by  a.code_bran, a.pers_mem_order, c.tempcd1, b.receipt_year, a.receipt_year
+            )sout
+      )bb
+  group by receipt_year, pers_mem_order
+</select>
+
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositCount_5_1	회원>예수금현황>예수금현황_연회원(tab_5_1) 페이징용 카운터
+	 -->
+<select id="getMemberDepositCount_5_1" resultClass="java.util.HashMap">
+
+select COUNT(groupcode) +1  ncount
+  from com_code f
+ where f.groupcode = '007'
+ group by groupcode    
+</select>
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositList_5_1	회원>예수금현황>예수금현황_연회원(tab_5_1) 조회 출력
+	 -->
+<select id="getMemberDepositList_5_1" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_receipt, code_bran) number
+     , isnull(code_receipt,'') code_receipt
+     , isnull(g.detcodename,'') detcodename /* 처리장소 : 본회, 지회 */
+     , code_bran   , f.tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     , isnull(SUM(col8),0) col8
+     , isnull(SUM(col9),0) col9
+     
+     , isnull(SUM(col39),0) col39
+     , isnull(SUM(col40),0) col40
+     , isnull(SUM(col41),0) col41
+	 , isnull(SUM(col42),0) col42
+	 , isnull(SUM(col45),0) col45
+	 , isnull(SUM(col46),0) col46
+	 , isnull(SUM(col48),0) col48
+	 , isnull(SUM(col49),0) col49
+     
+     , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0)
+     + isnull(SUM(col8),0)
+     + isnull(SUM(col9),0)
+     
+     + isnull(SUM(col39),0)
+     + isnull(SUM(col40),0)
+     + isnull(SUM(col41),0)
+	 + isnull(SUM(col42),0)
+	 + isnull(SUM(col45),0)
+	 + isnull(SUM(col46),0)
+	 + isnull(SUM(col48),0)
+	 + isnull(SUM(col49),0) totcount  
+	 
+  from(select ROW_NUMBER() over(order by code_receipt, code_bran, code_member) ncount
+            , code_receipt/* 처리장소 : 본회, 지회 */
+            , code_member /* 회원종류 : 신규, 기   */
+            , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
+            , case when code_member = '07' then mem_dues end col7
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
+            
+            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원 (년)    */
+            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)     */
+            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원     */           
+		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원  */   
+		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원       */   
+		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원    */   
+		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원     */   
+		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원       */   
+     
+         from(select count(ncount) ncount
+                   , code_receipt/* 처리장소 : 본회, 지회 */
+                   , code_member /* 회원종류 : 신규, 기   */
+                   , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                   , sum(mem_dues) mem_dues
+                from(select ROW_NUMBER() over(order by b.code_receipt, c.code_bran, a.code_member) ncount
+                          , b.code_receipt/* 처리장소 : 본회, 지회 */
+                          , a.code_member /* 회원종류 : 신규, 기   */
+                          , c.code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                          , a.mem_dues
+            
+                       from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                               and b.conform_yn = '3'
+                                                               and a.incom_flag = 'Y'
+                                                               and b.code_pers  = a.code_pers
+                                                               and b.dues_gubun = a.dues_gubun
+                                                               and b.dues_h_seq = a.dues_h_seq
+                                                               and b.dues_b_seq = (select max(dues_b_seq)
+                                                                                     from dues_b_tbl z
+                                                                                    where z.code_inout_gubun = '1'
+                                                                                      and z.conform_yn = '3'
+                                                                                      and z.code_pers  = a.code_pers
+                                                                                      and z.dues_gubun = a.dues_gubun
+                                                                                      and z.dues_h_seq = a.dues_h_seq )
+                                         left join dues_P     c on c.pers_mem_order = '1'
+                                                               and c.code_pers  = a.code_pers 
+                                                               and c.dues_gubun = a.dues_gubun
+                                                               and c.dues_h_seq = a.dues_h_seq
+                      where a.dues_gubun  IN( '1','4')     /* 기본조건 : 년회비 */ /*20150113 기본조건 CMS 추가*/
+                        and a.incom_flag = 'Y'
+                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+                    )sout
+               group by code_receipt/* 처리장소 : 본회, 지회 */
+                      , code_member /* 회원종류 : 신규, 기   */
+                      , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+             )sout
+      )sout left join com_code e on e.groupcode = '006' and e.detcode = code_member
+            left join com_code f on f.groupcode = '007' and f.detcode = code_bran
+            left join com_code g on g.groupcode = '013' and g.detcode = code_receipt
+  group by  code_receipt, g.detcodename /* 처리장소 : 본회, 지회 */
+          , code_bran   , f.tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+          
+union all
+/* 소계 */
+select ROW_NUMBER() over(order by code_receipt) number
+     , isnull(code_receipt,'') code_receipt
+     , 'SUM' detcodename /* 처리장소 : 본회, 지회 */
+     , '15' code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     , isnull(SUM(col8),0) col8
+     , isnull(SUM(col9),0) col9
+     
+     , isnull(SUM(col39),0) col39
+	 , isnull(SUM(col40),0) col40
+     , isnull(SUM(col41),0) col41
+	 , isnull(SUM(col42),0) col42
+	 , isnull(SUM(col45),0) col45
+	 , isnull(SUM(col46),0) col46
+	 , isnull(SUM(col48),0) col48
+	 , isnull(SUM(col49),0) col49
+     
+     , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0)
+     + isnull(SUM(col8),0)
+     + isnull(SUM(col9),0) 
+     
+     + isnull(SUM(col39),0)
+     + isnull(SUM(col40),0)
+     + isnull(SUM(col41),0)
+	 + isnull(SUM(col42),0)
+	 + isnull(SUM(col45),0)
+	 + isnull(SUM(col46),0)
+	 + isnull(SUM(col48),0)
+	 + isnull(SUM(col49),0) totcount
+  from(select ROW_NUMBER() over(order by code_receipt, code_member, code_bran) ncount
+            , code_receipt/* 처리장소 : 본회, 지회 */
+            , code_member /* 회원종류 : 신규, 기   */
+            , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
+            , case when code_member = '07' then mem_dues end col7
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
+            
+            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원(년)     */
+            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)    */
+            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원     */           
+		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원  */   
+		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원       */   
+		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원    */   
+		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원     */   
+		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원       */  
+     
+         from(select count(ncount) ncount
+                   , code_receipt/* 처리장소 : 본회, 지회 */
+                   , code_member /* 회원종류 : 신규, 기   */
+                   , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                   , sum(mem_dues) mem_dues
+                from(select ROW_NUMBER() over(order by b.code_receipt, c.code_bran, a.code_member) ncount
+                          , b.code_receipt/* 처리장소 : 본회, 지회 */
+                          , a.code_member /* 회원종류 : 신규, 기   */
+                          , c.code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                          , a.mem_dues
+            
+                       from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                               and b.conform_yn = '3'
+                                                               and a.incom_flag = 'Y'
+                                                               and b.code_pers  = a.code_pers
+                                                               and b.dues_gubun = a.dues_gubun
+                                                               and b.dues_h_seq = a.dues_h_seq
+                                                               and b.dues_b_seq = (select max(dues_b_seq)
+                                                                                     from dues_b_tbl z
+                                                                                    where z.code_inout_gubun = '1'
+                                                                                      and z.conform_yn = '3'
+                                                                                      and z.code_pers  = a.code_pers
+                                                                                      and z.dues_gubun = a.dues_gubun
+                                                                                      and z.dues_h_seq = a.dues_h_seq )
+                                         left join dues_P     c on c.pers_mem_order = '1'
+                                                               and c.code_pers  = a.code_pers 
+                                                               and c.dues_gubun = a.dues_gubun
+                                                               and c.dues_h_seq = a.dues_h_seq
+                      where a.dues_gubun   IN ('1','4')     /* 기본조건 : 년회비  */ /*20150113 기본조건 CMS 추가*/
+                        and a.incom_flag = 'Y'
+                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */                                                           
+                    )sout
+               group by code_receipt/* 처리장소 : 본회, 지회 */
+                      , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                      , code_member /* 회원종류 : 신규, 기   */
+             )sout
+      )sout left join com_code e on e.groupcode = '006' and e.detcode = code_member
+            left join com_code f on f.groupcode = '007' and f.detcode = code_bran
+            left join com_code g on g.groupcode = '013' and g.detcode = code_receipt
+  group by  code_receipt, g.detcodename /* 처리장소 : 본회, 지회 */
+
+union all
+/* 총계 */
+select '9' number
+    , '3' code_receipt, 'TOTAL' detcodename /* 처리장소 : 본회, 지회 */
+     , ''code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+     , isnull(SUM(col1),0) col1
+     , isnull(SUM(col2),0) col2
+     , isnull(SUM(col5),0) col5
+     , isnull(SUM(col6),0) col6
+     , isnull(SUM(col7),0) col7
+     , isnull(SUM(col8),0) col8
+     , isnull(SUM(col9),0) col9
+     
+     , isnull(SUM(col39),0) col39
+     , isnull(SUM(col40),0) col40
+     , isnull(SUM(col41),0) col41
+	 , isnull(SUM(col42),0) col42
+	 , isnull(SUM(col45),0) col45
+	 , isnull(SUM(col46),0) col46
+	 , isnull(SUM(col48),0) col48
+	 , isnull(SUM(col49),0) col49
+     
+     , isnull(SUM(col1),0)
+     + isnull(SUM(col2),0)
+     + isnull(SUM(col5),0)
+     + isnull(SUM(col6),0)
+     + isnull(SUM(col7),0)
+     + isnull(SUM(col8),0)
+     + isnull(SUM(col9),0) 
+     
+     + isnull(SUM(col39),0)
+     + isnull(SUM(col40),0)
+     + isnull(SUM(col41),0)
+	 + isnull(SUM(col42),0)
+	 + isnull(SUM(col45),0)
+	 + isnull(SUM(col46),0)
+	 + isnull(SUM(col48),0)
+	 + isnull(SUM(col49),0) totcount
+  from(select ROW_NUMBER() over(order by code_receipt, code_member, code_bran) ncount
+            , code_receipt/* 처리장소 : 본회, 지회 */
+            , code_member /* 회원종류 : 신규, 기   */
+            , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
+            , case when code_member = '07' then mem_dues end col7
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
+            
+            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원(년)      */
+            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)      */
+            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원      */           
+		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원   */   
+		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원        */   
+		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원     */   
+		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원      */   
+		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원        */
+     
+         from(select count(ncount) ncount
+                   , code_receipt/* 처리장소 : 본회, 지회 */
+                   , code_member /* 회원종류 : 신규, 기   */
+                   , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                   , sum(mem_dues) mem_dues
+                from(select ROW_NUMBER() over(order by b.code_receipt, c.code_bran, a.code_member) ncount
+                          , b.code_receipt/* 처리장소 : 본회, 지회 */
+                          , a.code_member /* 회원종류 : 신규, 기   */
+                          , c.code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                          , a.mem_dues
+            
+                       from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                               and b.conform_yn = '3'
+                                                               and a.incom_flag = 'Y'
+                                                               and b.code_pers  = a.code_pers
+                                                               and b.dues_gubun = a.dues_gubun
+                                                               and b.dues_h_seq = a.dues_h_seq
+                                                               and b.dues_b_seq = (select max(dues_b_seq)
+                                                                                     from dues_b_tbl z
+                                                                                    where z.code_inout_gubun = '1'
+                                                                                      and z.conform_yn = '3'
+                                                                                      and z.code_pers  = a.code_pers
+                                                                                      and z.dues_gubun = a.dues_gubun
+                                                                                      and z.dues_h_seq = a.dues_h_seq )
+                                         left join dues_P     c on c.pers_mem_order = '1'
+                                                               and c.code_pers  = a.code_pers 
+                                                               and c.dues_gubun = a.dues_gubun
+                                                               and c.dues_h_seq = a.dues_h_seq
+                      where a.dues_gubun  IN ( '1','4')     /* 기본조건 : 년회비 */  /*20150113 기본조건 CMS 추가*/
+                        and a.incom_flag = 'Y'
+                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+                    )sout
+               group by code_receipt/* 처리장소 : 본회, 지회 */
+                      , code_bran   /* 해당지부 : 서울, 부산... 제주 */
+                      , code_member /* 회원종류 : 신규, 기   */
+             )sout
+      )sout left join com_code e on e.groupcode = '006' and e.detcode = code_member
+            left join com_code f on f.groupcode = '007' and f.detcode = code_bran
+            left join com_code g on g.groupcode = '013' and g.detcode = code_receipt
+ order by code_receipt, code_bran
+ 
+</select>
+
+
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositCount_5_2	회원>예수금현황>예수금현황_평생회원(tab_5_2) 페이징용 카운터
+	 -->
+<select id="getMemberDepositCount_5_2" resultClass="java.util.HashMap">
+select case when count(number) = 0 then 1
+            else COUNT(number) + 14 end ncount
+  from(select ROW_NUMBER() over( order by code_bran, code_member) number
+            , code_bran   ,f.tempcd1
+            , code_member ,e.detcodename
+            , bran_money     bran_money
+            , count(number)  totCount
+            , SUM(bran_money)totBran_money
+         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+                   , c.code_bran  /* 지부 */ 
+                   , a.code_member/* 회원종류 */
+                   , c.bran_money                   /* 예수금 */
+            
+                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                        and b.conform_yn = '3'
+                                                        and a.incom_flag = 'Y'
+                                                        and b.code_pers  = a.code_pers
+                                                        and b.dues_gubun = a.dues_gubun
+                                                        and b.dues_h_seq = a.dues_h_seq
+                                                        and b.dues_b_seq = (select max(dues_b_seq)
+                                                                              from dues_b_tbl z
+                                                                             where z.code_inout_gubun = '1'
+                                                                               and z.conform_yn = '3'
+                                                                               and z.code_pers  = a.code_pers
+                                                                               and z.dues_gubun = a.dues_gubun
+                                                                               and z.dues_h_seq = a.dues_h_seq )
+                                  inner join dues_P     c on a.code_pers  = c.code_pers
+                                                        and a.dues_gubun = c.dues_gubun
+                                                        and a.dues_h_seq = c.dues_h_seq
+                                                        and c.auth_flag  = 'Y'
+                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+                 and a.dues_gubun   = '2'     /* 기본조건 : 평생회비 */
+                 
+              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+         group by code_bran, code_member,f.tempcd1, e.detcodename, bran_money
+      )sout 
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositList_5_2	회원>예수금현황>예수금현황_평생회원(tab_5_2) 조회 출력
+	 -->
+<select id="getMemberDepositList_5_2" resultClass="java.util.HashMap">
+
+select *
+from (
+select ROW_NUMBER() over (order by code_bran) number
+     , code_bran   ,tempcd1
+     , code_member ,detcodename
+     , bran_money
+     , totCount
+     , totBran_money
+from (
+
+select isnull(code_bran, '') code_bran
+     , isnull(tempcd1, '') tempcd1
+     , isnull(code_member, '') code_member
+     , isnull(detcodename, '') detcodename
+     , isnull(bran_money, '') bran_money
+     , isnull(totCount, '') totCount
+     , isnull(totBran_money, '') totBran_money
+  from(select code_bran   ,f.tempcd1
+            , code_member ,e.detcodename
+            , bran_money     bran_money
+            , count(number)  totCount
+            , SUM(bran_money)totBran_money
+         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+                   , c.code_bran  /* 지부 */ 
+                   , a.code_member/* 회원종류 */
+                   , c.bran_money                   /* 예수금 */
+            
+                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                        and b.conform_yn = '3'
+                                                        and a.incom_flag = 'Y'
+                                                        and b.code_pers  = a.code_pers
+                                                        and b.dues_gubun = a.dues_gubun
+                                                        and b.dues_h_seq = a.dues_h_seq
+                                                        and b.dues_b_seq = (select max(dues_b_seq)
+                                                                              from dues_b_tbl z
+                                                                             where z.code_inout_gubun = '1'
+                                                                               and z.conform_yn = '3'
+                                                                               and z.code_pers  = a.code_pers
+                                                                               and z.dues_gubun = a.dues_gubun
+                                                                               and z.dues_h_seq = a.dues_h_seq )
+                                  inner join dues_P     c on a.code_pers  = c.code_pers
+                                                        and a.dues_gubun = c.dues_gubun
+                                                        and a.dues_h_seq = c.dues_h_seq
+                                                        and c.auth_flag  = 'Y'
+                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+                 and a.dues_gubun   = '2'     /* 기본조건 : 평생회비 */
+                 
+              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+         group by code_bran, code_member,f.tempcd1, e.detcodename, bran_money
+      )sout 
+      union all
+/* 소계 */
+select isnull(code_bran, '') code_bran
+     , 'SUM' tempcd1
+     , '99' code_member
+     , '' detcodename
+     , isnull(sum(bran_money), '')    bran_money
+     , isnull(sum(totCount), '')      totCount
+     , isnull(sum(totBran_money), '') totBran_money
+  from(select ROW_NUMBER() over( order by code_bran, code_member) number
+            , code_bran   ,f.tempcd1
+            , code_member ,e.detcodename
+            , bran_money     bran_money
+            , count(number)  totCount
+            , SUM(bran_money)totBran_money
+         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+                   , c.code_bran  /* 지부 */ 
+                   , a.code_member/* 회원종류 */
+                   , c.bran_money                   /* 예수금 */
+            
+                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                        and b.conform_yn = '3'
+                                                        and a.incom_flag = 'Y'
+                                                        and b.code_pers  = a.code_pers
+                                                        and b.dues_gubun = a.dues_gubun
+                                                        and b.dues_h_seq = a.dues_h_seq
+                                                        and b.dues_b_seq = (select max(dues_b_seq)
+                                                                              from dues_b_tbl z
+                                                                             where z.code_inout_gubun = '1'
+                                                                               and z.conform_yn = '3'
+                                                                               and z.code_pers  = a.code_pers
+                                                                               and z.dues_gubun = a.dues_gubun
+                                                                               and z.dues_h_seq = a.dues_h_seq )
+                                  inner join dues_P     c on a.code_pers  = c.code_pers
+                                                        and a.dues_gubun = c.dues_gubun
+                                                        and a.dues_h_seq = c.dues_h_seq
+                                                        and c.auth_flag  = 'Y'
+                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+                 and a.dues_gubun   = '2'     /* 기본조건 : 평생회비 */
+                 
+              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+         group by code_bran, code_member,f.tempcd1, e.detcodename, bran_money
+      )sout
+ group by code_bran, tempcd1
+ 
+ union all
+/* 총합 */
+select '99'code_bran    , 'TOTAL' tempcd1
+     , '' code_member , ''detcodename
+     , isnull(sum(bran_money), '')    bran_money
+     , isnull(sum(totCount), '')      totCount
+     , isnull(sum(totBran_money), '') totBran_money
+  from(select ROW_NUMBER() over( order by code_bran, code_member) number
+            , code_bran   ,f.tempcd1
+            , code_member ,e.detcodename
+            , bran_money     bran_money
+            , count(number)  totCount
+            , SUM(bran_money)totBran_money
+         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+                   , c.code_bran  /* 지부 */ 
+                   , a.code_member/* 회원종류 */
+                   , c.bran_money                   /* 예수금 */
+            
+                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                        and b.conform_yn = '3'
+                                                        and a.incom_flag = 'Y'
+                                                        and b.code_pers  = a.code_pers
+                                                        and b.dues_gubun = a.dues_gubun
+                                                        and b.dues_h_seq = a.dues_h_seq
+                                                        and b.dues_b_seq = (select max(dues_b_seq)
+                                                                              from dues_b_tbl z
+                                                                             where z.code_inout_gubun = '1'
+                                                                               and z.conform_yn = '3'
+                                                                               and z.code_pers  = a.code_pers
+                                                                               and z.dues_gubun = a.dues_gubun
+                                                                               and z.dues_h_seq = a.dues_h_seq )
+                                  inner join dues_P     c on a.code_pers  = c.code_pers
+                                                        and a.dues_gubun = c.dues_gubun
+                                                        and a.dues_h_seq = c.dues_h_seq
+                                                        and c.auth_flag  = 'Y'
+                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+                 and a.dues_gubun   = '2'     /* 기본조건 : 평생회비 */
+                 
+              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+         group by code_bran, code_member,f.tempcd1, e.detcodename, bran_money
+      )sout
+ )sout
+ )sout
+
+	WHERE 1=1 
+	    AND sout.number > #nstart#
+		AND sout.number <![CDATA[<=]]> #nend#
+</select>
+
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositCount_6	회원>예수금현황>산하단체 예수금 현황(tab_6) 페이징용 카운터
+	 -->
+<select id="getMemberDepositCount_6" resultClass="java.util.HashMap">
+
+select case when count(number) = 0 then 1
+            else COUNT(number) + 14 end ncount
+  from(select ROW_NUMBER() over( order by code_bran, code_member) number
+            , code_bran   ,f.tempcd1
+            , code_member ,e.detcodename
+            , sub_dues     sub_dues
+            , count(number)  totCount
+            , SUM(sub_dues)totSub_dues
+         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+                   , c.code_bran  /* 지부 */ 
+                   , a.code_member/* 회원종류 */
+                   , c.sub_dues                   /* 예수금 */
+            
+                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+                                                        and b.conform_yn = '3'
+                                                        and a.incom_flag = 'Y'
+                                                        and b.code_pers  = a.code_pers
+                                                        and b.dues_gubun = a.dues_gubun
+                                                        and b.dues_h_seq = a.dues_h_seq
+                                                        and b.dues_b_seq = (select max(dues_b_seq)
+                                                                              from dues_b_tbl z
+                                                                             where z.code_inout_gubun = '1'
+                                                                               and z.conform_yn = '3'
+                                                                               and z.code_pers  = a.code_pers
+                                                                               and z.dues_gubun = a.dues_gubun
+                                                                               and z.dues_h_seq = a.dues_h_seq )
+                                  inner join dues_P     c on a.code_pers  = c.code_pers
+                                                        and a.dues_gubun = c.dues_gubun
+                                                        and a.dues_h_seq = c.dues_h_seq
+                                                        and c.auth_flag  = 'Y'
+                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+                 and a.dues_gubun   = '3'     /* 기본조건 : 산하단체회비 */
+              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+         group by code_bran, code_member,f.tempcd1, e.detcodename, sub_dues
+      )sout 
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>예수금현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.31
+	 * 작   업 : getMemberDepositList_6	회원>예수금현황>산하단체 예수금 현황(tab_6) 조회 출력
+	 -->
+<select id="getMemberDepositList_6" resultClass="java.util.HashMap">
+select *
+from (
+select ROW_NUMBER() over (order by code_bran, code_member) number
+     , code_bran
+	 , tempcd1
+     , code_member
+     , detcodename
+     , isnull(sub_dues, '0') sub_dues
+     , isnull(totCount, '0') totCount
+     , isnull(totSub_dues, '0') totSub_dues
+  from (
+    /* 지부별  */
+	select code_bran
+	     , f.tempcd1
+	     , code_member
+	     , e.detcodename
+	     , sub_dues
+	     , count(code_bran)  totCount
+	     , SUM(sub_dues)totSub_dues
+	   from (select c.code_bran  /* 지부 */ 
+	             , a.code_member/* 회원종류 */
+	             , c.center_money sub_dues /* 예수금 */
+	          from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+	                                                  and b.conform_yn = '3'
+	                                                  and a.incom_flag = 'Y'
+	                                                  and b.code_pers  = a.code_pers
+	                                                  and b.dues_gubun = a.dues_gubun
+	                                                  and b.dues_h_seq = a.dues_h_seq
+	                                                  and b.dues_b_seq = (select max(dues_b_seq)
+	                                                                        from dues_b_tbl z
+	                                                                       where z.code_inout_gubun = '1'
+	                                                                         and z.conform_yn = '3'
+	                                                                         and z.code_pers  = a.code_pers
+	                                                                         and z.dues_gubun = a.dues_gubun
+	                                                                         and z.dues_h_seq = a.dues_h_seq )
+	                            inner join dues_P     c on a.code_pers  = c.code_pers
+	                                                  and a.dues_gubun = c.dues_gubun
+	                                                  and a.dues_h_seq = c.dues_h_seq
+	                                                  and c.auth_flag  = 'Y'
+	                                                  and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+	                          inner join Person_M_TBL d on a.code_pers  = d.code_pers
+	                                                  <dynamic prepend="and"><isNotEmpty property="code_sub"> d.code_sub = #code_sub# </isNotEmpty></dynamic>
+	         where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+	           and a.dues_gubun   = '3'     /* 기본조건 : 산하단체회비 */
+	        )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+	              left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+	   group by code_bran, code_member,f.tempcd1, e.detcodename, sub_dues
+	union all
+    /* 소계 */
+	select code_bran
+	     , 'SUM' tempcd1
+	     , '99' code_member
+	     , '' detcodename
+	     , sum(sub_dues) sub_dues
+	     , sum(totCount) totCount
+	     , sum(totSub_dues) totSub_dues
+	  from(select code_bran
+	  			, f.tempcd1
+	            , code_member
+	            , e.detcodename
+	            , sub_dues
+	            , count(code_bran)  totCount
+	            , SUM(sub_dues)	totSub_dues
+	         from(select ROW_NUMBER() over( order by c.code_bran, a.code_member) number
+	                   , c.code_bran   /* 지부 */ 
+	                   , a.code_member /* 회원종류 */
+	                   , c.center_money sub_dues /* 예수금 */
+	                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+	                                                        and b.conform_yn = '3'
+	                                                        and a.incom_flag = 'Y'
+	                                                        and b.code_pers  = a.code_pers
+	                                                        and b.dues_gubun = a.dues_gubun
+	                                                        and b.dues_h_seq = a.dues_h_seq
+	                                                        and b.dues_b_seq = (select max(dues_b_seq)
+	                                                                              from dues_b_tbl z
+	                                                                             where z.code_inout_gubun = '1'
+	                                                                               and z.conform_yn = '3'
+	                                                                               and z.code_pers  = a.code_pers
+	                                                                               and z.dues_gubun = a.dues_gubun
+	                                                                               and z.dues_h_seq = a.dues_h_seq )
+	                                  inner join dues_P     c on a.code_pers  = c.code_pers
+	                                                        and a.dues_gubun = c.dues_gubun
+	                                                        and a.dues_h_seq = c.dues_h_seq
+	                                                        and c.auth_flag  = 'Y'
+	                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+	                                inner join Person_M_TBL d on a.code_pers  = d.code_pers
+	                                                        <dynamic prepend="and"><isNotEmpty property="code_sub"> d.code_sub = #code_sub# </isNotEmpty></dynamic>                         
+	               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+	                 and a.dues_gubun   = '3'     /* 기본조건 : 산하단체회비 */
+	              )sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+	                    left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+	         group by code_bran, code_member,f.tempcd1, e.detcodename, sub_dues
+	      ) sout
+	 group by code_bran, tempcd1
+     union all
+     /* 총합 */
+	 select '99' code_bran
+	      , 'TOTAL' tempcd1
+	      , '' code_member
+	      , '' detcodename
+	      , isnull(sum(sub_dues), '0')    sub_dues
+	      , isnull(sum(totCount), '0')      totCount
+	      , isnull(sum(totSub_dues), '0') totSub_dues
+	  from(select code_bran
+	            , f.tempcd1
+	            , code_member
+	            , e.detcodename
+	            , sub_dues     sub_dues
+	            , count(code_bran)  totCount
+	            , SUM(sub_dues)totSub_dues
+	         from (select c.code_bran   /* 지부 */ 
+	                   , a.code_member /* 회원종류 */
+	                   , c.center_money sub_dues /* 예수금 */
+	                from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
+	                                                        and b.conform_yn = '3'
+	                                                        and a.incom_flag = 'Y'
+	                                                        and b.code_pers  = a.code_pers
+	                                                        and b.dues_gubun = a.dues_gubun
+	                                                        and b.dues_h_seq = a.dues_h_seq
+	                                                        and b.dues_b_seq = (select max(dues_b_seq)
+	                                                                              from dues_b_tbl z
+	                                                                             where z.code_inout_gubun = '1'
+	                                                                               and z.conform_yn = '3'
+	                                                                               and z.code_pers  = a.code_pers
+	                                                                               and z.dues_gubun = a.dues_gubun
+	                                                                               and z.dues_h_seq = a.dues_h_seq )
+	                                  inner join dues_P     c on a.code_pers  = c.code_pers
+	                                                        and a.dues_gubun = c.dues_gubun
+	                                                        and a.dues_h_seq = c.dues_h_seq
+	                                                        and c.auth_flag  = 'Y'
+	                                                        and c.receipt_dt like #receipt_dt#+'%'  /* 조건입력 : 입금년도 */
+	                                inner join Person_M_TBL d on a.code_pers  = d.code_pers
+	                                                        <dynamic prepend="and"><isNotEmpty property="code_sub"> d.code_sub = #code_sub# </isNotEmpty></dynamic>
+	               where a.incom_flag = 'Y'     /* 기본조건 : 완납여부 */
+	                 and a.dues_gubun   = '3'     /* 기본조건 : 산하단체회비 */
+	              ) sout left join com_code   e on e.groupcode = '006' and e.detcode = code_member
+	                     left join com_code   f on f.groupcode = '007' and f.detcode = code_bran
+	         group by code_bran, code_member,f.tempcd1, e.detcodename, sub_dues
+	      ) sout
+  ) main ) sout
+	WHERE 1=1 
+	    AND sout.number > #nstart#
+		AND sout.number <![CDATA[<=]]> #nend#
+</select>
+
+
+
+</sqlMap>
+

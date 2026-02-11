@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans> 
+	
+	<global-forwards>		
+		<forward name="ajaxout"                     path="/jsp/common/ajaxout.jsp"/>	 	
+	</global-forwards>
+	 
+	<action-mappings> 
+  		
+		
+		<action path="/education"   type="com.ant.educationexam.action.educationAction" parameter="method" scope="request">
+		
+		
+			<forward name="sendDMForm" 		path="/jsp/member/sendDMForm.jsp"	/>	<!-- 김성훈 2012.11.30 : 			DM발송 출력			-->
+			<forward name="sendAllLink" 	path="/jsp/member/sendAllLink.jsp"	/>	<!-- 김성훈 2012.11.30 : 			DM 발송 결과링크	-->
+			
+			<!--교육및시험등록 2가지 조건에 맞는 값-->
+			<forward name="edutestSend"        		 path=".layout_main3"/>
+			<!--교육및시험등록  리스트 출력-->
+			<forward name="edutestSendList"          path=".layout_edutestSerchList"/>
+			<!--교육및시험등록 저장-->
+			<forward name="edutestinsert_send"       path=".layout_edutestinsert_ok"/> 
+			<!--교육별응시현황 3가지 조건에 맞는 값-->
+			<forward name="educationSend"        	 path=".layout_main3.1"/>
+			<!--교육별응시현황 리스트 출력-->
+			<forward name="educationSendList"        path=".layout_educationSearchList"/>
+			<!-- 교육별응시현황 엑셀 올리기 -->
+			<forward name="upEducationSendListr"     path="/jsp/education/upExcel1.jsp"/>
+			<forward name="excelLink"           	path="/jsp/education/excelLink.jsp"/>
+			<!--교육별응시현황 저장-->
+			<forward name="eduinsert_send"           path=".layout_educationinsert_ok"/>
+			
+			<!--응시결과처리 추가-->
+			<forward name="examSend"        	 	 path=".layout_main3.2"/>
+			<!--응시결과처리 저장-->
+			<forward name="examResultSave"           path=".layout_examresultSave"/>
+			<!-- 교육별응시결과 엑셀 올리기, 결과 -->
+			<forward name="upExamSendListr"           path="/jsp/education/upExcel.jsp"/>
+			<forward name="excelLink1"           	path="/jsp/education/excelLink.jsp"/>
+			<!-- 파일첨부 -->
+			<forward name="fileUP"           		path="/jsp/common/uploadForm1.jsp"/>
+			<!-- 윤석희 2012.11.21 :쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll"      	path="/jsp/education/notepadForm.jsp"/>	
+			<!-- 윤석희 2012.11.21 :문자 보내기 화면	-->	
+			<forward name="umsDataall"          	path="/jsp/education/umsdataForm.jsp"/>
+			<!-- 주민등록체크 -->
+			<forward name="pers_check"              path="/jsp/member/pers_check.jsp"/>
+			<forward name="download"                path="/jsp/education/download.jsp"/>		
+		</action>
+		
+		</action-mappings>
+	</struts-config>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans> 
+	
+	<global-forwards>		
+		<forward name="ajaxout"                     path="/jsp/common/ajaxout.jsp"/>	 	
+	</global-forwards>
+	 
+	<action-mappings> 
+  		
+		
+		<action path="/license"   type="com.ant.educationlecture.action.licenseAction" parameter="method" scope="request">
+			<!--시험별응시현황-->
+			<forward name="licenseSend"        		 path=".layout_main4"/>
+			<!--시험별응시현황  리스트 출력-->
+			<forward name="licenseSendList"          path=".layout_licenseSerchList"/>
+			<!--결과등록-->
+			<forward name="resultSend"        		 path=".layout_main4.1"/>
+			<!--결과등록  리스트 출력-->
+			<forward name="resultSendList"           path=".layout_resultSendList"/>
+			<!--결과등록  저장-->
+			<forward name="licenseResultSave"        path=".layout_licenseResultSave"/>
+			<!--자격증심사  -->
+			<forward name="inspectionSand"       	 path=".layout_main4.2"/>
+			<!--자격증심사 리스트 출력  -->
+			<forward name="inspectionSandList"       path=".layout_inspectionSandList"/>
+			<!--자격증심사저장  -->
+			<forward name="inspectionSave"       	 path=".layout_inspectionSave"/>
+			<!--자격증발급  -->
+			<forward name="issueSand"       	 	 path=".layout_issueSand"/>
+			<!--자격증발급  출력-->
+			<forward name="issueSandList"       	 path=".layout_issueSandList"/>
+			<!--자격증갱신  -->
+			<forward name="renewalSand"       	 	 path=".layout_renewalSand"/>
+			<!--자격증갱신  출력-->
+			<forward name="renewalSandList"       	 path=".layout_renewalSandList"/>
+			<!-- 파일첨부 -->
+			<forward name="fileUP"           		path="/jsp/license/uploadForm1.jsp"/>	
+			<!-- 갱신파일첨부 -->
+			<forward name="rfileUP"           		path="/jsp/license/uploadForm2.jsp"/>	
+			<!-- 윤석희 2012.11.21 :시험별응시현황쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll"      	path="/jsp/license/notepadForm.jsp"/>
+			<!-- 윤석희 2012.11.21 :결과등록쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll1"      	path="/jsp/license/notepadForm.jsp"/>	
+			<!-- 윤석희 2012.11.21 :자격증심사쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll2"      	path="/jsp/license/notepadForm.jsp"/>	
+			<!-- 윤석희 2012.11.21 :자격증발급쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll3"      	path="/jsp/license/notepadForm.jsp"/>	
+			<!-- 윤석희 2012.11.21 :자격증갱신쪽지 보내기 화면	-->	
+			<forward name="sendnotePadAll4"      	path="/jsp/license/notepadForm.jsp"/>
+				
+			<!-- 윤석희 2012.11.21 :문자 보내기 화면	-->	
+			<forward name="umsDataall"          	path="/jsp/license/umsdataForm.jsp"/>
+			<forward name="insertumsData_ok"          path=".layout_actulsearchList"/>
+			<!-- 시험별응시현황 엑셀 올리기 -->
+			<forward name="upconditionSendListr"    path="/jsp/license/upExcel1.jsp"/>	
+			<forward name="excelLink"           	path="/jsp/license/excelLink.jsp"/>
+			<!-- 결과등록 엑셀 올리기 -->
+			<forward name="upresultSendListr"    	path="/jsp/license/upExcel2.jsp"/>
+			<forward name="excelLink9"           	path="/jsp/education/excelLink.jsp"/>	
+			<!-- 시험별응시현황주민등록체크 -->
+			<forward name="pers_check"              path="/jsp/member/pers_check.jsp"/>
+			<!-- 결과등록주민등록체크 -->
+			<forward name="pers_check2"              path="/jsp/member/pers_check.jsp"/>	
+			<!-- 자격증심사주민등록체크 -->
+			<forward name="pers_check3"              path="/jsp/member/pers_check.jsp"/>
+			<!-- 자격증발급주민등록체크 -->
+			<forward name="pers_check4"              path="/jsp/member/pers_check.jsp"/>
+			<!-- 자격증 갱신주민등록체크 -->
+			<forward name="pers_check5"              path="/jsp/member/pers_check.jsp"/>
+			<forward name="download"                 path="/jsp/license/download_inspection.jsp"/>
+			<forward name="download_all"                path="/jsp/license/download_inspection_all.jsp"/>
+			<forward name="download1"                path="/jsp/license/download_renewal.jsp"/>
+		</action>
+		
+		</action-mappings>
+	</struts-config>

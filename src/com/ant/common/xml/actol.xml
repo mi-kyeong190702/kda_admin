@@ -1,0 +1,2349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="actulconfirm">
+	
+
+	 <select id="actulconfirm" resultClass="java.util.HashMap">	   	
+				SELECT    
+						 a.yyyy
+						,a.yyyy_seq
+						,a.ar_name
+						,[dbo].[GetPersNoDecord](a.ar_no , '2') ar_no					
+						,a.ar_lic_no
+						,a.ar_lic_print_dt
+						,b.detcodename  ar_code_sex_name
+						,a.ar_code_sex	
+						,a.ar_email
+						,a.ar_add1
+						,a.ar_add2	
+						,a.ar_tel_home
+						,a.ar_tel_job
+						,a.ar_tel_hp
+						,c.detcodename  ar_code_part_name
+						,a.ar_code_part
+						,d.detcodename  ar_code_big1_name
+						,a.ar_code_big1
+						,a.ar_comp_name1
+						,a.ar_comp_add11
+						,a.ar_comp_add12
+						,a.ar_comp_name2
+						,a.ar_comp_add21
+						,a.ar_comp_add22
+						,a.ar_comp_name3
+						,a.ar_comp_add31
+						,a.ar_comp_add32
+						,a.ar_comp_name4
+						,a.ar_comp_add41
+						,a.ar_comp_add42
+						,a.ar_comp_name5
+						,a.ar_comp_add51
+						,a.ar_comp_add52
+						,e.detcodename  ar_code_big2_name
+						,a.ar_code_big2
+						,a.ar_comp_name6
+						,a.ar_comp_add61
+						,a.ar_comp_add62
+						,a.ar_finish_point
+						,a.ar_marks_point
+						,a.ar_add_file1
+						,a.ar_add_file2
+						,a.ar_add_file3
+						,a.ar_finish_yn
+						,f.detcodename  ar_state_name
+						,a.ar_state	
+						,a.ar_regi_date			
+				  FROM actul_reoprt	a
+				  	left join  com_code b
+				  		 on  b.groupcode = '002'
+				  		 and  a.ar_code_sex = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '042'
+				  		 and  a.ar_code_part = c.detcode
+			  		left join  com_code d
+				  		 on  d.groupcode = '043'
+				  		 and  a.ar_code_big1 = d.detcode 
+			  		left join  com_code e
+				  		 on  e.groupcode = '044'
+				  		 and  a.ar_code_big2 = e.detcode
+			  		left join  com_code f
+				  		 on  f.groupcode = '045'
+				  		 and  a.ar_state = f.detcode   				  
+				 	 WHERE			  		 
+			  		 		a.yyyy       = #yyyy# and
+							a.ar_name    = #ar_name# and
+							a.ar_lic_no  = #ar_lic_no# 					  							 						     
+	</select> 	
+	
+
+	 <select id="kda_edu" resultClass="java.util.HashMap">	   	
+				SELECT    
+						 yyyy 
+						,yyyy_seq
+						,ke_name
+						,ke_lic_no						
+						<!-- ,ke_jumin	 -->					
+						,ke_seq
+						,ke_subject
+						,ke_fromto	
+						,ke_isutime
+						,ke_jesukaing
+						,ke_total
+						,ke_finish_dt
+						,ke_finish_no
+						,ke_finish_yn					
+				  FROM kda_edu				 		  
+				 	 WHERE			  		 
+			  		 		yyyy       = #yyyy# and
+							ke_name    = #ar_name# and
+							ke_lic_no  = #ar_lic_no# 					  							 						     
+	</select> 	
+	
+
+	 <select id="upedusample" resultClass="java.util.HashMap">	   	
+				SELECT   
+						' ' gubun
+					    ,isnull(yyyy,'') yyyy
+					    ,isnull(yyyy_seq,'') yyyy_seq
+					    ,isnull(ke_name,'') ke_name
+					    ,isnull(ke_lic_no,'') ke_lic_no
+					    ,isnull(ke_birth,'') ke_birth
+					    <!-- ,isnull(ke_jumin,'') ke_jumin -->
+					    ,isnull(ke_seq,'') ke_seq
+					    ,isnull(ke_subject,'') ke_subject
+					    ,isnull(ke_fromto,'') ke_fromto
+					    ,isnull(ke_isutime,'') ke_isutime
+					    ,isnull(ke_jesukaing,'') ke_jesukaing
+					    ,isnull(ke_total,'') ke_total
+					    ,isnull(ke_finish_dt,'') ke_finish_dt
+					    ,isnull(ke_finish_no,'') ke_finish_no
+					    ,isnull(ke_finish_yn,'') ke_finish_yn									
+				  FROM kda_edu	
+				  	 WHERE		
+				  			yyyy       = #yyyy# and							
+							ke_lic_no  = #ar_lic_no# 					 				 					  							 						     
+	</select> 	
+	
+	<insert id="insert_edu" parameterClass="java.util.HashMap">
+		INSERT kda_edu (yyyy, yyyy_seq, ke_name, ke_lic_no, ke_birth, ke_seq, ke_subject, ke_fromto, ke_isutime, ke_jesukaing, ke_total, ke_finish_dt, ke_finish_no, ke_finish_yn)
+				values ( #yyyy#
+						, #yyyy_seq#			        
+				        , #ke_name#
+				        , #ke_lic_no#  
+				        , #ke_birth#  
+				        <!-- , #ke_jumin# -->
+				        , #ke_seq#  
+				        , #ke_subject# 
+						, #ke_fromto#				       
+						, #ke_isutime# 
+				        , #ke_jesukaing#
+				        , #ke_total#  
+				        , #ke_finish_dt# 
+						, #ke_finish_no#				       
+						, #ke_finish_yn# 
+				        )	
+	</insert>
+	
+	<update id="update_edu" parameterClass="java.util.HashMap">
+		UPDATE kda_edu
+					SET 
+					      ke_name       =   #ke_name#
+						, ke_lic_no     =   #ke_lic_no#  
+						, ke_birth     =   #ke_birth#  
+				        <!-- , ke_jumin      =   #ke_jumin# -->
+				        , ke_seq        =   #ke_seq#  
+				        , ke_subject    =   #ke_subject# 
+						, ke_fromto     =   #ke_fromto#						
+				        , ke_isutime    =   #ke_isutime#
+				        , ke_jesukaing  =   #ke_jesukaing#
+				        , ke_total      =   #ke_total#  
+				        , ke_finish_dt  =   #ke_finish_dt# 
+						, ke_finish_no  =   #ke_finish_no#						
+				        , ke_finish_yn  =   #ke_finish_yn#
+					WHERE  yyyy   =   #yyyy#  and  yyyy_seq   =   #yyyy_seq#
+	</update>
+	
+	<insert id="actulinsert"   parameterClass="java.util.HashMap">
+		INSERT into actul_reoprt (yyyy, yyyy_seq, ar_name, ar_no, ar_lic_no, ar_lic_print_dt, ar_code_sex, ar_email, ar_add1, ar_add2, ar_tel_home,
+								  ar_tel_job, ar_tel_hp, ar_code_part, ar_code_big1, ar_comp_name1, ar_comp_add11, ar_comp_add12, ar_comp_name2, 
+								  ar_comp_add21, ar_comp_add22, ar_comp_name3, ar_comp_add31, ar_comp_add32, ar_comp_name4, ar_comp_add41, ar_comp_add42,
+								  ar_comp_name5, ar_comp_add51, ar_comp_add52, ar_code_big2, ar_comp_name6, ar_comp_add61, ar_comp_add62, ar_finish_point, 
+								  ar_marks_point, ar_add_file1, ar_add_file2, ar_add_file3, ar_finish_yn, ar_state, ar_regi_date)   
+				values ( #yyyy#
+						, (SELECT RIGHT('000000'+convert(varchar, isnull(MAX(yyyy_seq),0)+1),6) from actul_reoprt where left(yyyy,4) = left(#yyyy# ,4)) 
+						, #ar_name#	
+						,[dbo].[GetPersNoencord](#ar_no#)    
+				     	, #ar_lic_no#
+				        , #ar_lic_print_dt#
+				        , #ar_code_sex#  
+				        , #ar_email#				        
+						, #ar_add1#	
+						, #ar_add2#			      
+					  	, #ar_tel_home#				         
+				        , #ar_tel_job#
+						, #ar_tel_hp#
+				        , #ar_code_part#
+				        , #ar_code_big1#  
+				        , #ar_comp_name1#				        
+						, #ar_comp_add11# 						
+						, #ar_comp_add12#				         
+				        , #ar_comp_name2#
+						, #ar_comp_add21#
+				        , #ar_comp_add22#
+				        , #ar_comp_name3#  
+				        , #ar_comp_add31#				        
+						, #ar_comp_add32# 
+						, #ar_comp_name4#				         
+				        , #ar_comp_add41#
+						, #ar_comp_add42#
+				        , #ar_comp_name5#
+				        , #ar_comp_add51#  
+				        , #ar_comp_add52#				        
+						, #ar_code_big2# 
+						, #ar_comp_name6#				         
+				        , #ar_comp_add61#
+						, #ar_comp_add62#
+				        , #ar_finish_point#
+				        , #ar_marks_point#  
+				        , ''				        
+						, ''
+						, ''
+						, ''
+						, '2'
+						, GETDATE()
+				        )	
+	</insert>
+	
+	<update id="actulupdate" parameterClass="java.util.HashMap">
+		UPDATE actul_reoprt
+					SET 
+					 	  ar_name           =    #ar_name#
+						, ar_no 	        =    [dbo].[GetPersNoencord](#ar_no#)						   
+				     	, ar_lic_no         =    #ar_lic_no#
+				        , ar_lic_print_dt   =    #ar_lic_print_dt#
+				        , ar_code_sex       =    #ar_code_sex#  
+				        , ar_email          =    #ar_email#				        
+						, ar_add1           =    #ar_add1#	
+						, ar_add2           =    #ar_add2#			      
+					  	, ar_tel_home       =    #ar_tel_home#				         
+				        , ar_tel_job        =    #ar_tel_job#
+						, ar_tel_hp         =    #ar_tel_hp#
+				        , ar_code_part      =    #ar_code_part#
+				        , ar_code_big1      =    #ar_code_big1#  
+				        , ar_comp_name1     =    #ar_comp_name1#				        
+						, ar_comp_add11     =    #ar_comp_add11# 						
+						, ar_comp_add12     =    #ar_comp_add12#				         
+				        , ar_comp_name2     =    #ar_comp_name2#
+						, ar_comp_add21     =    #ar_comp_add21#
+				        , ar_comp_add22     =    #ar_comp_add22#
+				        , ar_comp_name3     =    #ar_comp_name3#  
+				        , ar_comp_add31     =    #ar_comp_add31#				         
+						, ar_comp_add32     =    #ar_comp_add32# 
+						, ar_comp_name4     =    #ar_comp_name4#				         
+				        , ar_comp_add41     =    #ar_comp_add41#
+						, ar_comp_add42     =    #ar_comp_add42#
+				        , ar_comp_name5     =    #ar_comp_name5#
+				        , ar_comp_add51     =    #ar_comp_add51#  
+				        , ar_comp_add52     =    #ar_comp_add52#				        
+						, ar_code_big2      =    #ar_code_big2# 
+						, ar_comp_name6     =    #ar_comp_name6#				         
+				        , ar_comp_add61     =    #ar_comp_add61#
+						, ar_comp_add62     =    #ar_comp_add62#
+				        , ar_finish_point   =    #ar_finish_point#
+				        , ar_marks_point    =    #ar_marks_point# 	
+				        , ar_regi_date      =    GETDATE()			       
+					WHERE  yyyy = #yyyy#  and  yyyy_seq = #yyyy_seq#	
+	</update>	
+	
+	
+	
+	 <select id="actulmanacnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY yyyy_seq ) no
+				  FROM actul_reoprt
+				  	WHERE 			  		 
+			  		 		yyyy            = #yyyy1# 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_add11">
+							  		ar_add1 = #ar_add11# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_code_part1">
+							  		ar_code_part = #ar_code_part1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_code_big11">
+							  		ar_code_big1 = #ar_code_big11# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_name1">
+							  		ar_name = #ar_name1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_state1">
+							  		ar_state = #ar_state1# 
+							  	</isNotEmpty>
+							</dynamic>						
+			       ) OUT
+			  WHERE 1=1
+	 </select>
+	 
+	 
+
+	 <select id="actulmana" resultClass="java.util.HashMap">				
+		 SELECT OUT.*
+	 		 FROM ( 
+				SELECT   ROW_NUMBER()OVER(ORDER BY yyyy_seq desc) no
+						,a.yyyy
+						,a.yyyy_seq
+						,a.ar_name
+						,[dbo].[GetPersNoDecord](a.ar_no , '2') ar_no					
+						,a.ar_lic_no
+						,a.ar_lic_print_dt
+						,b.detcodename  ar_code_sex_name
+						,a.ar_code_sex	
+						,a.ar_email
+						,c.detcodename ar_add1_name
+						,a.ar_add1
+						,a.ar_add2	
+						,a.ar_tel_home
+						,a.ar_tel_job
+						,a.ar_tel_hp
+						,d.detcodename ar_code_part_name
+						,a.ar_code_part
+						,e.detcodename ar_code_big1_name
+						,a.ar_code_big1
+						,a.ar_comp_name1
+						,a.ar_comp_add11
+						,a.ar_comp_add12
+						,a.ar_comp_name2
+						,a.ar_comp_add21
+						,a.ar_comp_add22
+						,a.ar_comp_name3
+						,a.ar_comp_add31
+						,a.ar_comp_add32
+						,a.ar_comp_name4
+						,a.ar_comp_add41
+						,a.ar_comp_add42
+						,a.ar_comp_name5
+						,a.ar_comp_add51
+						,a.ar_comp_add52
+						,f.detcodename  ar_code_big2_name
+						,a.ar_code_big2
+						,a.ar_comp_name6
+						,a.ar_comp_add61
+						,a.ar_comp_add62
+						,a.ar_finish_point
+						,a.ar_marks_point
+						,a.ar_add_file1
+						,a.ar_add_file2
+						,a.ar_add_file3
+						,a.ar_finish_yn
+						,g.detcodename ar_state_name
+						,a.ar_state	
+						,a.ar_regi_date			
+				  FROM actul_reoprt	a	
+				  	left join  com_code b
+				  		 on  b.groupcode = '002'
+				  		 and  a.ar_code_sex = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '007'
+				  		 and  a.ar_add1 = c.detcode
+			  		left join  com_code d
+				  		 on  d.groupcode = '042'
+				  		 and  a.ar_code_part = d.detcode 
+			  		left join  com_code e
+				  		 on  e.groupcode = '043'
+				  		 and  a.ar_code_big1 = e.detcode
+			  		left join  com_code f
+				  		 on  f.groupcode = '044'
+				  		 and  a.ar_code_big2 = f.detcode
+			  		left join  com_code g
+				  		 on  g.groupcode = '045'
+				  		 and  a.ar_state = g.detcode       				  
+				 	  WHERE			  		 
+			  		 		a.yyyy            = #yyyy1# 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_add11">
+							  		a.ar_add1 = #ar_add11# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_code_part1">
+							  		a.ar_code_part = #ar_code_part1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_code_big11">
+							  		a.ar_code_big1 = #ar_code_big11# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_name1">
+							  		a.ar_name = #ar_name1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="ar_state1">
+							  		a.ar_state = #ar_state1# 
+							  	</isNotEmpty>
+							</dynamic>						
+					 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					  					 						     
+	</select> 
+	
+
+	 <select id="actulmanadown" resultClass="java.util.HashMap">				
+			SELECT   
+				 a.yyyy
+				,a.yyyy_seq
+				,isnull(a.ar_name,'') ar_name				
+				,case when #check# = '1' 
+						  then [dbo].[GetPersNoDecord](a.ar_no , '1')
+				      when #check# = '2' 
+						  then [dbo].[GetPersNoDecord](a.ar_no , '2')  
+					  when #check# = '3'
+					      then [dbo].[GetPersNoDecord](a.ar_no , '3') end ar_no 						   	
+				,a.ar_lic_no
+				,a.ar_lic_print_dt
+				,isnull(b.detcodename,'') ar_code_sex_name				
+				,a.ar_email
+				,isnull(c.detcodename,'') ar_add1_name
+				,isnull(a.ar_add2,'') ar_add2				
+				,a.ar_tel_home
+				,a.ar_tel_job
+				,a.ar_tel_hp
+				,isnull(d.detcodename,'') ar_code_part_name
+				,isnull(e.detcodename,'') ar_code_big1_name
+				,isnull(a.ar_comp_name1,'') ar_comp_name1				
+				,isnull(h.detcodename,'') ar_comp_add11_name
+				,isnull(a.ar_comp_add12,'') ar_comp_add12				
+				,isnull(a.ar_comp_name2,'') ar_comp_name2				
+				,isnull(i.detcodename,'') ar_comp_add21_name
+				,isnull(a.ar_comp_add22,'') ar_comp_add22				
+				,isnull(a.ar_comp_name3,'') ar_comp_name3			
+				,isnull(j.detcodename,'') ar_comp_add31_name				
+				,isnull(a.ar_comp_add32,'') ar_comp_add32				
+				,isnull(a.ar_comp_name4,'') ar_comp_name4				
+				,isnull(k.detcodename,'') ar_comp_add41_name
+				,isnull(a.ar_comp_add42,'') ar_comp_add42				
+				,isnull(a.ar_comp_name5,'') ar_comp_name5				
+				,isnull(l.detcodename,'') ar_comp_add51_name				
+				,isnull(a.ar_comp_add52,'') ar_comp_add52				
+				,isnull(f.detcodename,'') ar_code_big2_name				
+				,isnull(a.ar_comp_name6,'') ar_comp_name6				
+				,isnull(m.detcodename,'') ar_comp_add61_name
+				,isnull(a.ar_comp_add62,'') ar_comp_add62				
+				,a.ar_finish_point
+				,a.ar_marks_point
+				,isnull(a.ar_add_file1,'') ar_add_file1 
+				,isnull(a.ar_add_file2,'') ar_add_file2  
+				,isnull(a.ar_add_file3,'') ar_add_file3 
+				,isnull(o.detcodename,'') ar_finish_yn_name					
+				,isnull(g.detcodename,'') ar_state_name
+				,isnull(a.ar_regi_date,'') ar_regi_date								
+		  FROM actul_reoprt	a	
+		  	left join  com_code b
+		  		 on  b.groupcode = '002'
+		  		 and  a.ar_code_sex = b.detcode
+	  		left join  com_code c
+		  		 on  c.groupcode = '007'
+		  		 and  a.ar_add1 = c.detcode
+		    left join  com_code h
+		  		 on  h.groupcode = '007'
+		  		 and  a.ar_comp_add11 = h.detcode
+	  		left join  com_code i
+		  		 on  i.groupcode = '007'
+		  		 and  a.ar_comp_add21 = i.detcode 
+  		    left join  com_code j
+		  		 on  j.groupcode = '007'
+		  		 and  a.ar_comp_add31 = j.detcode 
+	  	    left join  com_code k
+		  		 on  k.groupcode = '007'
+		  		 and  a.ar_comp_add41 = k.detcode  
+  		    left join  com_code l
+		  		 on  l.groupcode = '007'
+		  		 and  a.ar_comp_add51 = l.detcode  
+	  		left join  com_code m
+		  		 on  m.groupcode = '007'
+		  		 and  a.ar_comp_add61 = m.detcode     
+	  		left join  com_code d
+		  		 on  d.groupcode = '042'
+		  		 and  a.ar_code_part = d.detcode 
+	  		left join  com_code e
+		  		 on  e.groupcode = '043'
+		  		 and  a.ar_code_big1 = e.detcode
+	  		left join  com_code f
+		  		 on  f.groupcode = '044'
+		  		 and  a.ar_code_big2 = f.detcode
+	  		left join  com_code g
+		  		 on  g.groupcode = '045'
+		  		 and  a.ar_state = g.detcode 
+		  	left join  com_code o
+		  		 on  o.groupcode = '048'
+		  		 and  a.ar_finish_yn = o.detcode       				  
+		 	  WHERE			  		 
+	  		 		a.yyyy            = #yyyy1# 
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_add11">
+					  		a.ar_add1 = #ar_add11# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_code_part1">
+					  		a.ar_code_part = #ar_code_part1# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_code_big11">
+					  		a.ar_code_big1 = #ar_code_big11# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_state1">
+					  		a.ar_state = #ar_state1# 
+					  	</isNotEmpty>
+					</dynamic>						
+	</select> 
+	
+
+	 <select id="actullist" resultClass="java.util.HashMap">	
+		 
+			SELECT tempcd1, groupname1, groupname2
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13			    
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2 
+						 , case when tempcol = '01' then sum(pers_count) end col1
+						 , case when tempcol = '02' then sum(pers_count) end col2
+						 , case when tempcol = '03' then sum(pers_count) end col3
+						 , case when tempcol = '04' then sum(pers_count) end col4
+						 , case when tempcol = '05' then sum(pers_count) end col5
+						 , case when tempcol = '06' then sum(pers_count) end col6
+						 , case when tempcol = '07' OR tempcol = '12' then sum(pers_count) end col7
+						 , case when tempcol = '08' then sum(pers_count) end col8
+						 , case when tempcol = '09' OR tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' OR tempcol = '13' then sum(pers_count) end col10
+						 , case when tempcol = '14' then sum(pers_count) end col11
+						 , case when tempcol = '15' then sum(pers_count) end col12
+						 , case when tempcol = '16' then sum(pers_count) end col13						 
+						 , case when tempcol = '00' OR tempcol = '17' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							select '1' + b.detcode tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+							      , a.ar_comp_add11 tempcol, COUNT(a.yyyy_seq) pers_count
+							  FROM com_code b left join actul_reoprt a
+													  on b.detcode = a.ar_code_big1 
+							  						and	a.yyyy = #yyyy#
+							where  b.groupcode = '043'
+							 group by  b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add11
+							union all
+							select '2' + b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add61, COUNT(a.yyyy_seq) 
+							  FROM com_code b left join actul_reoprt a
+													  on b.detcode = a.ar_code_big2 
+							 						and   a.yyyy = #yyyy#
+							where   b.groupcode = '044'
+							 group by  b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add61
+							union all
+							select '310', '미활동', '', a.ar_add1, COUNT(a.yyyy_seq) 
+							  FROM actul_reoprt a						  
+							where   a.yyyy = #yyyy# and
+								    a.ar_code_part = '3'
+							group by a.ar_add1
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, tempcol
+				  ) bb
+			 GROUP BY tempcd1, groupname1, groupname2
+			union all
+			SELECT '400' tempcd1, 
+			       '총 계' groupname1, 
+			       '' groupname2
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14			   
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2 
+						 , case when tempcol = '01' then sum(pers_count) end col1
+						 , case when tempcol = '02' then sum(pers_count) end col2
+						 , case when tempcol = '03' then sum(pers_count) end col3
+						 , case when tempcol = '04' then sum(pers_count) end col4
+						 , case when tempcol = '05' then sum(pers_count) end col5
+						 , case when tempcol = '06' then sum(pers_count) end col6
+						 , case when tempcol = '07' OR tempcol = '12' then sum(pers_count) end col7
+						 , case when tempcol = '08' then sum(pers_count) end col8
+						 , case when tempcol = '09' OR tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' OR tempcol = '13' then sum(pers_count) end col10
+						 , case when tempcol = '14' then sum(pers_count) end col11
+						 , case when tempcol = '15' then sum(pers_count) end col12
+						 , case when tempcol = '16' then sum(pers_count) end col13						 
+						 , case when tempcol = '00' OR tempcol = '17' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							select '1' + b.detcode tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+							      , a.ar_comp_add11 tempcol, COUNT(a.yyyy_seq) pers_count
+							  FROM com_code b left join actul_reoprt a
+													  on b.detcode = a.ar_code_big1 
+							 						 and  a.yyyy = #yyyy# 
+							where	  b.groupcode = '043'
+							 group by  b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add11
+							union all
+							select '2' + b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add61, COUNT(a.yyyy_seq) 
+							  FROM com_code b left join actul_reoprt a
+													  on b.detcode = a.ar_code_big2 
+							  						 and  a.yyyy = #yyyy#
+							where  b.groupcode = '044'
+							 group by  b.detcode, b.tempcd1, b.detcodename, a.ar_comp_add61
+							union all
+							select '310', '미활동', '', a.ar_add1, COUNT(a.yyyy_seq) 
+							  FROM actul_reoprt a						  
+							where   a.yyyy = #yyyy#  and
+								    a.ar_code_part = '3'
+							group by a.ar_add1
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, tempcol
+				  ) bb			
+			 order by 1 
+	</select>	
+	
+
+	 <select id="actulumsData" resultClass="java.util.HashMap">				
+	 	SELECT ar_tel_hp
+	 	     , ar_name							
+		  FROM actul_reoprt				  	   				  
+		 	  WHERE			  		 
+	  		 		yyyy            = #yyyy1# and
+	  		 		ar_tel_hp <![CDATA[!=]]> ''
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_add11">
+					  		ar_add1 = #ar_add11# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_code_part1">
+					  		ar_code_part = #ar_code_part1# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_code_big11">
+					  		ar_code_big1 = #ar_code_big11# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_name1">
+					  		ar_name = #ar_name1# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="ar_state1">
+					  		ar_state = #ar_state1# 
+					  	</isNotEmpty>
+					</dynamic>				 						     
+	</select> 
+	
+
+	<insert id="insertumsdata" parameterClass="java.util.HashMap">
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						 REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , GETDATE()
+				        , #ar_tel_hp#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#
+				        , #etc1#
+				        , #etc2# 								      								      
+				        , #etc3#
+					   )	
+	</insert>	
+	
+
+	<insert id="insertumsResultdata" parameterClass="java.util.HashMap">
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						 REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , #request_time#
+				        , #ar_tel_hp#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#
+				        , #etc1#
+				        , #etc2#  								      									      
+				        , #etc3#
+					   )	
+	</insert>
+	
+	<select id="actulmanagecnt" resultClass="java.util.HashMap">	
+		SELECT count(no) cnt
+	 	FROM (
+	 			SELECT *	 			
+	 						,ROW_NUMBER()OVER(ORDER BY code_seq desc) no
+				FROM	(
+						SELECT	s.code_seq as  code_seq									
+									,s.yyyy as yyyy
+									,s.ar_code_part as ar_code_part
+									,CASE s.ar_code_part 
+									WHEN '1' THEN s.cs_kitchen_code
+									WHEN '2' THEN s.ncs_kitchen_code
+									WHEN '3' THEN s.cs_kitchen_act_code
+									ELSE ''
+									END	kitchen_code	
+									,s.cs_con_education as cs_con_education
+									,s.ar_marks_point as ar_marks_point
+									,s.ar_state as ar_state
+									,s.ar_state as ar_state2
+									,(SELECT detcodename FROM com_code WHERE groupcode='059' AND detcode=s.ar_finish_yn) as ar_finish_yn_kr
+									,s.ar_finish_yn as ar_finish_yn
+									,(SELECT TOP 1 z.yyyy FROM actul_status z WHERE z.pers_name = p.pers_name AND z.lic_no = p.lic_no AND z.ar_finish_yn = '2' AND z.yyyy != s.yyyy AND CAST(z.yyyy AS INT) <![CDATA[<]]> CAST(s.yyyy AS INT)  ORDER BY z.yyyy DESC) as yyyy2
+									,p.pers_name as pers_name
+									,p.pers_year as pers_year
+									,p.lic_no as lic_no
+									,p.lic_print_dt as lic_print_dt
+									,p.email as email
+									,p.pers_add + p.pers_add_detail as addr
+									,p.pers_tel as pers_tel
+									,p.pers_hp as pers_hp
+									,s.memo as memo
+						FROM 	actul_status s inner join actul_person p
+						ON 		s.lic_no=p.lic_no
+						AND 		s.pers_name=p.pers_name
+						WHERE 	1=1
+						) OUT
+						WHERE 1=1
+						<dynamic prepend="and">
+						 	<isNotEmpty property="yyyy1">
+						  		yyyy =#yyyy1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name1">
+						  		pers_name LIKE '%'+#pers_name1#+'%'  
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="lic_no1">
+						  		lic_no LIKE '%'+#lic_no1# +'%' 
+						  	</isNotEmpty>
+						</dynamic> 
+						<dynamic prepend="and">
+						 	<isNotEmpty property="pers_hp1">
+						  		pers_hp LIKE '%'+#pers_hp1# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="email1">
+						  		email LIKE '%'+#email1# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="ar_finish_yn1">
+						  		ar_finish_yn = #ar_finish_yn1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="memo">
+						  		memo LIKE '%'+#memo# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<isEqual property="check" compareValue="1">
+						AND 	code_seq IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+						</isEqual>
+				) result
+		 WHERE 1=1
+	</select>
+	
+	<select id="actulmanageList" resultClass="java.util.HashMap" remapResults="true">	
+		SELECT  *, RANK()OVER(PARTITION BY lic_no order by ar_regi_date asc) as rk, MAX(ar_regi_date)OVER(PARTITION BY lic_no) as max_regi_date
+		FROM (
+				SELECT *
+							,ROW_NUMBER()OVER(ORDER BY ar_regi_date desc) as no
+				FROM	(
+						SELECT	s.code_seq as  code_seq									
+									,s.report_year as yyyy
+									,ISNULL(CONVERT(CHAR(10), s.ar_regi_date, 11),'00/01/01') as ar_regi_date
+									,ISNULL(CONVERT(CHAR(10), s.ar_conform_date, 11),'00/01/01') as ar_conform_date
+									,(SELECT detcodename FROM com_code WHERE groupcode='059' AND detcode=s.ar_finish_yn) as ar_finish_yn_kr
+									,ar_code_part
+									,(SELECT top 1 tempcd1 FROM com_code WHERE groupcode=(CASE s.ar_code_part WHEN '1' THEN '043' WHEN '2' THEN '044' WHEN '3' THEN '058' END)) as ar_code_part_kr
+									,CASE s.ar_code_part 
+									WHEN '1' THEN (SELECT detcodename FROM com_code WHERE groupcode='043' AND detcode=s.cs_kitchen_code)
+									WHEN '2' THEN (SELECT detcodename FROM com_code WHERE groupcode='044' AND detcode=s.ncs_kitchen_code)
+									WHEN '3' THEN (SELECT detcodename FROM com_code WHERE groupcode='058' and detcode=s.cs_kitchen_act_code)
+									ELSE ''
+									END	kitchen_code	
+									,s.cs_con_education as cs_con_education
+									,s.ar_marks_point as ar_marks_point
+									,(SELECT detcodename FROM com_code WHERE groupcode='057' and detcode=s.ar_state) as ar_state_kr
+									,s.ar_state as ar_state
+									
+									,s.ar_finish_yn as ar_finish_yn
+									,(SELECT TOP 1 z.yyyy FROM actul_status z WHERE z.pers_name = p.pers_name AND z.lic_no = p.lic_no AND z.ar_finish_yn = '2' AND z.yyyy != s.yyyy AND CAST(z.yyyy AS INT) <![CDATA[<]]> CAST(s.yyyy AS INT)  ORDER BY z.yyyy DESC) as yyyy2
+									,p.pers_name as pers_name
+									,p.pers_year as pers_year
+									,p.lic_no as lic_no
+									,p.lic_print_dt as lic_print_dt
+									,s.memo as memo 
+									,p.email as email
+									,p.pers_add + p.pers_add_detail as addr
+									,p.pers_tel as pers_tel
+									,p.pers_hp as pers_hp
+									<!--  , CONVERT(CHAR(10), s.ar_regi_date, 23) as ar_regi_date -->
+									
+									<!--,s.ar_add_file_url as ar_add_file_url -->
+									<!--,s.ar_add_file_name as ar_add_file_name -->
+									, (select TOP 1 ar_add_file_url from actul_status where lic_no = s.lic_no and pers_name = s.pers_name order by report_year desc) as ar_add_file_url
+									, (select TOP 1 ar_add_file_name from actul_status where lic_no = s.lic_no and pers_name = s.pers_name order by report_year desc) as ar_add_file_name
+									
+									,CASE s.ar_code_part
+									WHEN '1' THEN 
+												CASE 
+												WHEN s.cs_kitchen_code IN ('03','05','06') THEN '[근무처1] '+s.cs_kitchen_name1+' '+s.code_post1+s.cs_kitchen_add11+s.cs_kitchen_add12+
+												' [근무처2] '+s.cs_kitchen_name2+' '+s.code_post2+s.cs_kitchen_add21+s.cs_kitchen_add22+
+												' [근무처3] '+s.cs_kitchen_name3+' '+s.code_post3+s.cs_kitchen_add31+s.cs_kitchen_add32+
+												' [근무처4] '+s.cs_kitchen_name4+' '+s.code_post4+s.cs_kitchen_add41+s.cs_kitchen_add42+
+												' [근무처5] '+s.cs_kitchen_name5+' '+s.code_post5+s.cs_kitchen_add51+s.cs_kitchen_add52
+												ELSE s.code_post1+s.cs_kitchen_add11+s.cs_kitchen_add12 END
+									WHEN '2' THEN s.ncs_kitchen_name1+' '+s.code_post6+s.ncs_kitchen_add61+s.ncs_kitchen_add62									
+									ELSE ''
+									END addr2 
+						FROM 	actul_status s inner join actul_person p
+						ON 		s.lic_no=p.lic_no
+						AND 		s.pers_name=p.pers_name
+						WHERE 	1=1
+						) OUT
+						WHERE 1=1
+						<dynamic prepend="and">
+						 	<isNotEmpty property="yyyy1">
+						  		yyyy =#yyyy1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name1">
+						  		pers_name LIKE '%'+#pers_name1#+'%'  
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="lic_no1">
+						  		lic_no LIKE '%'+#lic_no1# +'%' 
+						  	</isNotEmpty>
+						</dynamic> 
+						<dynamic prepend="and">
+						 	<isNotEmpty property="pers_hp1">
+						  		pers_hp LIKE '%'+#pers_hp1# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="email1">
+						  		email LIKE '%'+#email1# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="ar_finish_yn1">
+						  		ar_finish_yn = #ar_finish_yn1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="memo">
+						  		memo LIKE '%'+#memo# +'%' 
+						  	</isNotEmpty>
+						</dynamic>
+						<isEqual property="check" compareValue="1">
+						AND 	code_seq IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+						</isEqual>
+				) result		
+		WHERE 1=1
+		<isNotEmpty property="nstart">
+		AND result.no > #nstart#
+		AND result.no <![CDATA[<=]]> #nend#
+		</isNotEmpty>
+		order by max_regi_date desc
+	</select>
+	
+	<select id="actulstatuscnt" resultClass="java.util.HashMap">	
+		SELECT count(no) cnt
+	 	FROM (
+	 		SELECT *
+							,ROW_NUMBER()OVER(ORDER BY code_seq desc) as no
+				FROM	(
+						SELECT	s.code_seq as  code_seq
+									,s.yyyy as yyyy
+									,s.ar_code_part as ar_code_part
+									,CASE s.ar_code_part 
+									WHEN '1' THEN s.cs_kitchen_code
+									WHEN '2' THEN s.ncs_kitchen_code
+									WHEN '3' THEN s.cs_kitchen_act_code
+									ELSE ''
+									END	kitchen_code	
+									,s.cs_con_education as cs_con_education
+									,s.ar_marks_point as ar_marks_point
+									,s.ar_state as ar_state
+									,(SELECT TOP 1 z.yyyy FROM actul_status z WHERE z.pers_name = p.pers_name AND z.lic_no = p.lic_no AND z.ar_finish_yn = '2' AND z.yyyy != s.yyyy AND CAST(z.yyyy AS INT) <![CDATA[<]]> CAST(s.yyyy AS INT)  ORDER BY z.yyyy DESC) as yyyy2
+									,p.pers_name as pers_name
+									,p.pers_year as pers_year
+									,p.lic_no as lic_no
+									,p.lic_print_dt as lic_print_dt
+									,p.email as email
+									,p.pers_add + p.pers_add_detail as addr
+									,p.pers_tel as pers_tel
+									,p.pers_hp as pers_hp
+						FROM 	actul_status s inner join actul_person p
+						ON 		s.lic_no=p.lic_no
+						AND 		s.pers_name=p.pers_name
+						WHERE 	s.ar_finish_yn ='2'
+						) OUT
+						WHERE 	1=1
+						<dynamic prepend="and">
+						 	<isNotEmpty property="yyyy1">
+						  		yyyy =#yyyy1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<isEqual property="check" compareValue="1">
+						AND 	code_seq IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+						</isEqual>
+				) result
+		 WHERE 1=1
+	</select>
+	
+	
+	<select id="actulstatusList" resultClass="java.util.HashMap">	
+		SELECT  *
+		FROM (
+			SELECT *
+							,ROW_NUMBER()OVER(ORDER BY ar_conform_date desc) as no
+				FROM	(
+						SELECT	s.code_seq as  code_seq
+									, CONVERT(CHAR(10), s.ar_conform_date, 23) as ar_conform_date
+									,s.yyyy as yyyy
+									,ar_code_part
+									,(SELECT top 1 tempcd1 FROM com_code WHERE groupcode=(CASE s.ar_code_part WHEN '1' THEN '043' WHEN '2' THEN '044' WHEN '3' THEN '058' END)) as ar_code_part_kr
+									,CASE s.ar_code_part 
+									WHEN '1' THEN (SELECT detcodename FROM com_code WHERE groupcode='043' AND detcode=s.cs_kitchen_code)
+									WHEN '2' THEN (SELECT detcodename FROM com_code WHERE groupcode='044' AND detcode=s.ncs_kitchen_code)
+									WHEN '3' THEN (SELECT detcodename FROM com_code WHERE groupcode='058' and detcode=s.cs_kitchen_act_code)
+									ELSE ''
+									END	kitchen_code	
+									,s.cs_con_education as cs_con_education
+									,s.ar_marks_point as ar_marks_point
+									,(SELECT detcodename FROM COM_CODE WHERE groupcode='057' and detcode=s.ar_state) as ar_state_kr
+									,s.ar_state as ar_state
+									,(SELECT TOP 1 z.yyyy FROM actul_status z WHERE z.pers_name = p.pers_name AND z.lic_no = p.lic_no AND z.ar_finish_yn = '2' AND z.yyyy != s.yyyy AND CAST(z.yyyy AS INT) <![CDATA[<]]> CAST(s.yyyy AS INT)  ORDER BY z.yyyy DESC) as yyyy2
+									,p.pers_name as pers_name
+									,p.pers_year as pers_year
+									,p.lic_no as lic_no
+									,p.lic_print_dt as lic_print_dt
+									,p.email as email
+									,p.pers_add + p.pers_add_detail as addr
+									,p.pers_tel as pers_tel
+									,p.pers_hp as pers_hp
+									, CONVERT(CHAR(10), s.ar_regi_date, 23) as ar_regi_date
+						FROM 	actul_status s inner join actul_person p
+						ON 		s.lic_no=p.lic_no
+						AND 		s.pers_name=p.pers_name
+						WHERE 	s.ar_finish_yn ='2'
+						) OUT
+						WHERE 	1=1
+						<dynamic prepend="and">
+						 	<isNotEmpty property="yyyy1">
+						  		yyyy =#yyyy1# 
+						  	</isNotEmpty>
+						</dynamic>
+						<isEqual property="check" compareValue="1">
+						AND 	code_seq IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+						</isEqual>
+				) result		
+		WHERE 1=1
+		<isNotEmpty property="nstart">
+		AND result.no > #nstart#
+		AND result.no <![CDATA[<=]]> #nend#
+		</isNotEmpty>
+	</select>
+	
+	<select id="actulstatuscnt1" resultClass="java.util.HashMap">	
+		  select count(lic_no) cnt
+		 from (
+			 select lic_no 
+			       ,ROW_NUMBER()OVER(ORDER BY max(ar_conform_date2) desc) as no
+			   from ( select s.cs_kitchen_act_code 
+						  , s.code_seq                            AS code_seq  
+			              , s.yyyy                                AS yyyy 
+						  , s.report_year						   as report_year 
+			              , CONVERT(char(10), s.ar_regi_date, 10) AS ar_regi_date  
+						  , Isnull(CONVERT(CHAR(10), s.ar_regi_date, 11), '00/01/01') AS ar_regi_date2 
+						  , Isnull(CONVERT(CHAR(10), s.ar_conform_date, 11), '00/01/01') AS ar_conform_date2
+						  , Isnull(CONVERT(char(4), s.ar_conform_date, 112), '') as ar_conform_date
+			              , (SELECT detcodename 
+	                           FROM com_code 
+	                          WHERE groupcode='059' 
+	                            AND detcode=s.ar_finish_yn) AS ar_finish_yn_kr
+						  , (SELECT TOP 1 tempcd1 
+	                           FROM com_code 
+	                          WHERE groupcode=(CASE s.ar_code_part 
+	                                           WHEN '1' THEN '043' 
+	                                           WHEN '2' THEN '044' 
+	                                           WHEN '3' THEN '058' 
+	                                		   END)) AS ar_code_part_kr
+	                       , CASE s.ar_code_part 
+	                         WHEN '1' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='043' 
+	                                           AND detcode=s.cs_kitchen_code) 
+						     WHEN '2' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='044' 
+	                                           AND detcode=s.ncs_kitchen_code) 
+	                         WHEN '3' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='058' 
+	                                           AND detcode=s.cs_kitchen_act_code) 
+	                         ELSE '' 
+	                         END kitchen_code  
+						   , CASE s.ar_code_part 
+			                 WHEN '1' THEN s.cs_kitchen_name1
+			                 WHEN '2' THEN s.ncs_kitchen_name1
+			                 WHEN '3' THEN s.cs_kitchen_name1
+			                 ELSE '' 
+			                 END kitchen_name
+				    	   , CASE s.ar_code_part 
+	                         WHEN '1' THEN s.cs_kitchen_add11+s.cs_kitchen_add12
+	                         WHEN '2' THEN s.ncs_kitchen_add61+s.ncs_kitchen_add62
+	                         WHEN '3' THEN s.cs_kitchen_add11+s.cs_kitchen_add12
+	                         ELSE '' 
+	                         END kitchen__add_name
+			               , s.ar_state                        AS ar_state  
+						   , s.ar_finish_yn                    AS ar_finish_yn  
+			               , p.pers_name                       AS pers_name
+			               , p.pers_year                       AS pers_year 
+			               , p.lic_no                          AS lic_no
+			               , p.lic_print_dt                    AS lic_print_dt 
+			               , p.email                           AS email
+			               , p.pers_add + p.pers_add_detail    AS addr 
+			               , p.pers_tel                        AS pers_tel 
+			               , p.pers_hp                         AS pers_hp 
+			               , s.ar_add_file_url                 AS ar_add_file_url 
+			               , s.ar_add_file_name                AS ar_add_file_name 
+			               , s.ar_code_part
+						   , (select max(cs_con_education)
+								FROM actul_status 
+							   where cs_con_education = '2013'
+								 and  report_year is not null
+								 and  report_year = s.report_year
+								 and  lic_no = s.lic_no 
+								 and  pers_name = s.pers_name
+								 and ar_finish_yn ='2') cs_con_education_13
+							, (select max(ar_marks_point)
+								 FROM actul_status 
+								where cs_con_education = '2013'
+								  and  report_year is not null
+								  and  report_year = s.report_year
+								  and  lic_no = s.lic_no 
+								  and  pers_name = s.pers_name
+								  and ar_finish_yn ='2' ) ar_marks_point_13
+							, (SELECT detcodename 
+							     FROM com_code 
+								WHERE groupcode = '057' 
+								  AND detcode = (select max(ar_state)
+											       FROM actul_status 
+												  where cs_con_education = '2013'
+												    and report_year is not null
+													and report_year = s.report_year
+													and lic_no = s.lic_no 
+													and pers_name = s.pers_name
+													and ar_finish_yn ='2')) AS ar_state_kr_13
+							 , (select max(cs_con_education)
+								  FROM actul_status 
+								 where cs_con_education = '2015'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') cs_con_education_15
+							 , (select max(ar_marks_point)
+								  FROM actul_status 
+								 where cs_con_education = '2015'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') ar_marks_point_15
+							 ,(SELECT detcodename 
+								 FROM com_code 
+								WHERE groupcode='057' 
+								  AND detcode=( select max(ar_state)
+												  FROM actul_status 
+												 where cs_con_education = '2015'
+												   and report_year is not null
+												   and report_year = s.report_year
+												   and lic_no = s.lic_no 
+												   and pers_name = s.pers_name
+												   and ar_finish_yn ='2')) AS ar_state_kr_15
+							  ,( select max(cs_con_education)
+								   FROM actul_status 
+								   where cs_con_education = '2017'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') cs_con_education_17
+							  ,(select max(ar_marks_point)
+								  FROM actul_status 
+								 where  cs_con_education = '2017'
+								   and  report_year is not null
+								   and  report_year = s.report_year
+								   and  lic_no = s.lic_no 
+								   and  pers_name = s.pers_name
+								   and ar_finish_yn ='2') ar_marks_point_17
+							  ,(SELECT detcodename 
+								  FROM com_code 
+								 WHERE groupcode='057' 
+								   AND detcode = (select max(ar_state)
+												    FROM actul_status 
+												   where cs_con_education = '2017'
+													 and report_year is not null
+													 and report_year = s.report_year
+													 and lic_no = s.lic_no 
+													 and pers_name = s.pers_name
+													 and ar_finish_yn ='2')) AS ar_state_kr_17
+			from actul_status s
+			INNER JOIN actul_person p 
+			ON s.lic_no=p.lic_no 
+			AND s.pers_name=p.pers_name
+			 
+			where 1=1
+			and s.ar_finish_yn ='2'
+			and s.report_year is not null
+			) bb
+			where 1=1
+			<isNotEmpty property="yyyy1">
+			and bb.ar_conform_date = #yyyy1#
+			</isNotEmpty>
+			<isEqual property="check" compareValue="1">
+			and code_seq IN 
+				<iterate property="codeList" open="(" conjunction="," close=")">
+				#codeList[]#
+				</iterate>
+			</isEqual>
+			group by bb.lic_no, bb.report_year
+			) result
+			WHERE 1=1
+			<isNotEmpty property="nstart">
+			AND result.no > #nstart#
+			AND result.no <![CDATA[<=]]> #nend#
+			</isNotEmpty>
+	</select>
+	
+	<select id="actulstatusList1" resultClass="java.util.HashMap">	
+		 select * 
+		 from (
+			 select max(code_seq) code_seq
+					, max(pers_name) pers_name
+					, lic_no 
+					, max(lic_print_dt) lic_print_dt
+					, max(addr) addr
+					, max(pers_tel) pers_tel
+					, max(pers_hp) pers_hp
+					, max(email)  email
+					, max(ar_code_part_kr) ar_code_part_kr
+					, max(kitchen_code) kitchen_code
+					, max(kitchen_name) kitchen_name
+					, max(kitchen__add_name) kitchen__add_name
+					, report_year 
+					, max(cs_con_education_13) cs_con_education_13
+					, max(ar_marks_point_13) ar_marks_point_13
+					, max(ar_state_kr_13) ar_state_kr_13
+					, max(cs_con_education_15) cs_con_education_15
+					, max(ar_marks_point_15) ar_marks_point_15
+					, max(ar_state_kr_15) ar_state_kr_15
+					, max(cs_con_education_17) cs_con_education_17
+					, max(ar_marks_point_17) ar_marks_point_17
+					, max(ar_state_kr_17) ar_state_kr_17
+					, max(ar_regi_date2) ar_regi_date2
+					, max(ar_conform_date2) ar_conform_date2
+					, max(YYYY) YYYY
+					,ROW_NUMBER()OVER(ORDER BY max(ar_conform_date2) desc) as no
+			   from ( select s.cs_kitchen_act_code 
+						  , s.code_seq                            AS code_seq  
+			              , s.yyyy                                AS yyyy 
+						  , s.report_year						   as report_year 
+			              , CONVERT(char(10), s.ar_regi_date, 10) AS ar_regi_date  
+						  , Isnull(CONVERT(CHAR(10), s.ar_regi_date, 11), '00/01/01') AS ar_regi_date2 
+						  , Isnull(CONVERT(CHAR(10), s.ar_conform_date, 11), '00/01/01') AS ar_conform_date2
+						  , Isnull(CONVERT(char(4), s.ar_conform_date, 112), '') as ar_conform_date
+			              , (SELECT detcodename 
+	                           FROM com_code 
+	                          WHERE groupcode='059' 
+	                            AND detcode=s.ar_finish_yn) AS ar_finish_yn_kr 
+						  , (SELECT TOP 1 tempcd1 
+	                           FROM com_code 
+	                          WHERE groupcode=(CASE s.ar_code_part 
+	                                           WHEN '1' THEN '043' 
+	                                           WHEN '2' THEN '044' 
+	                                           WHEN '3' THEN '058' 
+	                                		   END)) AS ar_code_part_kr
+	                       , CASE s.ar_code_part 
+	                         WHEN '1' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='043' 
+	                                           AND detcode=s.cs_kitchen_code) 
+						     WHEN '2' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='044' 
+	                                           AND detcode=s.ncs_kitchen_code) 
+	                         WHEN '3' THEN (SELECT detcodename 
+	                                          FROM com_code 
+	                                         WHERE groupcode='058' 
+	                                           AND detcode=s.cs_kitchen_act_code) 
+	                         ELSE '' 
+	                         END kitchen_code  
+						   , CASE s.ar_code_part 
+			                 WHEN '1' THEN s.cs_kitchen_name1
+			                 WHEN '2' THEN s.ncs_kitchen_name1
+			                 WHEN '3' THEN s.cs_kitchen_name1
+			                 ELSE '' 
+			                 END kitchen_name
+				    	   , CASE s.ar_code_part 
+	                         WHEN '1' THEN s.cs_kitchen_add11+s.cs_kitchen_add12
+	                         WHEN '2' THEN s.ncs_kitchen_add61+s.ncs_kitchen_add62
+	                         WHEN '3' THEN s.cs_kitchen_add11+s.cs_kitchen_add12
+	                         ELSE '' 
+	                         END kitchen__add_name
+			               , s.ar_state                        AS ar_state  
+						   , s.ar_finish_yn                    AS ar_finish_yn  
+			               , p.pers_name                       AS pers_name
+			               , p.pers_year                       AS pers_year 
+			               , p.lic_no                          AS lic_no
+			               , p.lic_print_dt                    AS lic_print_dt 
+			               , p.email                           AS email
+			               , p.pers_add + p.pers_add_detail    AS addr 
+			               , p.pers_tel                        AS pers_tel 
+			               , p.pers_hp                         AS pers_hp 
+			               , s.ar_add_file_url                 AS ar_add_file_url 
+			               , s.ar_add_file_name                AS ar_add_file_name 
+			               , s.ar_code_part
+						   , (select max(cs_con_education)
+								FROM actul_status 
+							   where cs_con_education = '2013'
+								 and  report_year is not null
+								 and  report_year = s.report_year
+								 and  lic_no = s.lic_no 
+								 and  pers_name = s.pers_name
+								 and ar_finish_yn ='2') cs_con_education_13
+							, (select max(ar_marks_point)
+								 FROM actul_status 
+								where cs_con_education = '2013'
+								  and  report_year is not null
+								  and  report_year = s.report_year
+								  and  lic_no = s.lic_no 
+								  and  pers_name = s.pers_name
+								  and ar_finish_yn ='2' ) ar_marks_point_13
+							, (SELECT detcodename 
+							     FROM com_code 
+								WHERE groupcode = '057' 
+								  AND detcode = (select max(ar_state)
+											       FROM actul_status 
+												  where cs_con_education = '2013'
+												    and report_year is not null
+													and report_year = s.report_year
+													and lic_no = s.lic_no 
+													and pers_name = s.pers_name
+													and ar_finish_yn ='2')) AS ar_state_kr_13
+							 , (select max(cs_con_education)
+								  FROM actul_status 
+								 where cs_con_education = '2015'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') cs_con_education_15
+							 , (select max(ar_marks_point)
+								  FROM actul_status 
+								 where cs_con_education = '2015'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') ar_marks_point_15
+							 ,(SELECT detcodename 
+								 FROM com_code 
+								WHERE groupcode='057' 
+								  AND detcode=( select max(ar_state)
+												  FROM actul_status 
+												 where cs_con_education = '2015'
+												   and report_year is not null
+												   and report_year = s.report_year
+												   and lic_no = s.lic_no 
+												   and pers_name = s.pers_name
+												   and ar_finish_yn ='2')) AS ar_state_kr_15
+							  ,( select max(cs_con_education)
+								   FROM actul_status 
+								   where cs_con_education = '2017'
+								   and report_year is not null
+								   and report_year = s.report_year
+								   and lic_no = s.lic_no 
+								   and pers_name = s.pers_name
+								   and ar_finish_yn ='2') cs_con_education_17
+							  ,(select max(ar_marks_point)
+								  FROM actul_status 
+								 where  cs_con_education = '2017'
+								   and  report_year is not null
+								   and  report_year = s.report_year
+								   and  lic_no = s.lic_no 
+								   and  pers_name = s.pers_name
+								   and ar_finish_yn ='2') ar_marks_point_17
+							  ,(SELECT detcodename 
+								  FROM com_code 
+								 WHERE groupcode='057' 
+								   AND detcode = (select max(ar_state)
+												    FROM actul_status 
+												   where cs_con_education = '2017'
+													 and report_year is not null
+													 and report_year = s.report_year
+													 and lic_no = s.lic_no 
+													 and pers_name = s.pers_name
+													 and ar_finish_yn ='2')) AS ar_state_kr_17
+			from actul_status s
+			INNER JOIN actul_person p 
+			ON s.lic_no=p.lic_no 
+			AND s.pers_name=p.pers_name
+			 
+			where 1=1
+			and s.ar_finish_yn ='2'
+			and s.report_year is not null
+			) bb
+			where 1=1
+			<isNotEmpty property="yyyy1">
+			and bb.ar_conform_date = #yyyy1#
+			</isNotEmpty>
+			<isEqual property="check" compareValue="1">
+			and code_seq IN 
+				<iterate property="codeList" open="(" conjunction="," close=")">
+				#codeList[]#
+				</iterate>
+			</isEqual>
+			group by bb.lic_no, bb.report_year
+			) result
+			WHERE 1=1
+			<isNotEmpty property="nstart">
+			AND result.no > #nstart#
+			AND result.no <![CDATA[<=]]> #nend#
+			</isNotEmpty>
+	</select>
+	
+	
+	<select id="actulrecipientcnt" resultClass="java.util.HashMap">	
+		SELECT 	count(code_seq) cnt
+		FROM 	actul_subjects
+		WHERE 	1=1
+	 	<isNotEmpty property="pers_name1">
+		AND		pers_name LIKE '%'+#pers_name1#+'%'  
+	  	</isNotEmpty>
+	  	<isNotEmpty property="lic_no1">
+		AND 		lic_no = #lic_no1#
+		</isNotEmpty>
+		<isNotEmpty property="ar_state1">
+		AND 	ar_state = #ar_state1#
+		</isNotEmpty>
+		<isNotEmpty property="email1">
+		AND 	email LIKE '%'+#email1#+'%'
+		</isNotEmpty>
+		<isNotEmpty property="memo">
+		AND 	memo LIKE '%'+#memo#+'%'
+		</isNotEmpty>
+		<isEqual property="check" compareValue="1">
+		AND 		code_seq IN 
+		<iterate property="codeList" open="(" conjunction="," close=")">
+			#codeList[]#
+		</iterate>
+		</isEqual>
+	</select>
+	
+	<select id="actulrecipientList" resultClass="java.util.HashMap">	
+	SELECT *
+	FROM(
+		SELECT  *
+					<!-- ,ROW_NUMBER()OVER(ORDER BY code_seq desc) no -->
+					,ROW_NUMBER()OVER(ORDER BY ar_regi_date2 desc) no
+		FROM (
+				SELECT	
+							code_seq
+							,(SELECT detcodename FROM com_code WHERE groupcode='056' AND detcode=ar_state) as ar_state_kr
+							,cs_secter
+							,(SELECT detcodename FROM com_code WHERE groupcode='060' AND detcode=cs_secter) as cs_secter_kr
+							,cs_secter_organ
+							,pers_hp
+							,email
+							,code_post
+							,pers_add
+							,pers_add_detail
+							,cs_non_target
+							,cs_non_target_detail
+							,cs_attachments
+							,ISNULL(CONVERT(CHAR(10), ar_regi_date, 11),'00/01/01') as ar_regi_date
+							,COALESCE(up_date, ar_regi_date) as ar_regi_date2
+							,ar_conform_date
+							,up_date
+							,cs_attachments_url
+							,cs_attachments_type
+							,cs_attachments_size
+							,pers_name
+							,lic_no
+							,pers_year
+							,cs_con_education
+							,authority_premises
+							,ar_state
+							,memo
+							,code_sex
+							,CASE WHEN  code_sex  = '1' THEN (SELECT detcodename FROM com_code WHERE groupcode='002' AND detcode='1')
+									 ELSE (SELECT detcodename FROM com_code WHERE groupcode='002' AND detcode='2') END AS code_sex_kr						
+				FROM		actul_subjects
+				WHERE 	1=1
+			 	<isNotEmpty property="pers_name1">
+				AND		pers_name LIKE '%'+#pers_name1#+'%'  
+			  	</isNotEmpty>
+			  	<isNotEmpty property="lic_no1">
+				AND 		lic_no = #lic_no1#
+				</isNotEmpty>
+				<isNotEmpty property="ar_state1">
+				AND 	ar_state = #ar_state1#
+				</isNotEmpty>
+				<isNotEmpty property="email1">
+				AND 	email LIKE '%'+#email1#+'%'
+				</isNotEmpty>
+				<isNotEmpty property="memo">
+				AND 	memo LIKE '%'+#memo#+'%'
+				</isNotEmpty>
+				<isEqual property="check" compareValue="1">
+				AND 		code_seq IN 
+				<iterate property="codeList" open="(" conjunction="," close=")">
+					#codeList[]#
+				</iterate>
+				</isEqual>
+				) out
+		) result
+		WHERE 1=1
+		<isNotEmpty property="nstart">
+		AND result.no > #nstart#
+		AND result.no <![CDATA[<=]]> #nend#
+		</isNotEmpty>
+	</select>
+	
+	<select id="getRecipient" resultClass="java.util.HashMap"> 
+	SELECT   code_seq
+			,cs_secter
+			,cs_secter_organ
+			,pers_hp
+			,email
+			,code_post
+			,pers_add
+			,pers_add_detail
+			,cs_non_target
+			,cs_non_target_detail
+			,cs_attachments
+			,ar_state
+			,ar_regi_date
+			,ar_conform_date
+			,up_date
+			,cs_attachments_url
+			,cs_attachments_type
+			,cs_attachments_size
+			,pers_name
+			,lic_no
+			,pers_year
+			,authority_premises
+			,code_sex
+			,cs_con_education
+			,cs_attachments2
+			,cs_attachments_url2
+			,cs_attachments_type2
+			,cs_attachments_size2
+			,cs_attachments3
+			,cs_attachments_url3
+			,cs_attachments_type3
+			,cs_attachments_size3
+	FROM	actul_subjects
+	WHERE 	code_seq = #code_seq#
+	</select>
+	
+	<update id="subjectsUpt" parameterClass="java.util.HashMap">
+	UPDATE actul_subjects
+	SET		cs_secter = #cs_secter#           
+				,cs_secter_organ = #cs_secter_organ# 
+				,pers_hp = #pers_hp#				    
+				,email = #email#               
+				,code_post = #code_post#           
+				,pers_add = #pers_add#            
+				,cs_non_target = #cs_non_target#       
+				,cs_non_target_detail = #cs_non_target_detail#
+				,up_date = GETDATE()             
+				,pers_name = #pers_name#           
+				,lic_no = #lic_no#              
+				,pers_year = #pers_year#           
+				,authority_premises = #authority_premises#  
+				<!-- 2022.12.06  주석처리 -->
+				<!-- ,code_sex = #code_sex# -->
+				,cs_con_education = #cs_con_education#    
+	WHERE 	code_seq = #code_seq#
+	</update>
+		
+	<select id="actullicensecnt" resultClass="java.util.HashMap">	   	
+		SELECT count(no) cnt
+			  FROM ( 
+			  
+				SELECT			*				
+									,ROW_NUMBER()OVER(ORDER BY atc_sno desc) no	
+				FROM (
+	
+					SELECT	atc_sno
+							,bbs_cd
+							,lic_no
+							,lic_print_dt
+							,pers_name
+							,REPLACE(DBO.GETPERSNODECORD(atc_wrtr_cttno, '1'),'-','') atc_wrtr_cttno
+							,DBO.GETPERSNODECORD(atc_wrtr_eml, '1') atc_wrtr_eml 
+							,atc_wrtr_eml2
+							,bbs_file_url
+							,CASE WHEN bbs_file_name IS NULL THEN 'X' WHEN bbs_file_name='' THEN 'X' ELSE 'O' END AS bbs_file
+							,CASE WHEN ar_state IS NULL THEN '0' ELSE ar_state END AS ar_state
+					FROM actul_paper_board A
+					WHERE bbs_cd='004' 
+					AND dlt_yn = 'N'
+					AND atc_pst_yn = 'Y'
+					AND atc_rgt_se = 'OR'
+	
+				) OUT	
+				WHERE 1=1
+	
+				<dynamic prepend="and">
+				 	<isNotEmpty property="pers_name1">
+				  		pers_name LIKE '%'+#pers_name1#+'%'  
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="lic_no1">
+				  		lic_no LIKE '%'+#lic_no1# +'%' 
+				  	</isNotEmpty>
+				</dynamic> 
+				<dynamic prepend="and">
+				 	<isNotEmpty property="atc_wrtr_cttno1">
+				  		atc_wrtr_cttno LIKE '%'+#atc_wrtr_cttno1# +'%' 
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="email1">
+				  		atc_wrtr_eml LIKE '%'+#email1# +'%' 
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="ar_state1">
+				  		ar_state = #ar_state1#
+				  	</isNotEmpty>
+				</dynamic>
+				<isEqual property="check" compareValue="1">
+						AND 	atc_sno IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+				</isEqual>
+				
+			       ) OUT
+		 WHERE 1=1
+	</select>
+		
+	<select id="actullicenseList" resultClass="java.util.HashMap">	
+		SELECT  *
+					,(SELECT detcodename FROM com_code WHERE groupcode='056' and detcode=ar_state) as ar_state_kr  
+				  	,atc_wrtr_eml +'@'+ atc_wrtr_eml2 AS email 
+		FROM (
+				SELECT			*
+									,ROW_NUMBER()OVER(ORDER BY atc_sno desc) no
+				FROM (
+	
+					SELECT	atc_sno
+							,bbs_cd
+							,lic_no
+							,lic_print_dt
+							,pers_name
+							,REPLACE(DBO.GETPERSNODECORD(atc_wrtr_cttno, '1'),'-','') atc_wrtr_cttno
+							,DBO.GETPERSNODECORD(atc_wrtr_eml, '1') atc_wrtr_eml 
+							,atc_wrtr_eml2
+							,bbs_file_url
+							,bbs_file_type
+					   		,bbs_file_size
+					   		,bbs_file_name
+							,CASE WHEN bbs_file_name IS NULL THEN 'X' WHEN bbs_file_name='' THEN 'X' ELSE 'O' END AS bbs_file
+							,CASE WHEN ar_state IS NULL THEN '0' ELSE ar_state END AS ar_state
+							, CONVERT(CHAR(10), frst_rgt_dttm, 11) as frst_rgt_dttm
+					FROM actul_paper_board A
+					WHERE bbs_cd='004' 
+					AND dlt_yn = 'N'
+					AND atc_pst_yn = 'Y'
+					AND atc_rgt_se = 'OR'
+	
+				) OUT	
+				WHERE 1=1
+	
+				<dynamic prepend="and">
+				 	<isNotEmpty property="pers_name1">
+				  		pers_name LIKE '%'+#pers_name1#+'%'  
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="lic_no1">
+				  		lic_no LIKE '%'+#lic_no1# +'%' 
+				  	</isNotEmpty>
+				</dynamic> 
+				<dynamic prepend="and">
+				 	<isNotEmpty property="atc_wrtr_cttno1">
+				  		atc_wrtr_cttno LIKE '%'+#atc_wrtr_cttno1# +'%' 
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="email1">
+				  		atc_wrtr_eml LIKE '%'+#email1# +'%' 
+				  	</isNotEmpty>
+				</dynamic>
+				<dynamic prepend="and">
+				 	<isNotEmpty property="ar_state1">
+				  		ar_state = #ar_state1#
+				  	</isNotEmpty>
+				</dynamic>
+				<isEqual property="check" compareValue="1">
+						AND 	atc_sno IN 
+							<iterate property="codeList" open="(" conjunction="," close=")">
+							#codeList[]#
+							</iterate>
+				</isEqual>
+				
+			) result
+		WHERE 1=1
+		<isNotEmpty property="nstart">
+		AND result.no > #nstart#
+		AND result.no <![CDATA[<=]]> #nend#
+		</isNotEmpty>
+	</select>	
+	
+	<update id="recipientUpt" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		ar_state='4', ar_conform_date=GETDATE()  
+		WHERE 1=1
+		AND		lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND		cs_con_education=#cs_con_education#
+	</update>
+	
+	<update id="recipientArStateUpt" parameterClass="java.util.HashMap">
+		UPDATE actul_subjects
+		SET		ar_state=#ar_state2#, ar_conform_date=GETDATE()  
+		WHERE 	1=1
+		AND		code_seq=#code_seq#
+	</update>
+	
+	<insert id="personReg" parameterClass="java.util.HashMap">
+		INSERT INTO actul_person
+		(
+			code_seq
+			,pers_name
+			,lic_no
+			,lic_print_dt
+			,regi_dt
+			,email
+			,pers_hp
+		)VALUES(
+			(SELECT ISNULL ( MAX ( code_seq) , 0 ) +1 FROM actul_person)
+			,#pers_name#   
+			,#lic_no#  
+			,#lic_print_dt#
+			,GETDATE()    
+			,#to_email#
+			,#atc_wrtr_cttno#
+		)
+	</insert>
+	
+	<update id="arStateUpt" parameterClass="java.util.HashMap">
+		UPDATE actul_paper_board
+		SET		ar_state=#ar_state#
+		WHERE 	atc_sno=#atc_sno#
+	</update>
+	
+	
+	<select id="sampleExcel" resultClass="java.util.HashMap">
+		SELECT	'' as gubun
+					,'' yyyy
+					,'' lic_no
+					,'' pers_name
+					,'' cs_con_education
+					,'' ar_finish_point
+					,'' ar_marks_point
+					,'' ar_state
+					,'' report_year
+	</select>
+	
+	<insert id="insertStatus" parameterClass="java.util.HashMap">
+		INSERT INTO  actul_status
+		(
+			code_seq
+			,yyyy
+			,lic_no
+			,pers_name
+			,cs_con_education
+			,ar_finish_point
+			,ar_marks_point
+			,ar_state
+			,report_year
+			,ar_regi_date
+		)VALUES(
+			(SELECT ISNULL ( MAX ( code_seq) , 0 ) +1 FROM actul_status)
+			,#yyyy#   
+			,#lic_no#  
+			,#pers_name#
+			,#cs_con_education#
+			,#ar_finish_point#
+			,#ar_marks_point#
+			,#ar_state#
+			,null
+			,GETDATE()    
+		)
+	</insert>
+	
+	<update id="updateStatus" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		cs_con_education=#cs_con_education#
+					,ar_finish_point=#ar_finish_point#
+					,ar_marks_point=#ar_marks_point#
+					,ar_state=#ar_state#
+					,report_year=#report_year#
+		WHERE 	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND     cs_con_education= #cs_con_education# <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+		<!-- AND		yyyy=#yyyy# --> <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+	</update>
+	
+	<update id="updateState" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		ar_state=#ar_state#
+		WHERE 	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND     cs_con_education= #cs_con_education# <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+		<!-- AND		yyyy=#yyyy# --> <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+	</update>
+	
+	
+	
+	
+	<update id="updateFinishyn" parameterClass="java.util.HashMap">
+		UPDATE	actul_status
+		SET		ar_finish_yn=#ar_finish_yn#, ar_conform_date=GETDATE()  
+		WHERE	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND     cs_con_education= #cs_con_education# <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+		<!-- AND		yyyy=#yyyy# --> <!-- 20160125 2016년 실태신고를 위한 수정 --> 
+	</update>
+	
+	<select id="personCnt" resultClass="java.util.HashMap">	   	
+		SELECT 	count(*) cnt
+		FROM 	actul_person
+		WHERE	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+	</select>
+	
+	<select id="statusCnt" resultClass="java.util.HashMap">	
+	<!-- 
+	SELECT 	count(*) cnt
+		FROM 	actul_status
+		WHERE	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND     cs_con_education= #cs_con_education# 
+	 -->   	
+	 SELECT 	count(*) cnt
+		FROM 	actul_status
+		WHERE	lic_no=#lic_no#
+		AND		pers_name=#pers_name#
+		AND     cs_con_education= #cs_con_education# 
+		AND     report_year is null
+		AND     ar_finish_yn is null
+	</select>
+	
+	<update id="statusUptProc1" parameterClass="java.util.HashMap">
+		UPDATE actul_person
+		SET		code_sex=#code_sex#
+					,pers_year=#pers_year#
+					,code_post=#code_post#
+					,pers_add=#pers_add#
+					,pers_add_detail=#pers_add_detail#
+					,pers_tel=#pers_tel#
+					,pers_hp=#pers_hp#
+					,email=#email#
+					,lic_print_dt=#lic_print_dt#
+		WHERE	pers_name = #pers_name#
+  		AND		lic_no = #lic_no#
+	</update>
+	
+	<update id="statusUptProc2" parameterClass="java.util.HashMap">
+		UPDATE  actul_status
+		   SET  ar_code_part=#ar_code_part#
+				,cs_kitchen_code=#cs_kitchen_code#
+				,cs_kitchen_name1=#cs_kitchen_name1#
+				,code_post1=#code_post1#
+				,cs_kitchen_add11=#cs_kitchen_add11#
+				,cs_kitchen_add12=#cs_kitchen_add12# 
+				,cs_kitchen_name2=#cs_kitchen_name2#
+				,code_post2=#code_post2#
+				,cs_kitchen_add21=#cs_kitchen_add21# 
+				,cs_kitchen_add22=#cs_kitchen_add22#
+				,cs_kitchen_name3=#cs_kitchen_name3#
+				,code_post3=#code_post3#
+				,cs_kitchen_add31=#cs_kitchen_add31#
+				,cs_kitchen_add32=#cs_kitchen_add32#
+				,cs_kitchen_name4=#cs_kitchen_name4#
+				,code_post4=#code_post4#
+				,cs_kitchen_add41=#cs_kitchen_add41#
+				,cs_kitchen_add42=#cs_kitchen_add42#
+				,cs_kitchen_name5=#cs_kitchen_name5#
+				,code_post5=#code_post5#
+				,cs_kitchen_add51=#cs_kitchen_add51#
+				,cs_kitchen_add52=#cs_kitchen_add52#
+				,ncs_kitchen_code=#ncs_kitchen_code#
+				,ncs_kitchen_ret_code=#ncs_kitchen_ret_code#	
+				,ncs_kitchen_name1=#ncs_kitchen_name1#
+				,code_post6=#code_post6#
+				,ncs_kitchen_add61=#ncs_kitchen_add61#
+				,ncs_kitchen_add62=#ncs_kitchen_add62#
+				,cs_kitchen_act_code=#cs_kitchen_act_code#
+				,cs_kitchen_ret_code=#cs_kitchen_ret_code#
+				,ar_finish_yn=#ar_finish_yn#
+				,ar_regi_date=GETDATE()
+				,lic_print_dt=#lic_print_dt #
+				,report_year=#yyyy#
+			WHERE
+				PERS_NAME=#pers_name#
+				AND LIC_NO=#lic_no#
+				<![CDATA[
+				AND	CS_CON_EDUCATION < #yyyy#
+				]]>
+				AND	ISNULL(AR_FINISH_YN, '') NOT IN ('2','3')
+	</update>
+	
+	<update id="statusUptProc3" parameterClass="java.util.HashMap">
+ 		UPDATE actul_status
+		SET		ar_code_part=#ar_code_part#
+					,cs_kitchen_code=#cs_kitchen_code#
+					,cs_kitchen_name1=#cs_kitchen_name1#
+					,code_post1=#code_post1#
+					,cs_kitchen_add11=#cs_kitchen_add11#
+					,cs_kitchen_add12=#cs_kitchen_add12#
+					,cs_kitchen_name2=#cs_kitchen_name2#
+					,code_post2=#code_post2#
+					,cs_kitchen_add21=#cs_kitchen_add21#
+					,cs_kitchen_add22=#cs_kitchen_add22#
+					,cs_kitchen_name3=#cs_kitchen_name3#
+					,code_post3=#code_post3#
+					,cs_kitchen_add31=#cs_kitchen_add31#
+					,cs_kitchen_add32=#cs_kitchen_add32#
+					,cs_kitchen_name4=#cs_kitchen_name4#
+					,code_post4=#code_post4#
+					,cs_kitchen_add41=#cs_kitchen_add41#
+					,cs_kitchen_add42=#cs_kitchen_add42#
+					,cs_kitchen_name5=#cs_kitchen_name5#
+					,code_post5=#code_post5#
+					,cs_kitchen_add51=#cs_kitchen_add51#
+					,cs_kitchen_add52=#cs_kitchen_add52#
+					,ncs_kitchen_code=#ncs_kitchen_code#
+					,ncs_kitchen_ret_code=#ncs_kitchen_ret_code#	
+					,ncs_kitchen_name1=#ncs_kitchen_name1#
+					,code_post6=#code_post6#
+					,ncs_kitchen_add61=#ncs_kitchen_add61#
+					,ncs_kitchen_add62=#ncs_kitchen_add62#
+					,cs_kitchen_act_code=#cs_kitchen_act_code#
+					,cs_kitchen_ret_code=#cs_kitchen_ret_code#
+					,lic_print_dt =#lic_print_dt#
+					,ar_regi_date=GETDATE()
+					,report_year=#yyyy#
+					,ar_finish_yn=#ar_finish_yn#
+					,ar_conform_date= NULL
+					<isNotEmpty property="ar_add_file_name">
+						,ar_add_file_name = #ar_add_file_name#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_url">
+						,ar_add_file_url = #ar_add_file_url#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_type">
+						,ar_add_file_type = #ar_add_file_type#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_size">
+						,ar_add_file_size = #ar_add_file_size#
+					</isNotEmpty>
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+ 		AND		CS_CON_EDUCATION <![CDATA[<]]> #yyyy#
+ 		AND	ISNULL(AR_FINISH_YN, '') NOT IN ('2','3')
+	</update>
+	
+	<update id="statusUptProc4" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		ar_code_part=#ar_code_part#
+					,cs_kitchen_code=#cs_kitchen_code#
+					,cs_kitchen_name1=#cs_kitchen_name1#
+					,code_post1=#code_post1#
+					,cs_kitchen_add11=#cs_kitchen_add11#
+					,cs_kitchen_add12=#cs_kitchen_add12#
+					,cs_kitchen_name2=#cs_kitchen_name2#
+					,code_post2=#code_post2#
+					,cs_kitchen_add21=#cs_kitchen_add21#
+					,cs_kitchen_add22=#cs_kitchen_add22#
+					,cs_kitchen_name3=#cs_kitchen_name3#
+					,code_post3=#code_post3#
+					,cs_kitchen_add31=#cs_kitchen_add31#
+					,cs_kitchen_add32=#cs_kitchen_add32#
+					,cs_kitchen_name4=#cs_kitchen_name4#
+					,code_post4=#code_post4#
+					,cs_kitchen_add41=#cs_kitchen_add41#
+					,cs_kitchen_add42=#cs_kitchen_add42#
+					,cs_kitchen_name5=#cs_kitchen_name5#
+					,code_post5=#code_post5#
+					,cs_kitchen_add51=#cs_kitchen_add51#
+					,cs_kitchen_add52=#cs_kitchen_add52#
+					,ncs_kitchen_code=#ncs_kitchen_code#
+					,ncs_kitchen_ret_code=#ncs_kitchen_ret_code#	
+					,ncs_kitchen_name1=#ncs_kitchen_name1#
+					,code_post6=#code_post6#
+					,ncs_kitchen_add61=#ncs_kitchen_add61#
+					,ncs_kitchen_add62=#ncs_kitchen_add62#
+					,cs_kitchen_act_code=#cs_kitchen_act_code#
+					,cs_kitchen_ret_code=#cs_kitchen_ret_code#
+					,lic_print_dt =#lic_print_dt#
+					,report_year=#yyyy#
+					,ar_finish_yn=#ar_finish_yn#
+					,ar_conform_date= GETDATE()
+					<isNotEmpty property="ar_add_file_name">
+						,ar_add_file_name = #ar_add_file_name#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_url">
+						,ar_add_file_url = #ar_add_file_url#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_type">
+						,ar_add_file_type = #ar_add_file_type#
+					</isNotEmpty>
+					<isNotEmpty property="ar_add_file_size">
+						,ar_add_file_size = #ar_add_file_size#
+					</isNotEmpty>
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+   		AND		CS_CON_EDUCATION <![CDATA[<]]> #yyyy#
+   		AND		ISNULL(AR_FINISH_YN, '') NOT IN ('2','3')
+	
+	</update>
+	
+	
+	<update id="statusUptProc5" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET			lic_print_dt =#lic_print_dt#
+					,report_year=#yyyy#
+					,ar_finish_yn=#ar_finish_yn#
+					,ar_conform_date= GETDATE()
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+   		AND		CS_CON_EDUCATION =#yyyy#-3 
+	</update>
+	
+	<update id="statusUptProc7" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET			lic_print_dt =#lic_print_dt#
+					,report_year=#yyyy#
+					,ar_finish_yn=#ar_finish_yn#
+					,ar_conform_date= GETDATE()
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+   		AND		CS_CON_EDUCATION =#year1#-4 
+	</update>
+	
+		<update id="statusUptProc6" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		ar_code_part=#ar_code_part#
+					,cs_kitchen_code=#cs_kitchen_code#
+					,cs_kitchen_name1=#cs_kitchen_name1#
+					,code_post1=#code_post1#
+					,cs_kitchen_add11=#cs_kitchen_add11#
+					,cs_kitchen_add12=#cs_kitchen_add12#
+					,cs_kitchen_name2=#cs_kitchen_name2#
+					,code_post2=#code_post2#
+					,cs_kitchen_add21=#cs_kitchen_add21#
+					,cs_kitchen_add22=#cs_kitchen_add22#
+					,cs_kitchen_name3=#cs_kitchen_name3#
+					,code_post3=#code_post3#
+					,cs_kitchen_add31=#cs_kitchen_add31#
+					,cs_kitchen_add32=#cs_kitchen_add32#
+					,cs_kitchen_name4=#cs_kitchen_name4#
+					,code_post4=#code_post4#
+					,cs_kitchen_add41=#cs_kitchen_add41#
+					,cs_kitchen_add42=#cs_kitchen_add42#
+					,cs_kitchen_name5=#cs_kitchen_name5#
+					,code_post5=#code_post5#
+					,cs_kitchen_add51=#cs_kitchen_add51#
+					,cs_kitchen_add52=#cs_kitchen_add52#
+					,ncs_kitchen_code=#ncs_kitchen_code#
+					,ncs_kitchen_ret_code=#ncs_kitchen_ret_code#	
+					,ncs_kitchen_name1=#ncs_kitchen_name1#
+					,code_post6=#code_post6#
+					,ncs_kitchen_add61=#ncs_kitchen_add61#
+					,ncs_kitchen_add62=#ncs_kitchen_add62#
+					,cs_kitchen_act_code=#cs_kitchen_act_code#
+					,cs_kitchen_ret_code=#cs_kitchen_ret_code#
+					,lic_print_dt =#lic_print_dt#
+					,ar_regi_date=GETDATE()
+					,report_year=#yyyy#
+					,yyyy=#yyyy#
+					,ar_finish_yn=#ar_finish_yn#
+					,cs_con_education=#cs_con_education#
+					,ar_marks_point=#ar_marks_point#
+					,ar_state=#ar_state#
+					,ar_conform_date= GETDATE()
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+
+<!-- 2010619 2016년 싩태신고를 위한 수정 -->	
+   		AND	CS_CON_EDUCATION = #year1#-2 
+
+	</update>
+	
+	<update id="fileAr_status" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		ar_add_file_name=#ar_add_file_name#
+					,ar_add_file_url=#ar_add_file_url#
+					,ar_add_file_type=#ar_add_file_type#
+					,ar_add_file_size=#ar_add_file_size#
+		WHERE 	pers_name = #pers_name#
+		AND   	lic_no = #lic_no#	
+		AND	 	 yyyy = #yyyy#
+	</update>
+	
+	<update id="updateInfo_status" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		pers_name=#new_pers_name#
+					,lic_no=#new_lic_no#
+					,lic_print_dt=#new_lic_print_dt#
+		WHERE 	pers_name = #old_pers_name#
+		AND   	lic_no = #old_lic_no#	
+	</update>
+	
+	<update id="updateInfo_person" parameterClass="java.util.HashMap">
+		UPDATE actul_person
+		SET		pers_name=#new_pers_name#
+					,lic_no=#new_lic_no#
+					,lic_print_dt=#new_lic_print_dt#
+		WHERE 	pers_name = #old_pers_name#
+		AND   	lic_no = #old_lic_no#	
+	</update>
+	
+	<select id="getStatusData" resultClass="java.util.HashMap">
+		SELECT	ISNULL(CONVERT(CHAR(10), ar_regi_date, 11),'00/01/01') as ar_regi_date, *
+		FROM 	actul_status
+		WHERE 	pers_name=#pers_name#
+		AND 	lic_no=#lic_no#
+		<dynamic prepend="and">
+			<isNotEmpty property="cs_con_education">
+				cs_con_education = #cs_con_education#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getPersonData" resultClass="java.util.HashMap">
+		SELECT		pers_name
+						, lic_no
+						, lic_print_dt
+						, code_sex
+						, pers_year
+						, code_post
+						, pers_add
+						, pers_add_detail
+						, pers_tel
+						, pers_hp
+						, email
+						, pers_state
+  		  FROM 		actul_person
+  		  WHERE 	pers_name=#pers_name#
+		  AND 		lic_no=#lic_no#
+	</select>
+	
+	<select id="getEmail" resultClass="java.util.HashMap">
+		SELECT 	detcodename
+					,detcode
+		FROM 	com_code
+		WHERE 	groupcode ='025'
+		AND		detcode !='01'
+	</select>
+	
+	<select id="getKda_eduCnt" resultClass="java.util.HashMap">	   	
+	SELECT    
+			 COUNT(yyyy_seq) cnt
+	FROM kda_edu				 		  
+	WHERE	1=1			  		 
+		<isNotEmpty property="ke_name1">	
+	 	AND		ke_name = #ke_name1# 
+	 	</isNotEmpty>
+	 	<isNotEmpty property="yyyy1">
+	 	AND		yyyy = #yyyy1#
+	 	</isNotEmpty>
+	 	<isNotEmpty property="ke_finish_yn1"> 
+		AND		ke_finish_yn= #ke_finish_yn1#
+		</isNotEmpty> 	 		
+		<isNotEmpty property="ke_lic_no1"> 
+		AND		ke_lic_no= #ke_lic_no1#
+		</isNotEmpty> 				  							 						     
+	</select>
+	
+	<select id="getKda_edu" resultClass="java.util.HashMap">	   	
+	SELECT    
+			 yyyy 
+			,yyyy_seq
+			,ke_name
+			,ke_lic_no						
+			,ke_seq
+			,ke_subject
+			,ke_fromto	
+			,ke_isutime
+			,ke_jesukaing
+			,ke_total
+			,ke_finish_dt
+			,ke_finish_no
+			,ke_finish_yn	
+			,ke_birth				
+	FROM kda_edu				 		  
+ 	WHERE	1=1
+	 	<isNotEmpty property="ke_name1">	
+	 	AND		ke_name = #ke_name1# 
+	 	</isNotEmpty>
+	 	<isNotEmpty property="yyyy1">
+	 	AND		yyyy = #yyyy1#
+	 	</isNotEmpty>
+	 	<isNotEmpty property="ke_finish_yn1"> 
+		AND		ke_finish_yn= #ke_finish_yn1#
+		</isNotEmpty> 					  							 						     
+	 	<isNotEmpty property="ke_lic_no1"> 
+		AND		ke_lic_no= #ke_lic_no1#
+		</isNotEmpty> 					  							 						     
+	</select>
+	
+	<select id="sampleEduExcel" resultClass="java.util.HashMap">
+		SELECT	'' as gubun
+					,'' yyyy
+					,'' ke_name     
+					,'' ke_lic_no		
+					,'' ke_seq      
+					,'' ke_subject  
+					,'' ke_fromto	 
+					,'' ke_isutime  
+					,'' ke_jesukaing
+					,'' ke_total    
+					,'' ke_finish_dt
+					,'' ke_finish_no
+					,'' ke_finish_yn
+					,'' ke_birth    
+	</select>
+	
+	<select id="eduCnt" resultClass="java.util.HashMap">	   	
+		SELECT 	count(*) cnt
+		FROM 	kda_edu
+		WHERE 	ke_lic_no=#ke_lic_no#
+		AND		ke_name=#ke_name#
+		AND		yyyy=#yyyy#
+	</select>
+	
+	<insert id="insertKda_edu" parameterClass="java.util.HashMap">
+	INSERT INTO kda_edu(
+		yyyy 
+		,yyyy_seq
+		,ke_name
+		,ke_lic_no						
+		,ke_seq
+		,ke_subject
+		,ke_fromto	
+		,ke_isutime
+		,ke_jesukaing
+		,ke_total
+		,ke_finish_dt
+		,ke_finish_no
+		,ke_finish_yn	
+		,ke_birth
+	) VALUES(
+		#yyyy# 
+		,(SELECT ISNULL ( MAX ( yyyy_seq) , 0 ) +1 FROM kda_edu)
+		,#ke_name#
+		,#ke_lic_no#						
+		,#yyyy# + CONVERT(varchar(10), (SELECT ISNULL ( MAX ( yyyy_seq) , 0 ) +1 FROM kda_edu))
+		,#ke_subject#
+		,#ke_fromto#	
+		,#ke_isutime#
+		,#ke_jesukaing#
+		,#ke_total#
+		,#ke_finish_dt#
+		,#ke_finish_no#
+		,#ke_finish_yn#	
+		,#ke_birth#
+	)
+	</insert>
+	
+	<update id="updateKda_edu" parameterClass="java.util.HashMap">
+		UPDATE kda_edu
+		SET		ke_subject=#ke_subject#
+					,ke_fromto=#ke_fromto#
+					,ke_isutime=#ke_isutime#
+					,ke_jesukaing=#ke_jesukaing#
+					,ke_total=#ke_total#
+					,ke_finish_dt=#ke_finish_dt#
+					,ke_finish_no=#ke_finish_no#
+					,ke_finish_yn=#ke_finish_yn#
+					,ke_birth=#ke_birth#
+		WHERE 	ke_lic_no=#ke_lic_no#
+		AND		ke_name=#ke_name#
+		AND		yyyy=#yyyy#
+	</update>
+	
+	<select id="getRecentYear" resultClass="java.util.HashMap">	   	
+		SELECT TOP 1 report_year 
+		FROM 	ACTUL_STATUS
+		WHERE 	PERS_NAME = #pers_name#
+		AND   	LIC_NO = #lic_no#	
+		AND 	AR_FINISH_YN = '2'
+		AND 	report_year != #yyyy#
+		AND 	CAST(report_year AS INT) <![CDATA[<]]> CAST(#yyyy# AS INT) 
+		ORDER BY report_year DESC
+	</select>
+	
+	<select id="getRecent" resultClass="java.util.HashMap">	   	
+		SELECT 	A.YYYY
+					,A.AR_FINISH_POINT
+					,A.AR_MARKS_POINT
+					,A.AR_STATE
+					,(SELECT DETCODENAME FROM COM_CODE WHERE GROUPCODE ='057' AND DETCODE=A.AR_STATE) AS AR_STATE_KR
+					,A.REPORT_YEAR
+					,A.cs_con_education
+		FROM 	ACTUL_STATUS A
+		WHERE 	A.PERS_NAME = #pers_name#
+		AND   	A.LIC_NO = #lic_no#	
+		AND     A.REPORT_YEAR = #yyyy#	
+		ORDER BY YYYY 
+	</select>
+	
+	<select id="getRecentSearch" resultClass="java.util.HashMap">	   	
+		SELECT 	A.YYYY
+					,A.AR_FINISH_POINT
+					,A.AR_MARKS_POINT
+					,A.AR_STATE
+					,(SELECT DETCODENAME FROM COM_CODE WHERE GROUPCODE ='057' AND DETCODE=A.AR_STATE) AS AR_STATE_KR
+					,A.REPORT_YEAR
+					,A.cs_con_education
+		FROM 	ACTUL_STATUS A
+		WHERE 	A.PERS_NAME = #pers_name#
+		AND   	A.LIC_NO = #lic_no#	
+		AND     A.REPORT_YEAR IS NULL
+		AND		A.ar_finish_yn IS NULL
+		ORDER BY YYYY 
+	</select>
+		
+	<!-- 싵고관리-상세검색 파일업로드 기능 추가 20161122 -->
+	<update id="uptFile" parameterClass="java.util.HashMap">
+		UPDATE ACTUL_STATUS
+		SET   AR_ADD_FILE_NAME = #ar_add_file_name#
+		    , AR_ADD_FILE_URL  = #ar_add_file_url#
+			, AR_ADD_FILE_TYPE = #ar_add_file_type#
+			, AR_ADD_FILE_SIZE = #ar_add_file_size#
+		WHERE PERS_NAME = #pers_name#
+		AND   LIC_NO = #lic_no#
+		<![CDATA[
+		AND	CS_CON_EDUCATION < #yyyy#
+		]]>
+	</update>
+
+	<update id="recipientMemoUpt" parameterClass="java.util.HashMap">
+		UPDATE actul_subjects
+		SET		memo = #memo#
+		WHERE 	1=1
+		AND		code_seq=#code_seq#
+	</update>
+	
+	<update id="manageMemoUpt" parameterClass="java.util.HashMap">
+		UPDATE actul_status
+		SET		memo = #memo#
+		WHERE 	1=1
+		AND		code_seq=#code_seq#
+		AND		lic_no=#lic_no#
+	</update>
+	
+	<parameterMap class="java.util.Map" id="rnst">
+		<parameter property="PersName"			jdbcType="VARCHAR"	javaType="java.lang.String"		mode="IN" />
+		<parameter property="LicNo"				jdbcType="VARCHAR"	javaType="java.lang.String"		mode="IN" />
+		<parameter property="ReturnState"		jdbcType="NUMERIC"	javaType="java.lang.Integer"	mode="OUT" />
+		<parameter property="ReturnStateStr"	jdbcType="VARCHAR"	javaType="java.lang.String"		mode="OUT" />
+		<parameter property="ReturnFinishYN"	jdbcType="VARCHAR"	javaType="java.lang.String"		mode="OUT" />
+	</parameterMap>
+	 <procedure id="ReportState_chk" parameterMap="rnst">
+	   {CALL ReportState_chk(?,?,?,?,?)}
+	 </procedure>
+	 
+	 <select id="getFileInfo" resultClass="java.util.HashMap">
+		  SELECT aa.* 
+			FROM (SELECT AR_ADD_FILE_NAME
+					   , AR_ADD_FILE_SIZE
+					   , AR_ADD_FILE_TYPE
+					   , AR_ADD_FILE_URL 
+					   , report_year
+					   , ROW_NUMBER()OVER(ORDER BY report_year desc ) no
+					FROM actul_status
+				   WHERE lic_no= #lic_no#
+					 AND pers_name = #pers_name#
+					 AND ar_finish_yn = '2'
+					) aa
+			WHERE aa.no = 1
+	</select>
+	
+</sqlMap>    

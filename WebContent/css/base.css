@@ -1,0 +1,23 @@
+/*¼û±è¿µ¿ª*/
+#accessibility,.skip, hr,legend,caption, .h2{
+	position : absolute ;
+	width : 0 ; 
+	height : 0 ; 
+	font-size : 0 ; 
+	line-height : 0 ;
+	overflow : hidden ; 
+	visibility : hidden ;
+    text-indent:-1000em;
+}
+/* anchor */
+a { 
+	text-decoration : none ; 
+}
+a:link, a:visited { 
+	color : #535353 ; 
+	text-decoration:none; 
+}
+a:hover, a:active {	
+	color:#fff; 
+	text-decoration:none; 
+}

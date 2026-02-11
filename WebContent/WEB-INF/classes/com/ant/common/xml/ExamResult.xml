@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="examresult">
+ 
+  <!-- 응시결과처리 출력 -->
+    <select id="selectExamResultsearch" resultClass="java.util.HashMap">
+      SELECT a.code_kind
+      ,a.code_certifi
+      ,a.code_seq
+      ,a.code_bran
+      ,a.bran_seq
+      ,a.receipt_no
+      ,a.point_manage
+      ,a.attend_cnt
+      ,a.time_cnt
+      ,a.result_point
+      ,a.result_no
+      ,a.result_state
+      ,a.up_date
+      ,a.updater
+  FROM oper_result a, operater b
+  where 1=1
+  		   and a.code_kind = b.code_kind
+		   and a.code_certifi = b.code_certifi
+		   and a.code_seq = b.code_seq 
+		   and a.code_bran = b.code_bran
+		   and a.bran_seq = b.bran_seq
+		   and a.receipt_no = b.receipt_no
+	</select>	
+	
+	
+	</sqlMap>

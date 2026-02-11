@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Login">
+
+	<select id="selectLogin" resultClass="java.util.HashMap">
+	<!-- 사용자관리 테이블에서 비밀번호 체크 및 사용자 정보 리턴  -->
+	select a.userid
+	     , case when PWDCOMPARE(#usrPw#, a.userpw) = 1 then 'Y'
+		        else 'N' end as PWCHK
+		 , a.username
+		 , a.userbran 
+		 , c.pers_state
+		 , a.PER_USER_SALT , a.SALT_CHK
+	  from user_master a
+	     , id_tbl b
+	     , Person_M_TBL c
+	 where a.UserId=b.id
+	   and b.code_pers=c.code_pers
+	   and a.userid = #usrId#   
+	   and a.use_yn = 'Y'
+	   and c.mem_gubun = 1       
+    </select>
+
+	<!-- 사용자별 프로그램 사용 권한 체크-->
+    <select id="userPower" resultClass="java.util.HashMap">
+		SELECT progid
+		  FROM user_power
+		 WHERE userid = #usrId# 
+		   AND  use_yn = '1'
+    </select>
+    
+    <update id="updateSALT" parameterClass="java.util.HashMap">
+        UPDATE user_master
+           SET SALT_CHK = '1'
+         WHERE Userid = #usrId# 
+           AND use_yn = 'Y'
+    </update>
+</sqlMap>
+

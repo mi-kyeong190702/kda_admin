@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans>
+    
+    </form-beans> 
+	
+	<global-forwards>		
+		<forward name="ajaxout" path="/jsp/common/ajaxout.jsp" />		
+		<forward name="pop" path="/jsp/member/basic/mBasic.jsp"/>
+		<forward name="pop1" path="/jsp/member/basic/mBasic1.jsp"/>
+		<forward name="pop2" path="/jsp/member/basic/mBasic2.jsp"/>
+		<forward name="pop3" path="/jsp/member/basic/mBasic3.jsp"/>
+		<forward name="pop4" path="/jsp/member/basic/mBasic4.jsp"/>
+		<forward name="pop5" path="/jsp/member/basic/mBasic5.jsp"/>
+		<forward name="pop6" path="/jsp/member/basic/mBasic6.jsp"/>
+		<forward name="pop7" path="/jsp/member/basic/mBasic7.jsp"/>
+		<forward name="idpop" path="/jsp/member/basic/SetID.jsp"/>
+		<forward name="checkidpop" path="/jsp/member/basic/checkID.jsp"/>
+		
+		<forward name="post" path="/jsp/member/basic/post.jsp"/>
+		<forward name="post2" path="/jsp/juso/road.jsp"/>	
+		<forward name="post3" path="/jsp/juso/jibun.jsp"/>
+		<forward name="post4" path="/jsp/juso/sangho.jsp"/>	
+		<forward name="post5" path="/jsp/juso/jusoPopup.jsp"/><!-- 	//도로명 주소개편으로 인한 JSP추가_20141127 -->
+		<forward name="postAjaxr" path="/jsp/juso/AjaxRequestXML.jsp"/>		 	
+	</global-forwards>
+	
+
+	<!-- Action Mapping Definitions -->
+	
+  	<action-mappings>
+  		<action path="/"		    forward="/idCheck.jsp"/>
+  		<action path="/main1"		forward=".layout_main1"/>
+  		<action path="/main"		forward=".layout_main"/>
+			
+  		<action path="/test"        forward=".test"/>
+  		<action path="/pop"		    forward="/jsp/member/basic/mBasic.jsp" />
+		<action path="/pop1"		forward="/jsp/member/basic/mBasic1.jsp" />
+		<action path="/pop2"		forward="/jsp/member/basic/mBasic2.jsp" />
+		<action path="/pop3"		forward="/jsp/member/basic/mBasic3.jsp" />
+		<action path="/pop4"		forward="/jsp/member/basic/mBasic4.jsp" />
+		<action path="/pop5"		forward="/jsp/member/basic/mBasic5.jsp" />
+		<action path="/pop6"		forward="/jsp/member/basic/mBasic6.jsp" />
+		<action path="/pop7"		forward="/jsp/member/basic/mBasic7.jsp" />		
+		
+		<action path="/post"		forward="/jsp/member/basic/post.jsp"/>
+		<action path="/post2"		forward="/jsp/juso/road.jsp"/>
+		<action path="/post3"		forward="/jsp/juso/jibun.jsp"/>
+		<action path="/post4"		forward="/jsp/juso/sangho.jsp"/>
+		<action path="/post5"		forward="/jsp/juso/jusoPopup.jsp"/><!--  //도로명 주소개편으로 인한 JSP추가_20141127 -->
+		<action path="postAjaxr" 	forward="/jsp/juso/AjaxRequestXML.jsp"/>
+		
+    	<action path="/member" type="com.ant.member.state.action.memberAction" parameter="method" scope="request">
+			<forward name="list"                  path="/jsp/member/member.jsp" /> 
+			<forward name="member_list"           path="/jsp/member/member_list.jsp" />
+		  	<forward name="memberstatuslist"      path=".layout_codeUseMember" />				
+		</action>
+		
+		<action path="/memberBasic" type="com.ant.member.basic.action.basicAction" parameter="method" scope="request">
+			<forward name="mSearchr"	path="/jsp/member/basic/mSearch.jsp" />
+			<forward name="tSearchr"	path="/jsp/member/basic/tSearch.jsp"/>
+			<forward name="sLicnor"		path="/jsp/member/basic/sLicno.jsp"/>
+			<forward name="postSearchr"	path="/jsp/member/basic/post.jsp"/>			
+			<forward name="postSearchr1"	path="/jsp/member/basic/post1.jsp"/>
+			<forward name="sendMail"	path="/jsp/common/emailForm.jsp"/>
+			<forward name="notePad"		path="/jsp/common/notepadForm.jsp"/>
+			<forward name="umsData"		path="/jsp/common/umsdataForm1.jsp"/>
+			<forward name="insertumsData_ok"		path="/jsp/common/umsdataForm1.jsp"/>
+		</action>
+		
+		 <action path="/login" type="com.ant.login.action.LoginAction" parameter="method" scope="request">
+				<forward name="login"  	  path="/login.jsp" />
+				<forward name="otp"       path="/otp.jsp" />
+				<forward name="login_ok"  path="/main.do" redirect="true" />
+				<forward name="loginFail" path="/login.jsp" />
+				<forward name="loginDeny" path="/login.jsp" />
+				<forward name="otp_enroll" path="/otp_enroll.jsp" />
+		 </action>
+		  
+
+
+<!--		<action path="/main3"         forward=".layout_main3">--> <!-- 교육및 시험등록 윤석희-->
+<!--			<forward name="edutestSend"        		 path=".layout_main3"/>
+			</action> -->
+<!--		<action path="/main3.2"       forward=".layout_main3.2">
+			<forward name="examSend"        	 path=".layout_main3.2"/>
+		</action> -->
+<!--		<action path="/main3.1"       forward=".layout_main3.1"/>
+ -->
+		<!--자율학습 등록-->
+		<!--<action path="/main3.3"       forward=".layout_main3.3"/>-->
+ 
+		<action path="/main3.4"       forward=".layout_main3.4"/>
+		<action path="/main3.5"       forward=".layout_main3.5"/>
+		<action path="/main3.6"       forward=".layout_main3.6"/>
+		<action path="/main3.7"       forward=".layout_main3.7"/>	
+		<action path="/main3.8"       forward=".layout_main3.8"/>	
+		<action path="/main3.9"       forward=".layout_main3.9"/>
+		<action path="/main3.10"      forward=".layout_main3.10"/>
+		<action path="/main3.11"      forward=".layout_main3.11"/>
+	
+		<!--  강사 등록 -->
+	    <action path="/lecture"   type="com.ant.educationlecture.action.lectureAction" parameter="method" scope="request">
+		    <forward name="lectureList"                path=".layout_lectureList"/>	
+		    <forward name="postSearchr"                path="/jsp/education/code_post.jsp"/>
+		    <forward name="postSearchr1"               path="/jsp/education/code_post1.jsp"/>
+		    <forward name="insert_ok"                  path=".layout_lectureList" />	
+		    <forward name="update_ok"                  path=".layout_lectureList" />
+		    <forward name="pers_check"                    path="/jsp/education/persno_check.jsp"/>	
+		    <forward name="picture_up"                 path="/jsp/education/pictureForm.jsp"/>		   
+		</action>
+		
+
+
+		
+ 
+<!--위탁업체개인별 현황-->
+<!--<action path="/main4.5" type="com.ant.educationself.action" 
+   					parameter="dispatchMethod" scope="request">-->
+				<!--	<action path="/main4.5"       forward=".layout_main4.5"/> -->
+				<!--<forward name=".layout_main4.5" path="/jsp/trustCompany/trustCom_pers.jsp" />-->
+				<!-- <forward name="member_list" path="/jsp/member/member_list.jsp" /> -->
+		    
+<!--		<action path="/main4"         forward=".layout_main4"/>  
+		<action path="/main4.1"       forward=".layout_main4.1"/>
+
+-->
+			
+    </action-mappings>	
+    
+    <plug-in className="org.apache.struts.tiles.TilesPlugin">
+			<set-property property="definitions-config" value="/WEB-INF/tiles-defs.xml"/> 
+	</plug-in>
+	 
+</struts-config>

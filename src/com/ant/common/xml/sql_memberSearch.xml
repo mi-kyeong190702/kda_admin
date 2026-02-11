@@ -1,0 +1,1413 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 		 
+<sqlMap namespace="memberSearch">
+	
+
+<!-- * 2.5.0
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.28
+	 * 작  업 :  getSearchUmsSeq 문자발송 seq맥스값 얻기
+	 * 얘는 맥스값 없이 그냥 진행한다.
+	 * -->
+
+<!-- * 2.5.1
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.28
+	 * 작  업 : getSearchUmsForCnt	문자발송 개수
+	 * -->
+<select id="getSearchUmsForCnt" resultClass="java.util.HashMap">
+SELECT COUNT(code_pers) ncount
+  FROM(
+SELECT distinct a.* 
+  FROM Person_M_tbl_damo  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+)sout
+</select>
+
+<!-- * 2.5.2
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.28
+	 * 작  업 : getSearchUmsList 문자발송리스트 조회
+	 * -->
+<select id="getSearchUmsList" resultClass="java.util.HashMap">
+
+SELECT ROW_NUMBER()OVER(ORDER BY code_pers ) ncount
+     , rtrim(isnull(damo.dbo.dec_varchar_pe('kda_ver3','dbo.person_m_tbl','pers_hp',      sec_pers_hp ),'')) pers_hp
+     , pers_name
+     , isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_add_detail',      sec_pers_add_detail ),'') pers_add_detail
+     , isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_tel',      sec_pers_tel ),'') pers_tel
+     , isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','email',      sec_email ),'') email
+  FROM(
+SELECT distinct a.*
+  FROM Person_M_tbl_damo  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pers"	> a.code_pers = #code_pers#	</isNotEmpty></dynamic>
+
+)sout
+
+</select>
+
+<!-- * 2.5.3
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.28
+	 * 작  업 : setSearchUmsList	문자발송리스트 저장
+	 * -->
+
+<insert id="setSearchUmsList" >
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						  REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , GETDATE()
+				        , #dest_phone#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#	
+				        , #etc1#
+				        , #etc2#
+				        , #etc3#				        							      
+					   )	
+</insert>
+
+<!-- * 2.5.3_2
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.12.04
+	 * 작  업 : setSearchUmsResultList	문자예약발송리스트 저장
+	 * -->
+
+<insert id="setSearchUmsResultList" >
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						  REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , #request_time#
+				        , #dest_phone#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#	
+				        , #etc1#
+				        , #etc2#
+				        , #etc3#				        							      
+					   )	
+</insert>
+
+		
+
+
+
+<!-- * 2.4.0
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getSearchSmsSeq 쪽지발송리스트 seq 얻기
+	 * -->
+
+<select id="getSearchSmsSeq" resultClass="java.util.HashMap">
+
+select RIGHT('00'+convert(varchar, isnull(MAX(date_seq),0)+1),2) date_seq
+  from slipofpaper
+ where 1=1
+   and create_dt  = CONVERT(varchar, getdate(),112)
+   and code_pers   = #code_pers#
+   
+</select>
+
+
+<!-- * 2.4.1
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getSearchMsgForCnt	쪽지발송 개수
+	 * -->
+<select id="getSearchMsgForCnt" resultClass="java.util.HashMap">
+
+SELECT COUNT(*) ncount
+  FROM(
+SELECT distinct a.*
+  FROM Person_M_tbl  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+
+)sout
+
+</select>
+
+
+
+<!-- * 2.4.2
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getSearchMsgList 쪽지 발송리스트 조회
+	 * -->
+<select id="getSearchMsgList" resultClass="java.util.HashMap">
+
+SELECT ROW_NUMBER()OVER(ORDER BY code_pers ) ncount
+     , code_pers
+  FROM(
+SELECT distinct a.*
+  FROM Person_M_tbl  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+
+)sout
+
+</select>
+
+
+
+
+
+
+<!-- * 2.4.3
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : setSearchSmsList		쪽지 리스트 저장
+	 * -->
+
+<insert id="setSearchSmsList" >
+INSERT into slipofpaper (create_dt, date_seq, code_pers, note_title, note_contents, st_dt, ed_dt, note_oper, regi_date, register )
+values (SUBSTRING(CONVERT(varchar,getdate(),112),1,8)
+     , #date_seq#
+     , #code_pers#
+     , #note_title#
+     , #note_contents#
+     , #st_dt#
+     , #ed_dt#
+     , #note_oper#
+     , GETDATE()
+     , #register#  )
+</insert>
+
+		
+
+
+
+
+	
+<!-- * 2.2.0
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 :  getSearchDmForSeq	DM리스트 목표 dm_print_yymm_seq맥스값 얻기
+	 * -->
+<select id="getSearchDmForSeq" resultClass="java.util.HashMap">
+ SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1') dm_print_yymm_seq 
+	from dm_list 
+   where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+     and code_book_kind = #code_book_kind#
+</select>
+
+
+<!-- * 2.2.1
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getSearchDMForCnt	DM리스트 저장할 개수 조회
+	 * -->
+<select id="getSearchDMForCnt" resultClass="java.util.HashMap">
+
+ SELECT COUNT(ncount) ncount
+   FROM(
+SELECT ROW_NUMBER()OVER(ORDER BY qq.code_pers) ncount, qq.*
+   from  (  select distinct a.*
+     
+  FROM Person_M_tbl  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+     ) qq
+       )a
+</select>
+
+ 
+<!-- * 2.2.2
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getSearchDMForList	DM리스트 저장할 목표물 조회
+	 * -->
+<select id="getSearchDMForList" resultClass="java.util.HashMap">
+
+SELECT ROW_NUMBER()OVER(ORDER BY pers_name ) ncount
+
+     , code_pers
+     , pers_name
+     , code_member
+     , lic_no
+     , case when code_place = '1' then pers_post
+            when code_place = '2' then company_post
+            else '' end code_post
+     , case when code_place = '1' then ISNULL(pers_add, '')
+            when code_place = '2' then ISNULL(company_add, '')
+            else '' end pers_add
+     , pers_hp
+     , case when code_email_comp = '' then ''
+            when code_email_comp = '01' then email
+            else rtrim(email) + '@' + q.detcodename end email
+            
+     , code_bran
+     , r.detcodename print_call
+     , code_place
+     
+     , case when code_place = '1' then '1'
+            when code_place = '2' then '1'
+            else '0' end rece_yn
+     , case when code_place = '1' then ''
+            when code_place = '2' then ISNULL(company_name, '')
+            else '' end oper_comp_name1
+  FROM(
+  SELECT a.*
+         FROM(
+SELECT ROW_NUMBER()OVER(ORDER BY  REPLACE( qq.pers_name, ' ', '')) ncount, qq.*
+from  (  select distinct 
+       isnull(a.pers_name	,'') pers_name		/*이름 */
+     , isnull(a.lic_no		,'') lic_no		/*면허번호 */
+<!--      JUMIN_DEL		 -->
+<!-- 	, max(case when #check# = '1'  -->
+<!-- 			  then [dbo].[GetPersNoDecord](a.pers_no , '1') -->
+<!-- 	      when #check# = '2'  -->
+<!-- 			  then [dbo].[GetPersNoDecord](a.pers_no , '2')   -->
+<!-- 		  when #check# = '3' -->
+<!-- 		      then [dbo].[GetPersNoDecord](a.pers_no , '3') -->
+<!-- 		  else [dbo].[GetPersNoDecord](a.pers_no , '3') end) pers_no   /*주민등록번호 */	 -->
+     , max(isnull(a.code_bran	,'')) code_bran	/*지부명 */
+     , max(isnull(a.code_big	,'')) code_big		/*분과명 */
+     , max(isnull(a.code_sect	,'')) code_sect		/*분회명 */
+     , max(isnull(a.code_member	,'')) code_member	 	/*회원종류 */
+     , max(isnull(a.pers_state	,'')) pers_state	 	/*회원상태 */
+     
+     , max(isnull(c.auth_start	,'')) auth_start		/*회원유효기간_시작일 */
+     , max(isnull(c.auth_end	,'')) auth_end		/*회원유효기간_마지막일 */
+     , max(isnull(c.conform_dt	,'')) conform_dt		/*인증일 */
+     , max(isnull(c.code_receipt,'')) code_receipt	/*인증장소 */
+	 , max(isnull(a.pers_add,'')+' '+isnull(pers_add_detail,'')) pers_add	/*집주소 */
+     , max(isnull(a.pers_tel	,'')) pers_tel		/*집전화번호 */
+     , max(isnull(a.pers_hp		,'')) pers_hp			/*핸드폰 */
+     , max(isnull(a.email		,'')) email			/*이메일 */
+     , max(isnull(a.kda_level	,'')) kda_level		/*협회직급 */
+     , max(isnull(b.company_name,'')) company_name	/*근무처명 */
+     , max(isnull(b.company_tel	,'')) company_tel	/*근무처전화번호 */
+     , max(isnull(b.company_add	,'')+' '+isnull(b.company_add_detail,'')) company_add	/*근무처주소 */
+     , max(isnull(b.code_great	,'')) code_great		/*근무처대분류 */
+     , max(isnull(b.code_small	,'')) code_small		/*근무처소분류 */
+     , max(isnull(b.job_line_code,'')) job_line_code	/*직렬 */
+     , max(isnull(g.id			,'')) id				/*아이디 */
+     , max(isnull(a.code_email_comp	,'')) code_email_comp
+     
+     , max(isnull(a.code_place		,'')) code_place
+     , max(isnull(a.code_call		,'')) code_call
+     , max(isnull(b.job_level_code	,'')) job_level_code
+     , max(isnull(a.code_scholar	,'')) code_scholar
+     , max(isnull(b.code_use		,'')) code_use
+     , max(isnull(c.code_pay_flag	,'')) code_pay_flag
+     , max(isnull(a.code_univer		,'')) code_univer
+     , max(isnull(a.code_sub		,'')) code_sub
+
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.code_certifi	,'') else '' end)  code_certifi
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.print_state	,'') else '' end)  print_state
+
+     , isnull(a.code_pers		,'') code_pers
+     
+     , max(ISNULL(a.code_post, '')) pers_post
+     , max(ISNULL(b.code_post, '')) company_post
+  FROM Person_M_tbl  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+				   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>		    
+				and	w.conform_dt = (SELECT MAX(isnull(conform_dt,'')) conform_dt FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- 	JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pers_dm"	> a.code_pers = #code_pers_dm#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+    group by a.pers_name, a.lic_no, a.code_pers
+)qq
+)a 
+)sout left join com_code q on q.groupcode = '025' and q.detcode = code_email_comp
+      left join com_code r on r.groupcode = '018' and r.detcode = code_call
+      
+</select>
+
+<!-- * 2.2.3
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : setSearchDMList		DM 발송 저장
+	 * -->
+<insert id="setSearchDMList" >
+ insert into dm_list 
+(      code_book_kind
+      ,dm_pers_code
+      ,dm_print_yymm
+      ,dm_print_yymm_seq
+      ,code_member
+      ,pers_name
+      ,lic_no
+      ,code_post
+      ,pers_add
+      ,pers_hp
+      ,email
+      ,code_bran
+      ,print_call
+      ,code_place
+      ,rece_yn
+      , company_name
+      ,dm_name
+      ,dm_creater)
+ values
+ (     #code_book_kind#
+      ,#dm_pers_code#
+      ,substring( CONVERT(varchar, getdate(),112), 3,4)
+ 	  , #dm_print_yymm_seq#
+      ,#code_member#
+      ,#pers_name#
+      ,#lic_no#
+      ,#code_post#
+      ,#pers_add#
+      ,#pers_hp#
+      ,#email#
+      ,#code_bran#
+      ,#print_call#
+      ,#code_place#
+      ,'2'
+      , #oper_comp_name1#
+      ,#dm_name#
+      ,#dm_creater#
+ )
+</insert>
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.10
+	  * 작   업 : getAdvancedSearchCnt	회원 조건검색 페이징 카운터
+	 -->
+<select id="getMemberSearchCount" resultClass="java.util.HashMap">
+ SELECT COUNT(ncount) ncount
+   FROM(
+SELECT ROW_NUMBER()OVER(ORDER BY qq.code_pers) ncount, qq.*
+   from  ( select distinct 
+       isnull(a.pers_name	,'') pers_name		/*이름 */
+     , isnull(a.lic_no		,'') lic_no		/*면허번호 */
+     , isnull(c.dues_gubun, '')    dues_gubun /*회비구분 (코드) */
+<!--      JUMIN_DEL -->
+     <!--		
+	, max(case when #check# = '1' 
+			  then [dbo].[GetPersNoDecord](a.pers_no , '1')
+	      when #check# = '2' 
+			  then [dbo].[GetPersNoDecord](a.pers_no , '2')  
+		  when #check# = '3'
+		      then [dbo].[GetPersNoDecord](a.pers_no , '3')
+		  else [dbo].[GetPersNoDecord](a.pers_no , '3') end) pers_no   /*주민등록번호 */
+		  -->	
+     , max(isnull(a.code_bran	,'')) code_bran	/*지부명 */
+     , max(isnull(a.code_big	,'')) code_big		/*분과명 */
+     , max(isnull(a.code_sect	,'')) code_sect		/*분회명 */
+     , max(isnull(a.code_member	,'')) code_member	 	/*회원종류 */
+     , max(isnull(a.pers_state	,'')) pers_state	 	/*회원상태 */
+     
+     , max(isnull(c.auth_start	,'')) auth_start		/*회원유효기간_시작일 */
+     , max(isnull(c.auth_end	,'')) auth_end		/*회원유효기간_마지막일 */
+     , max(isnull(c.conform_dt	,'')) conform_dt		/*인증일 */
+     , max(isnull(c.code_receipt,'')) code_receipt	/*인증장소 */
+	 <!-- , max(isnull(a.pers_add,'')+' '+isnull(pers_add_detail,'')) pers_add	/*집주소 */ -->
+     <!-- , max(isnull(a.pers_tel	,'')) pers_tel		/*집전화번호 */ -->
+     <!-- , max(isnull(a.pers_hp		,'')) pers_hp			/*핸드폰 */ -->
+     <!-- , max(isnull(a.email		,'')) email			/*이메일 */ -->
+     , max(isnull(a.kda_level	,'')) kda_level		/*협회직급 */
+     , max(isnull(b.company_name,'')) company_name	/*근무처명 */
+     , max(isnull(b.company_tel	,'')) company_tel	/*근무처전화번호 */
+     , max(isnull(b.company_add	,'')+' '+isnull(b.company_add_detail,'')) company_add	/*근무처주소 */
+     , max(isnull(b.code_great	,'')) code_great		/*근무처대분류 */
+     , max(isnull(b.code_small	,'')) code_small		/*근무처소분류 */
+     , max(isnull(b.job_line_code,'')) job_line_code	/*직렬 */
+     , max(isnull(g.id			,'')) id				/*아이디 */
+     , max(isnull(a.code_email_comp	,'')) code_email_comp
+     
+     , max(isnull(a.code_place		,'')) code_place
+     , max(isnull(a.code_call		,'')) code_call
+     , max(isnull(b.job_level_code	,'')) job_level_code
+     , max(isnull(a.code_scholar	,'')) code_scholar
+     , max(isnull(b.code_use		,'')) code_use
+     , max(isnull(c.code_pay_flag	,'')) code_pay_flag
+     , max(isnull(a.code_univer		,'')) code_univer
+     , max(isnull(a.code_sub		,'')) code_sub
+
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.code_certifi	,'') else '' end)  code_certifi
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.print_state	,'') else '' end)  print_state
+
+     , isnull(a.code_pers		,'') code_pers
+     
+     , max(ISNULL(a.code_post, '')) pers_post
+     , max(ISNULL(b.code_post, '')) company_post
+     , max(isnull(a.pers_birth, ''))    pers_birth /*생년월일 */
+  FROM Person_M_tbl_damo  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+                   , c.dues_gubun
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+    <dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>
+				and	case when w.dues_gubun = '3' then '1' else '2' end + c.auth_end in
+				(SELECT gb + auth_end FROM
+					(SELECT case when b.dues_gubun = '3' then '1' else '2' end gb,
+	                        MAX(isnull(auth_end,
+	                                   '')) auth_end
+	                   FROM dues_h_tbl a,
+	                        dues_b_tbl b
+	                  WHERE a.incom_flag != 'D' AND
+	                        a.code_pers =
+	                        b.code_pers AND
+	                        a.dues_gubun =
+	                        b.dues_gubun AND
+	                        a.dues_h_seq =
+	                        b.dues_h_seq AND
+	                        a.code_pers =
+	                        c.code_pers AND
+	                        b.conform_yn = '3'
+	                  group by case when b.dues_gubun = '3' then '1' else '2' end) tt) 
+    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!-- JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+   
+    group by a.pers_name, a.lic_no, a.code_pers, c.dues_gubun
+     ) qq
+       )a
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.10
+	  * 작   업 :  getAdvancedSearchList	회원 조건검색
+	 -->
+<select id="getMemberSearchList" resultClass="java.util.HashMap">
+	SELECT ncount
+     , isnull(pers_name, '') pers_name
+     , isnull(lic_no, '') lic_no
+<!--      JUMIN_DEL -->
+<!--      , isnull(pers_no, '') pers_no -->
+     , isnull(i.detcodename	, '') han_code_bran
+     , isnull(j.detcodename	, '') han_code_big
+     , isnull(k.detcodename	, '') han_code_sect
+     , isnull(l.detcodename	, '') han_code_member
+     , isnull(y.detcodename	, '') han_pers_state
+     
+     , isnull(auth_start	, '') auth_start
+     , isnull(auth_end	, '') auth_end
+     , isnull(conform_dt	, '') conform_dt
+     , isnull(h.detcodename	, '') han_code_receipt
+     , isnull(pers_post,'') pers_post
+     , isnull(pers_add	, '') + ' ' + isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_add_detail',      pers_add_detail ),'') pers_add
+     , isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_tel', pers_tel ),'')  pers_tel
+     , rtrim(isnull(damo.dbo.dec_varchar_pe('kda_ver3','dbo.person_m_tbl','pers_hp', pers_hp ),''))  pers_hp
+     , isnull(case when sout.code_email_comp = '' then ''
+            when sout.code_email_comp = '01' then isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','email', email ),'')
+            else rtrim(isnull(damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','email', email ),'')) + '@' + q.detcodename end,'') email
+     , isnull(m.detcodename	, '') han_kda_level
+     , isnull(company_name	, '') company_name
+     , isnull(company_tel	, '') company_tel
+     , isnull(company_post,'') company_post
+     , isnull(company_add,'')company_add
+     , isnull(n.detcodename	, '') han_code_great
+     , isnull(o.detcodename	, '') han_code_small
+     , isnull(p.detcodename	, '') han_job_line_code
+     , isnull(id,'')id
+
+     , isnull(r.detcodename	, '') han_code_place
+     , isnull(s.detcodename	, '') han_code_call
+     , isnull(t.detcodename	, '') han_job_level_code
+     , isnull(u.detcodename	, '') han_code_scholar
+     <!-- 학교명 추가 2025.10 -->
+     , isnull(uu.detcodename , '') han_code_school
+     , isnull(v.detcodename	, '') han_code_use
+     , isnull(w.detcodename	, '') han_code_pay_flag
+     , isnull(x.detcodename	, '') han_code_univer
+     , isnull(aa.sub_name,'') han_code_sub
+     , isnull(bb.certifi_name,'') han_code_certifi
+     , isnull(case when sout.print_state = '1' then 'available'
+            when sout.print_state = '0' then 'cancel'
+            else '' end,'') print_state
+     , isnull(code_pers,'') code_pers
+     , Isnull((SELECT replace(replace(memo_text, char(13), ''), char(10), '')
+		FROM (SELECT ROW_NUMBER()OVER(ORDER BY rdate desc ) no
+		        , a.code_pers
+		        , a.rdate
+		        , a.register
+		        , a.code_memo
+		        , a.memo_text 
+			FROM tbl_memo a			      
+			WHERE a.code_pers = sout.code_pers
+			  and a.code_memo = '06'
+		)out
+		where no = 1), '') as memo_text
+		
+     /* 아래는 dm 발송에 넣을 데이터 */
+     , isnull(code_member,'')code_member
+     
+     , isnull(case when code_place = '1' then pers_post
+            when code_place = '2' then company_post
+            else '' end,'') code_post
+     , isnull(case when code_place = '1' then ISNULL(pers_add, '')
+            when code_place = '2' then ISNULL(company_add, '')
+            else '' end,'') pers_com_add
+            
+     , isnull(code_bran,'')code_bran
+     , isnull(code_call,'')code_call
+     , isnull(code_place,'')code_place
+     
+     , isnull(case when code_place = '1' then '1'
+            when code_place = '2' then '1'
+            else '0' end , '')rece_yn
+            
+	 , isnull(dues_gubun, '') dues_gubun		 
+	 , isnull(ka.detcodename,'') han_dues_gubun
+	 , isnull(pers_birth,'') pers_birth
+  FROM(
+       SELECT a.*
+         FROM(
+SELECT ROW_NUMBER()OVER(ORDER BY REPLACE(qq.pers_name, ' ', ''), REPLACE(qq.lic_no, ' ', ''), REPLACE(qq.conform_dt, ' ', '')) ncount, qq.*
+   from  ( select distinct 
+       isnull(a.pers_name	,'') pers_name		/*이름 */
+     , isnull(a.lic_no		,'') lic_no		/*면허번호 */
+     , isnull(c.dues_gubun	,'') dues_gubun	/*회비구분 (코드) */
+<!--      JUMIN_DEL		 -->
+<!-- 	, max(case when #check# = '1'  -->
+<!-- 			  then [dbo].[GetPersNoDecord](a.pers_no , '1') -->
+<!-- 	      when #check# = '2'  -->
+<!-- 			  then [dbo].[GetPersNoDecord](a.pers_no , '2')   -->
+<!-- 		  when #check# = '3' -->
+<!-- 		      then [dbo].[GetPersNoDecord](a.pers_no , '3') -->
+<!-- 		  else [dbo].[GetPersNoDecord](a.pers_no , '3') end) pers_no   /*주민등록번호 */	 -->
+     , max(isnull(a.code_bran	,'')) code_bran	/*지부명 */
+     , max(isnull(a.code_big	,'')) code_big		/*분과명 */
+     , max(isnull(a.code_sect	,'')) code_sect		/*분회명 */
+     , max(isnull(c.code_member	,'')) code_member	 	/*회원종류 */
+     , max(isnull(a.pers_state	,'')) pers_state	 	/*회원상태 */
+     
+     , max(isnull(c.auth_start	,'')) auth_start		/*회원유효기간_시작일 */
+     , max(isnull(c.auth_end	,'')) auth_end		/*회원유효기간_마지막일 */
+     , max(isnull(c.conform_dt	,'')) conform_dt		/*인증일 */
+     , max(isnull(c.code_receipt,'')) code_receipt	/*인증장소 */
+	 , max(isnull(a.pers_add,'')) pers_add	/*집주소 */
+	 , max(isnull(a.sec_pers_add_detail,0)) pers_add_detail	/*집주소 */
+     , max(isnull(a.sec_pers_tel	,0)) pers_tel		/*집전화번호 */
+     , max(isnull(a.sec_pers_hp		,'')) pers_hp			/*핸드폰 */
+     , max(isnull(a.sec_email		,0)) email			/*이메일 */
+     , max(isnull(a.kda_level	,'')) kda_level		/*협회직급 */
+     , max(isnull(b.company_name,'')) company_name	/*근무처명 */
+     , max(isnull(b.company_tel	,'')) company_tel	/*근무처전화번호 */
+     , max(isnull(b.company_add	,'')+' '+isnull(b.company_add_detail,'')) company_add	/*근무처주소 */
+     , max(isnull(b.code_great	,'')) code_great		/*근무처대분류 */
+     , max(isnull(b.code_small	,'')) code_small		/*근무처소분류 */
+     , max(isnull(b.job_line_code,'')) job_line_code	/*직렬 */
+     , max(isnull(g.id			,'')) id				/*아이디 */
+     , max(isnull(a.code_email_comp	,'')) code_email_comp
+     
+     , max(isnull(a.code_place		,'')) code_place
+     , max(isnull(a.code_call		,'')) code_call
+     , max(isnull(b.job_level_code	,'')) job_level_code
+     , max(isnull(a.code_scholar	,'')) code_scholar
+     , max(isnull(a.code_school    ,'')) code_school
+     , max(isnull(b.code_use		,'')) code_use
+     , max(isnull(c.code_pay_flag	,'')) code_pay_flag
+     , max(isnull(a.code_univer		,'')) code_univer
+     , max(isnull(a.code_sub		,'')) code_sub
+
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.code_certifi	,'') else '' end)  code_certifi
+     , max(case when isnull(convert(varchar,#code_certifi#),'') != '' or isnull(convert(varchar,#print_state#),'') != '' 
+            then isnull(f.print_state	,'') else '' end)  print_state
+
+     , isnull(a.code_pers		,'') code_pers
+     
+     , max(ISNULL(a.code_post, '')) pers_post
+     , max(ISNULL(b.code_post, '')) company_post
+     
+     , max(isnull(a.pers_birth	,'')) pers_birth	/*생년월일 */
+     
+  FROM Person_M_tbl_damo  a
+    left join         (select *  
+                         from pers_company c          
+                        where c.primary_flag = '1' 
+                          and c.comp_seq = (select MAX(comp_seq) 
+                                              from pers_company   
+                                             where primary_flag = '1'
+                                               and code_pers = c.code_pers)
+                        ) b     
+                            on a.code_pers = b.code_pers        
+
+	LEFT JOIN ( select c.code_pers, c.dues_h_seq,  (c.auth_end) auth_end, (c.auth_start) auth_start
+                    , (w.conform_dt) conform_dt 
+                   , (w.code_receipt) code_receipt, (w.code_pay_flag) code_pay_flag
+                   , c.dues_gubun
+                   , c.code_member
+	              from dues_h_tbl c, dues_b_tbl w
+	              where c.incom_flag != 'D'
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.incom_flag = 'Y'	</isNotEmpty></dynamic>
+                    and w.conform_yn = '3'
+			    and w.code_pers = c.code_pers
+			    and w.dues_gubun = c.dues_gubun
+			    and w.dues_h_seq = c.dues_h_seq 
+	<dynamic prepend="and"><isNotEmpty property="isEnd"	> 
+				c.auth_end = (SELECT MAX(isnull(a.auth_end,'')) auth_end FROM dues_h_tbl a, dues_b_tbl b WHERE a.incom_flag != 'D' AND a.code_pers = b.code_pers AND a.dues_gubun = b.dues_gubun AND a.dues_h_seq = b.dues_h_seq AND a.code_pers = c.code_pers AND b.conform_yn = '3') 
+    </isNotEmpty></dynamic>
+				and	case when w.dues_gubun = '3' then '1' else '2' end + c.auth_end in
+					(SELECT gb + auth_end FROM
+						(SELECT case when b.dues_gubun = '3' then '1' else '2' end gb,
+		                        MAX(isnull(auth_end,
+		                                   '')) auth_end
+		                   FROM dues_h_tbl a,
+		                        dues_b_tbl b
+		                  WHERE a.incom_flag != 'D' AND
+		                        a.code_pers =
+		                        b.code_pers AND
+		                        a.dues_gubun =
+		                        b.dues_gubun AND
+		                        a.dues_h_seq =
+		                        b.dues_h_seq AND
+		                        a.code_pers =
+		                        c.code_pers AND
+		                        b.conform_yn = '3'
+		                  group by case when b.dues_gubun = '3' then '1' else '2' end) tt) 
+			    )   c on c.code_pers = a.code_pers
+  LEFT JOIN ( select z.* from dues_P z, dues_h_tbl x
+              where z.code_pers  = x.code_pers
+                AND z.dues_gubun = x.dues_gubun   
+                AND z.dues_h_seq = x.dues_h_seq 
+                AND z.pers_mem_order = (select MAX(pers_mem_order)
+                                        FROM dues_P
+                                       WHERE code_pers  = x.code_pers
+                                         AND dues_gubun = x.dues_gubun
+                                         AND dues_h_seq = x.dues_h_seq
+                                         AND auth_flag  = 'Y')
+             ) e on e.code_pers  = a.code_pers
+                 AND e.auth_flag  = 'Y'
+		  LEFT JOIN result_print f on f.code_pers = a.code_pers
+		                          AND code_seq = (SELECT MAX(code_seq)
+		                                            FROM result_print
+		                                           WHERE code_pers = a.code_pers)
+  LEFT JOIN id_tbl       g on g.code_pers = a.code_pers /*  and g.use_yn = 'Y' */
+                     
+ WHERE ISNULL(a.code_member,'') != ''                        
+/*   and c.code_pers = d.code_pers
+   and c.dues_h_seq = d.dues_h_seq
+      */                                
+   <dynamic prepend="and"><isNotEmpty property="pers_name"	> a.pers_name like #pers_name#+'%'	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="auth_start"	> c.auth_end <![CDATA[>=]]> #auth_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="auth_end"	> c.auth_start <![CDATA[<=]]> #auth_end#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="e_auth_start"	> (c.auth_end <![CDATA[>=]]> #e_auth_start# and c.auth_end != '99991231')	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="e_auth_end"		> c.auth_end <![CDATA[<=]]> #e_auth_end#		</isNotEmpty></dynamic>
+   
+   
+   <dynamic prepend="and"><isNotEmpty property="code_bran"	> a.code_bran = #code_bran#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_place"	> a.code_place = #code_place#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_line_code"	> b.job_line_code = #job_line_code#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="lic_no"	> a.lic_no = #lic_no#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_start"	> c.conform_dt  <![CDATA[>=]]> #conform_dt_start#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="conform_dt_end"	> c.conform_dt  <![CDATA[<=]]> #conform_dt_end#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_big"	> a.code_big = #code_big#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_call"	> a.code_call = #code_call#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="job_level_code"	> b.job_level_code = #job_level_code#	</isNotEmpty></dynamic>
+   
+<!--    JUMIN_DEL -->
+<!--    <dynamic prepend="and"><isNotEmpty property="pers_no"	> [dbo].[GetPersNodecord](a.pers_no,'1') = #pers_no#	</isNotEmpty></dynamic> -->
+   <dynamic prepend="and"><isNotEmpty property="pers_birth"	> a.pers_birth like #pers_birth#+'%'	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_receipt"	> c.code_receipt = #code_receipt#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sect"	> a.code_sect = #code_sect#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_scholar"	> a.code_scholar = #code_scholar#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_use"	> b.code_use = #code_use#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="code_member"	> a.code_member = #code_member#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_small"	> b.code_small = #code_small#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_univer"	> a.code_univer = #code_univer#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_sub"	> a.code_sub = #code_sub#	</isNotEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="kda_level"	> a.kda_level = #kda_level#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="code_certifi"	> f.code_certifi = #code_certifi#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="print_state"	> f.print_state = #print_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="id"	> g.id = #id#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isNotEmpty property="pers_state"	> a.pers_state = #pers_state#	</isNotEmpty></dynamic>
+   <dynamic prepend="and"><isEmpty property="pers_state"	> a.pers_state != '08' and a.mem_gubun = 1 </isEmpty></dynamic>
+   
+   <dynamic prepend="and"><isNotEmpty property="dues_gubun"	> c.dues_gubun = #dues_gubun#	</isNotEmpty></dynamic>
+    group by a.pers_name, a.lic_no, a.code_pers, c.dues_gubun
+   ) qq
+       )a
+WHERE a.ncount > #nstart# AND a.ncount <![CDATA[<=]]> #nend#
+
+)sout left join com_code h on h.groupcode = '013' and h.detcode = code_receipt
+      left join com_code i on i.groupcode = '007' and i.detcode = code_bran
+      left join com_code j on j.groupcode = '004' and j.detcode = code_big
+      left join com_code k on k.groupcode = '009' and k.detcode = code_sect
+      left join com_code l on l.groupcode = '006' and l.detcode = code_member
+      left join com_code m on m.groupcode = '050' and m.detcode = kda_level
+      left join com_code n on n.groupcode = '004' and n.detcode = code_great
+      left join com_code o on o.groupcode = '005' and o.detcode = code_small
+      left join com_code p on p.groupcode = '010' and p.detcode = job_line_code
+      left join com_code q on q.groupcode = '025' and q.detcode = code_email_comp
+      
+      left join com_code r on r.groupcode = '030' and r.detcode = code_place
+      left join com_code s on s.groupcode = '018' and s.detcode = code_call
+      left join com_code t on t.groupcode = '011' and t.detcode = job_level_code
+      left join com_code u on u.groupcode = '027' and u.detcode = code_scholar
+      <!-- 학교명 추가 2025.10 -->
+      left join com_code uu on uu.groupcode = '028' and uu.detcode = code_school
+      
+      left join com_code v on v.groupcode = '001' and v.detcode = code_use
+      left join com_code w on w.groupcode = '014' and w.detcode = code_pay_flag
+      left join com_code x on x.groupcode = '019' and x.detcode = code_univer
+      left join com_code y on y.groupcode = '021' and y.detcode = pers_state
+      left join sub_tbl  aa on aa.code_sub = sout.code_sub
+      left join certifi  bb on bb.code_certifi = sout.code_certifi
+      left join com_code ka on ka.groupcode = '038' and ka.detcode = dues_gubun
+
+</select>
+
+ 
+</sqlMap>
+

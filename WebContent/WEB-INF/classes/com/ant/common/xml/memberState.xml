@@ -1,0 +1,1172 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- /*
+ * 프로그램명 : 쿼리 xml (회원 > 현황)
+ * 제작자 : 박상모
+ * 제작일 : 2012.10.09
+ * 설   명 : 회원>현황 이하 쿼리 모음
+ */ -->
+ 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="memberState1">
+	
+	<!-- 현황-고용형태별 직급별 인원수 집계 -->	
+	<select id="getJLevelStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM ( SELECT a.code_small
+													   , a.job_level_code
+									                   , b.detcodename
+									                   , b.tempcd1
+									                   , count(a.code_small) pers_count
+									           FROM pers_company a 
+									                     left join com_code b 
+									                            on b.groupcode = '005' 
+									                          and a.code_small = b.detcode
+									                   , Person_M_TBL c     
+									          WHERE isnull(a.company_name,'') != ''
+									               and c.pers_state in ('01')
+									               and a.primary_flag = '1'
+									             AND ISNULL(b.detcodename,'') != ''
+									             AND a.code_pers = c.code_pers
+									             AND ISNULL(a.code_small,'') not in ('','0')
+									             and c.mem_gubun = 1
+									         GROUP BY a.code_small, b.detcodename, a.job_level_code, b.tempcd1 ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getJLevelStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3
+				      , SUM(isnull(col4,0)) col4
+				      , SUM(isnull(col5,0)) col5
+				      , SUM(isnull(col6,0)) col6
+				      , SUM(isnull(col7,0)) col7
+				      , SUM(isnull(col8,0)) col8
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))+SUM(isnull(col8,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					            , detcodename 
+					            , case when job_level_code = '60' then sum(pers_count) end col1
+					            , case when job_level_code = '10' then sum(pers_count) end col2
+					            , case when job_level_code = '20' then sum(pers_count) end col3
+					            , case when job_level_code = '30' then sum(pers_count) end col4
+					            , case when job_level_code = '40' then sum(pers_count) end col5
+					            , case when job_level_code = '50' then sum(pers_count) end col6
+					            , case when job_level_code = '99' then sum(pers_count) end col7
+					            , case when job_level_code = '0' then sum(pers_count) end col8
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , a.job_level_code
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(a.code_small) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , Person_M_TBL c     
+						          WHERE isnull(a.company_name,'') != ''
+			                           and c.pers_state in ('01')
+						               and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             and c.mem_gubun = 1
+						         GROUP BY a.code_small, b.detcodename, a.job_level_code, b.tempcd1 ) aa
+			GROUP BY code_small, detcodename, job_level_code, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<!-- 현황-고용형태별 직렬별 인원수 집계 -->	
+	<select id="getJLineStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM ( SELECT a.code_small
+													   , a.job_line_code
+									                   , b.detcodename
+									                   , b.tempcd1
+									                   , count(a.code_small) pers_count
+									           FROM pers_company a 
+									                     left join com_code b 
+									                            on b.groupcode = '005' 
+									                          and a.code_small = b.detcode
+									                   , Person_M_TBL c     
+									          WHERE isnull(a.company_name,'') != ''
+						                           and c.pers_state in ('01')
+									               and a.primary_flag = '1'
+									             AND ISNULL(b.detcodename,'') != ''
+									             AND a.code_pers = c.code_pers
+									             AND ISNULL(a.code_small,'') not in ('','0')
+									             and c.mem_gubun = 1
+									         GROUP BY a.code_small, b.detcodename, a.job_line_code, b.tempcd1 ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getJLineStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3
+				      , SUM(isnull(col4,0)) col4
+				      , SUM(isnull(col5,0)) col5
+				      , SUM(isnull(col6,0)) col6
+				      , SUM(isnull(col7,0)) col7
+				      , SUM(isnull(col8,0)) col8
+				      , SUM(isnull(col9,0)) col9
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))+SUM(isnull(col8,0))+SUM(isnull(col9,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					            , detcodename 
+					           , case when job_line_code = '10' then sum(pers_count) end col1
+					           , case when job_line_code = '20' then sum(pers_count) end col2
+					           , case when job_line_code = '30' then sum(pers_count) end col3
+					           , case when job_line_code = '40' then sum(pers_count) end col4
+					           , case when job_line_code = '50' then sum(pers_count) end col5
+					           , case when job_line_code = '60' then sum(pers_count) end col6
+					           , case when job_line_code = '70' then sum(pers_count) end col7
+					           , case when job_line_code = '99' then sum(pers_count) end col8
+					           , case when job_line_code = '0' then sum(pers_count) end col9
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , a.job_line_code
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(a.code_small) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , Person_M_TBL c     
+						          WHERE isnull(a.company_name,'') != ''
+			                           and c.pers_state in ('01')
+						               and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             and c.mem_gubun = 1
+						         GROUP BY a.code_small, b.detcodename, a.job_line_code, b.tempcd1 ) aa
+			GROUP BY code_small, detcodename, job_line_code, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<!-- 현황-고용형태별 자격증 소지별 인원수 집계 -->	
+	<select id="getCertifiStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM (   SELECT a.code_small
+														 , b.tempcd1
+														 , b.detcodename
+														 , c.code_certifi
+														 , count(c.code_certifi) pers_count
+											     FROM pers_company a 
+												          left join com_code b 
+														         on b.groupcode = '005' 
+														       and a.code_small = b.detcode
+												        , result_print c   
+											 WHERE isnull(a.company_name,'') != ''
+						                           and a.primary_flag = '1'
+											   AND ISNULL(b.detcodename,'') != ''
+											   AND a.code_pers = c.code_pers
+											   AND ISNULL(a.code_small,'') not in ('','0')
+											   AND c.result_start_dt <![CDATA[<=]]> #enddate#
+											   AND (isnull(c.result_end_dt,'') = '' or (c.result_end_dt <![CDATA[>=]]> #startdate#))
+											 GROUP BY a.code_small, b.detcodename, c.code_certifi, b.tempcd1 ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getCertifiStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3				      
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					             , detcodename 
+					             , case when code_certifi = '1' then sum(pers_count) end col1
+							     , case when code_certifi = '2' then sum(pers_count) end col2
+							     , case when code_certifi = '3' then sum(pers_count) end col3				          
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , c.code_certifi
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(c.code_certifi) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , result_print c     
+						          WHERE isnull(a.company_name,'') != ''
+			                           and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             AND c.result_start_dt <![CDATA[<=]]> #enddate#
+									 AND (isnull(c.result_end_dt,'') = '' or (c.result_end_dt <![CDATA[>=]]> #startdate#))
+						         GROUP BY a.code_small, b.detcodename, c.code_certifi, b.tempcd1 ) aa
+			GROUP BY code_small, detcodename, code_certifi, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+		
+		
+		
+		
+		
+		
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+							 , tempcd1
+							 , detcodename 
+							 , SUM(isnull(col1,0)) col1
+							 , SUM(isnull(col2,0)) col2
+							 , SUM(isnull(col3,0)) col3
+						     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0)) totalcount
+					 FROM 	
+						(SELECT tempcd1
+								 , detcodename 
+								 , case when code_certifi = '1' then sum(pers_count) end col1
+							     , case when code_certifi = '2' then sum(pers_count) end col2
+							     , case when code_certifi = '3' then sum(pers_count) end col3
+							     , code_small
+						  FROM
+								(  SELECT a.code_small
+											 , b.tempcd1
+											 , b.detcodename
+											 , c.code_certifi
+											 , count(c.code_certifi) pers_count
+								     FROM pers_company a 
+									          left join com_code b 
+											         on b.groupcode = '005' 
+											       and a.code_small = b.detcode
+									        , result_print c   
+								 WHERE isnull(a.company_name,'') != ''
+			                           and a.primary_flag = '1'
+								   AND ISNULL(b.detcodename,'') != ''
+								   AND a.code_pers = c.code_pers
+								   AND ISNULL(a.code_small,'') not in ('','0')
+								   AND c.result_start_dt <![CDATA[<=]]> #enddate#
+								   AND (isnull(c.result_end_dt,'') = '' or (c.result_end_dt <![CDATA[>=]]> #startdate#))
+								 GROUP BY a.code_small, b.detcodename, c.code_certifi, b.tempcd1) aa 
+						  GROUP BY code_small, detcodename, code_certifi, tempcd1)bb
+						  GROUP BY code_small, detcodename, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<!-- 현황-고용형태별 최종학위별 인원수 집계 -->	
+	<select id="getUniverStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM ( SELECT a.code_small
+													   , c.code_univer
+									                   , b.detcodename
+									                   , b.tempcd1
+									                   , count(c.code_univer) pers_count
+									           FROM pers_company a 
+									                     left join com_code b 
+									                            on b.groupcode = '005' 
+									                          and a.code_small = b.detcode
+									                   , Person_M_TBL c
+									                     left join com_code d 
+									                            on d.groupcode = '019' 
+									                           and d.detcode = c.code_univer     
+									          WHERE isnull(a.company_name,'') != ''
+						                           and c.pers_state in ('01')
+									               and a.primary_flag = '1'
+									             AND ISNULL(b.detcodename,'') != ''
+									             AND a.code_pers = c.code_pers
+									             AND ISNULL(a.code_small,'') not in ('','0')
+									             and c.mem_gubun = 1
+									         GROUP BY a.code_small, b.detcodename, b.tempcd1, c.code_univer ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getUniverStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3
+				      , SUM(isnull(col4,0)) col4
+				      , SUM(isnull(col5,0)) col5
+     				  , SUM(isnull(col6,0)) col6
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					            , detcodename 
+					            , case when code_univer = '10' then sum(pers_count) end col1
+            					, case when code_univer = '20' then sum(pers_count) end col2
+            					, case when code_univer = '30' then sum(pers_count) end col3
+            					, case when code_univer = '40' then sum(pers_count) end col4
+            					, case when code_univer = '50' then sum(pers_count) end col5
+            					, case when code_univer = '00' OR code_univer = '' then sum(pers_count) end col6
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , c.code_univer
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(c.code_univer) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , Person_M_TBL c
+						                     left join com_code d 
+						                            on d.groupcode = '019' 
+						                           and d.detcode = c.code_univer     
+						          WHERE isnull(a.company_name,'') != ''
+			                           and c.pers_state in ('01')
+						               and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             and c.mem_gubun = 1
+						         GROUP BY a.code_small, b.detcodename, b.tempcd1, c.code_univer ) aa
+			GROUP BY code_small, detcodename, code_univer, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<!-- 현황-고용형태별 공동조리별 인원수 집계 -->	
+	<select id="getCookStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM ( SELECT a.code_small
+													   , a.join_cook
+									                   , b.detcodename
+									                   , b.tempcd1
+									                   , count(a.join_cook) pers_count
+									           FROM pers_company a 
+									                     left join com_code b 
+									                            on b.groupcode = '005' 
+									                          and a.code_small = b.detcode
+									                   , Person_M_TBL c						                    
+									          WHERE isnull(a.company_name,'') != ''
+						                           and c.pers_state in ('01')
+									               and a.primary_flag = '1'
+									             AND ISNULL(b.detcodename,'') != ''
+									             AND a.code_pers = c.code_pers
+									             AND ISNULL(a.code_small,'') not in ('','0')
+									             and c.mem_gubun = 1
+									         GROUP BY a.code_small, b.detcodename, b.tempcd1, a.join_cook ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getCookStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3
+				      , SUM(isnull(col4,0)) col4
+				      , SUM(isnull(col5,0)) col5
+     				  , SUM(isnull(col6,0)) col6
+     				  , SUM(isnull(col7,0)) col7
+				      , SUM(isnull(col8,0)) col8
+				      , SUM(isnull(col9,0)) col9
+				      , SUM(isnull(col10,0)) col10
+				      , SUM(isnull(col11,0)) col11
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))+SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					            , detcodename 
+					            , case when join_cook = '1' then sum(pers_count) end col1
+					            , case when join_cook = '2' then sum(pers_count) end col2
+					            , case when join_cook = '3' then sum(pers_count) end col3
+					            , case when join_cook = '4' then sum(pers_count) end col4
+					            , case when join_cook = '5' then sum(pers_count) end col5
+					            , case when join_cook = '6' then sum(pers_count) end col6
+					            , case when join_cook = '7' then sum(pers_count) end col7
+					            , case when join_cook = '8' then sum(pers_count) end col8
+					            , case when join_cook = '9' then sum(pers_count) end col9
+					            , case when join_cook = '10' then sum(pers_count) end col10
+					            , case when join_cook = '0' then sum(pers_count) end col11
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , a.join_cook
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(a.join_cook) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , Person_M_TBL c						                    
+						          WHERE isnull(a.company_name,'') != ''
+			                           and c.pers_state in ('01')
+						               and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             and c.mem_gubun = 1
+						         GROUP BY a.code_small, b.detcodename, b.tempcd1, a.join_cook ) aa
+			GROUP BY code_small, detcodename, join_cook, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<!-- 현황-고용형태별 공동관리별 인원수 집계 -->	
+	<select id="getConStateCount" resultClass="java.util.HashMap">
+			SELECT count(no) ncount
+  			 FROM ( 
+						SELECT ROW_NUMBER()OVER(ORDER BY code_small) no  
+					    FROM ( SELECT code_small
+								  FROM ( SELECT a.code_small
+													   , a.join_con
+									                   , b.detcodename
+									                   , b.tempcd1
+									                   , count(a.join_con) pers_count
+									           FROM pers_company a 
+									                     left join com_code b 
+									                            on b.groupcode = '005' 
+									                          and a.code_small = b.detcode
+									                   , Person_M_TBL c						                    
+									          WHERE isnull(a.company_name,'') != ''
+						                           and c.pers_state in ('01')
+									               and a.primary_flag = '1'
+									             AND ISNULL(b.detcodename,'') != ''
+									             AND a.code_pers = c.code_pers
+									             AND ISNULL(a.code_small,'') not in ('','0')
+									             and c.mem_gubun = 1
+									         GROUP BY a.code_small, b.detcodename, b.tempcd1, a.join_con ) aa
+						GROUP BY code_small ) bb
+					GROUP BY code_small ) OUT
+ 			WHERE 1=1
+	</select>
+	
+	<select id="getConStateList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_small) no
+			 		  , tempcd1
+					  , detcodename 
+				      , SUM(isnull(col1,0)) col1
+				      , SUM(isnull(col2,0)) col2
+				      , SUM(isnull(col3,0)) col3
+				      , SUM(isnull(col4,0)) col4
+				      , SUM(isnull(col5,0)) col5
+     				  , SUM(isnull(col6,0)) col6
+     				  , SUM(isnull(col7,0)) col7
+				      , SUM(isnull(col8,0)) col8
+				      , SUM(isnull(col9,0)) col9
+				      , SUM(isnull(col10,0)) col10
+				      , SUM(isnull(col11,0)) col11
+				      , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))+SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0)) totcount			     
+				      , code_small 
+		    FROM ( SELECT tempcd1
+					            , detcodename 
+					            , case when join_con = '1' then sum(pers_count) end col1
+					            , case when join_con = '2' then sum(pers_count) end col2
+					            , case when join_con = '3' then sum(pers_count) end col3
+					            , case when join_con = '4' then sum(pers_count) end col4
+					            , case when join_con = '5' then sum(pers_count) end col5
+					            , case when join_con = '6' then sum(pers_count) end col6
+					            , case when join_con = '7' then sum(pers_count) end col7
+					            , case when join_con = '8' then sum(pers_count) end col8
+					            , case when join_con = '9' then sum(pers_count) end col9
+					            , case when join_con = '10' then sum(pers_count) end col10
+					            , case when join_con = '0' then sum(pers_count) end col11
+					            , code_small
+					  FROM ( SELECT a.code_small
+										   , a.join_con
+						                   , b.detcodename
+						                   , b.tempcd1
+						                   , count(a.join_con) pers_count
+						           FROM pers_company a 
+						                     left join com_code b 
+						                            on b.groupcode = '005' 
+						                          and a.code_small = b.detcode
+						                   , Person_M_TBL c						                    
+						          WHERE isnull(a.company_name,'') != ''
+			                           and c.pers_state in ('01')
+						               and a.primary_flag = '1'
+						             AND ISNULL(b.detcodename,'') != ''
+						             AND a.code_pers = c.code_pers
+						             AND ISNULL(a.code_small,'') not in ('','0')
+						             and c.mem_gubun = 1
+						         GROUP BY a.code_small, b.detcodename, b.tempcd1, a.join_con ) aa
+			GROUP BY code_small, detcodename, join_con, tempcd1 ) bb
+		GROUP BY code_small, detcodename, code_small, tempcd1 ) OUT
+	WHERE 1=1 
+	    AND OUT.no > #nstart#
+		AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="trustCnt" resultClass="java.util.HashMap">
+		SELECT count(no) ncount
+		 FROM ( SELECT ROW_NUMBER()OVER(ORDER BY trust_code ) no
+			        FROM trust_company 
+			        <dynamic prepend="where">
+		  		 	<isNotEmpty property="trust_nm">
+		  		 		trust_name like '%'+#trust_nm#+'%'
+		  		 	</isNotEmpty>
+		  		 </dynamic>
+			      ) OUT
+		  WHERE 1=1
+	</select>
+    
+    
+	<select id="trustList" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (	SELECT ROW_NUMBER()OVER(ORDER BY CAST(trust_code as integer) ) no
+		 					, trust_code
+		      				, trust_name
+		      				, trust_post
+		      				, trust_addr
+		      				, trust_tel
+		  			 FROM trust_company
+		  		 <dynamic prepend="where">
+		  		 	<isNotEmpty property="trust_nm">
+		  		 		trust_name like '%'+#trust_nm#+'%'
+		  		 	</isNotEmpty>
+		  		 </dynamic>
+		  		 ) OUT
+		  WHERE 1=1 
+		  		and out.no > #nstart#
+		  		and out.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="trustListAll" resultClass="java.util.HashMap">
+	   SELECT trust_code
+		      	, trust_name
+		      	, trust_post
+		      	, trust_addr
+		      	, trust_tel
+		FROM trust_company
+		<dynamic prepend="where">
+			<isNotEmpty property="trust_nm">
+		  		trust_name like '%'+#trust_nm#+'%'
+		  	</isNotEmpty>
+		 </dynamic>
+	ORDER BY CAST(trust_code as integer)
+	</select>
+	
+	<!-- 현황-지부별 회원 분과별 인원수 집계 -->	
+	<select id="getBigStateCount" resultClass="java.util.HashMap">
+		   SELECT COUNT(NO)+3 ncount
+			FROM
+						(SELECT ROW_NUMBER()OVER(ORDER BY tempcd1) no  
+						  FROM (
+								SELECT tempcd1 
+								  FROM (
+										SELECT a.code_great tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+											 , c.code_bran  tempcol
+											 , count(c.code_bran) pers_count
+										  FROM pers_company a 
+											   left join com_code b
+												  on b.groupcode = '004'
+												 and b.detcode = a.code_great
+											 , Person_M_TBL c
+											   left join com_code d
+												  on d.groupcode = '007'
+												 and d.detcode = c.code_bran
+										 WHERE isnull(a.company_name,'') != ''
+					                           and c.pers_state in ('01')
+								               and a.primary_flag = '1'
+										   AND a.code_pers = c.code_pers
+										   AND ISNULL(a.code_great,'') not in ('','0')
+										   and c.mem_gubun = 1
+										 GROUP BY a.code_great, b.tempcd1, b.detcodename, c.code_bran
+									   ) aa
+								 GROUP BY tempcd1
+							  ) bb
+						 GROUP BY tempcd1 )out
+	</select>
+	
+	<select id="getBigStateList" resultClass="java.util.HashMap">
+		SELECT tempcd1, groupname1, groupname2
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_great tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join com_code b
+									  on b.groupcode = '004'
+									 and b.detcode = a.code_great
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+		                           and c.pers_state in ('01')
+					               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_great,'') not in ('','0')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_great, b.tempcd1, b.detcodename, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, tempcol
+				  ) bb
+			 GROUP BY tempcd1, groupname1, groupname2
+			union all
+			SELECT case when left(tempcd1,2) = '10' then '199'
+			            when left(tempcd1,2) = '20' then '299' end tempcd1, 
+			       groupname1, 
+			       'SUBTOTAL' groupname2
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_great tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join com_code b
+									  on b.groupcode = '004'
+									 and b.detcode = a.code_great
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+	                           and c.pers_state in ('01')
+				               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_great,'') not in ('','0')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_great, b.tempcd1, b.detcodename, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, tempcol
+				  ) bb
+			 GROUP BY left(tempcd1,2), groupname1
+			union all
+			SELECT '300' tempcd1, 
+			       'TOTAL' groupname1, 
+			       '' groupname2
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_great tempcd1, b.tempcd1 groupname1, b.detcodename groupname2
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join com_code b
+									  on b.groupcode = '004'
+									 and b.detcode = a.code_great
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+	                           and c.pers_state in ('01')
+				               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_great,'') not in ('','0')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_great, b.tempcd1, b.detcodename, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, tempcol
+				  ) bb
+			 order by 1
+	</select>
+	
+	<!-- 현황-지부별 회원 소분류별 인원수 집계 -->	
+	<select id="getSmallStateCount" resultClass="java.util.HashMap">
+		  SELECT COUNT(NO)+1 ncount
+			FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY tempcd1) no  
+			  FROM (
+					SELECT tempcd1
+					  FROM (
+							SELECT a.code_small tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join (select z.tempcd1 grnm1, z.detcodename grnm2, x.detcodename grnm3, x.detcode
+								                from com_code z, com_code x 
+								               where z.groupcode = '004'
+								                 and x.groupcode = '005'
+								                 and z.detcode = x.tempcd2) b
+									  on b.detcode = a.code_small
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+	                           and c.pers_state in ('01')
+				               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_small,'') not in ('','0')
+							   AND ISNULL(b.grnm1,'') not in ('')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_small, b.grnm1, b.grnm2, b.grnm3, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1
+				  ) bb
+     	GROUP BY tempcd1 )out
+	</select>
+	<select id="getSmallStateList" resultClass="java.util.HashMap">
+		SELECT tempcd1, groupname1, groupname2, groupname3
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2, groupname3 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_small tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join (select z.tempcd1 grnm1, z.detcodename grnm2, x.detcodename grnm3, x.detcode
+								                from com_code z, com_code x 
+								               where z.groupcode = '004'
+								                 and x.groupcode = '005'
+								                 and z.detcode = x.tempcd2) b
+									  on b.detcode = a.code_small
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+	                           and c.pers_state in ('01')
+				               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_small,'') not in ('','0')
+							   AND ISNULL(b.grnm1,'') not in ('')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_small, b.grnm1, b.grnm2, b.grnm3, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, groupname3, tempcol
+				  ) bb
+			 GROUP BY tempcd1, groupname1, groupname2, groupname3
+			union all
+			SELECT '300' tempcd1, 
+			       'TOTAL' groupname1, 
+			       '' groupname2, '' groupname3
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2, groupname3 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_small tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , c.code_bran  tempcol
+								 , count(c.code_bran) pers_count
+							  FROM pers_company a 
+								   left join (select z.tempcd1 grnm1, z.detcodename grnm2, x.detcodename grnm3, x.detcode
+								                from com_code z, com_code x 
+								               where z.groupcode = '004'
+								                 and x.groupcode = '005'
+								                 and z.detcode = x.tempcd2) b
+									  on b.detcode = a.code_small
+								 , Person_M_TBL c
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = c.code_bran
+							 WHERE isnull(a.company_name,'') != ''
+	                           and c.pers_state in ('01')
+				               and a.primary_flag = '1'
+							   AND a.code_pers = c.code_pers
+							   AND ISNULL(a.code_small,'') not in ('','0')
+							   AND ISNULL(b.grnm1,'') not in ('')
+							   and c.mem_gubun = 1
+							 GROUP BY a.code_small, b.grnm1, b.grnm2, b.grnm3, c.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, groupname3, tempcol
+				  ) bb		
+			 order by 1
+	</select>
+	
+	<!-- 현황-지부별 회원 소분류별 인원수 집계 -->	
+	<select id="getMemGubunStateCount" resultClass="java.util.HashMap">
+		SELECT COUNT(NO)+1 ncount
+			FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY tempcd1) no
+			  FROM (
+					SELECT tempcd1 
+					  FROM (
+							SELECT a.code_member tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , a.code_bran  tempcol
+								 , count(a.code_bran) pers_count
+							  FROM (SELECT c.code_pers, c.code_member, c.code_bran, e.auth_start, e.auth_end
+									  FROM Person_M_history c, 
+										  (
+											SELECT a.code_pers, a.up_dt updt, MAX(a.up_dt_seq) upseq
+											FROM Person_M_history a,
+												(
+												 SELECT code_pers, MAX(up_dt) updt 
+												   FROM Person_M_history
+												  WHERE  up_dt <![CDATA[<=]]> #enddate# and mem_gubun = 1 
+												  GROUP BY code_pers ) b
+											 WHERE a.code_pers = b.code_pers
+											   and a.up_dt = b.updt
+											   and a.mem_gubun = 1
+											 GROUP BY a.code_pers, a.up_dt ) d,
+										   dues_h_tbl e
+									 WHERE c.code_pers = d.code_pers
+									   and c.up_dt = d.updt
+									   and c.up_dt_seq = d.upseq
+									   and c.code_pers = e.code_pers
+									   and e.incom_flag = 'Y'
+									   and c.mem_gubun = 1
+			                        ) a 
+								   left join (select tempcd3 grnm1, tempcd1 grnm2, detcodename grnm3, detcode
+								                from com_code 
+								               where groupcode = '006'
+								                 and isnull(tempcd3,'') != '') b
+									  on b.detcode = a.code_member
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = a.code_bran
+							 WHERE a.auth_start <![CDATA[<=]]> #enddate#  
+							   AND a.auth_end <![CDATA[>=]]> #startdate#  
+							   and ISNULL(b.grnm1,'') != ''
+							 GROUP BY a.code_member, b.grnm1, b.grnm2, b.grnm3, a.code_bran
+						   ) aa
+					 GROUP BY tempcd1
+				  ) bb
+			 GROUP BY tempcd1)out
+	</select>
+	<select id="getMemGubunStateList" resultClass="java.util.HashMap">
+		SELECT tempcd1, groupname1, groupname2, groupname3
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2, groupname3 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_member tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , a.code_bran  tempcol
+								 , count(a.code_bran) pers_count
+							  FROM (SELECT c.code_pers, c.code_member, c.code_bran, e.auth_start, e.auth_end
+									  FROM Person_M_history c, 
+										  (
+											SELECT a.code_pers, a.up_dt updt, MAX(a.up_dt_seq) upseq
+											FROM Person_M_history a,
+												(
+												 SELECT code_pers, MAX(up_dt) updt 
+												   FROM Person_M_history
+												  WHERE  up_dt <![CDATA[<=]]> #enddate# and mem_gubun = 1 
+												  GROUP BY code_pers ) b
+											 WHERE a.code_pers = b.code_pers
+											   and a.up_dt = b.updt
+											   and a.mem_gubun = 1
+											 GROUP BY a.code_pers, a.up_dt ) d,
+										   dues_h_tbl e
+									 WHERE c.code_pers = d.code_pers
+									   and c.up_dt = d.updt
+									   and c.up_dt_seq = d.upseq
+									   and c.code_pers = e.code_pers
+									   and e.incom_flag = 'Y'
+									   and c.mem_gubun = 1
+			                        ) a 
+								   left join (select tempcd3 grnm1, tempcd1 grnm2, detcodename grnm3, detcode
+								                from com_code 
+								               where groupcode = '006'
+								                 and isnull(tempcd3,'') != '') b
+									  on b.detcode = a.code_member
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = a.code_bran
+							 WHERE a.auth_start <![CDATA[<=]]> #enddate# 
+							   AND a.auth_end <![CDATA[>=]]> #startdate# 
+							   and ISNULL(b.grnm1,'') != ''
+							 GROUP BY a.code_member, b.grnm1, b.grnm2, b.grnm3, a.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, groupname3, tempcol
+				  ) bb
+			 GROUP BY tempcd1, groupname1, groupname2, groupname3
+			union all
+			SELECT '300' tempcd1, 
+			       'TOTAL' groupname1, 
+			       '' groupname2, '' groupname3
+			     , SUM(isnull(col1,0)) col1
+			     , SUM(isnull(col2,0)) col2
+			     , SUM(isnull(col3,0)) col3
+			     , SUM(isnull(col4,0)) col4
+			     , SUM(isnull(col5,0)) col5
+			     , SUM(isnull(col6,0)) col6
+			     , SUM(isnull(col7,0)) col7
+			     , SUM(isnull(col8,0)) col8
+			     , SUM(isnull(col9,0)) col9
+			     , SUM(isnull(col10,0)) col10
+			     , SUM(isnull(col11,0)) col11
+			     , SUM(isnull(col12,0)) col12
+			     , SUM(isnull(col13,0)) col13
+			     , SUM(isnull(col14,0)) col14
+			     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0))+SUM(isnull(col6,0))+SUM(isnull(col7,0))
+			         + SUM(isnull(col8,0))+SUM(isnull(col9,0))+SUM(isnull(col10,0))+SUM(isnull(col11,0))+SUM(isnull(col12,0))+SUM(isnull(col13,0))+SUM(isnull(col14,0)) as totcount
+			  FROM (
+					SELECT tempcd1, groupname1, groupname2, groupname3 
+						 , case when tempcol = '02' then sum(pers_count) end col1
+						 , case when tempcol = '03' then sum(pers_count) end col2
+						 , case when tempcol = '04' then sum(pers_count) end col3
+						 , case when tempcol = '05' then sum(pers_count) end col4
+						 , case when tempcol = '06' then sum(pers_count) end col5
+						 , case when tempcol = '07' then sum(pers_count) end col6
+						 , case when tempcol = '08' then sum(pers_count) end col7
+						 , case when tempcol = '09' then sum(pers_count) end col8
+						 , case when tempcol = '10' then sum(pers_count) end col9
+						 , case when tempcol = '11' then sum(pers_count) end col10
+						 , case when tempcol = '12' then sum(pers_count) end col11
+						 , case when tempcol = '13' then sum(pers_count) end col12
+						 , case when tempcol = '14' then sum(pers_count) end col13
+						 , case when tempcol = '00' OR tempcol = '' then sum(pers_count) end col14
+					  FROM (
+							SELECT a.code_member tempcd1, b.grnm1 groupname1, b.grnm2 groupname2, b.grnm3 groupname3
+								 , a.code_bran  tempcol
+								 , count(a.code_bran) pers_count
+							  FROM (SELECT c.code_pers, c.code_member, c.code_bran, e.auth_start, e.auth_end
+									  FROM Person_M_history c, 
+										  (
+											SELECT a.code_pers, a.up_dt updt, MAX(a.up_dt_seq) upseq
+											FROM Person_M_history a,
+												(
+												 SELECT code_pers, MAX(up_dt) updt 
+												   FROM Person_M_history
+												  WHERE  up_dt <![CDATA[<=]]> #enddate# and mem_gubun = 1
+												  GROUP BY code_pers ) b
+											 WHERE a.code_pers = b.code_pers
+											   and a.up_dt = b.updt
+											   and a.mem_gubun = 1
+											 GROUP BY a.code_pers, a.up_dt ) d,
+										   dues_h_tbl e
+									 WHERE c.code_pers = d.code_pers
+									   and c.up_dt = d.updt
+									   and c.up_dt_seq = d.upseq
+									   and c.code_pers = e.code_pers
+									   and e.incom_flag = 'Y'
+									   and c.mem_gubun = 1
+			                        ) a 
+								   left join (select tempcd3 grnm1, tempcd1 grnm2, detcodename grnm3, detcode
+								                from com_code 
+								               where groupcode = '006'
+								                 and isnull(tempcd3,'') != '') b
+									  on b.detcode = a.code_member
+								   left join com_code d
+									  on d.groupcode = '007'
+									 and d.detcode = a.code_bran
+							 WHERE a.auth_start <![CDATA[<=]]> #enddate# 
+							   AND a.auth_end <![CDATA[>=]]> #startdate# 
+							   and ISNULL(b.grnm1,'') != ''
+							 GROUP BY a.code_member, b.grnm1, b.grnm2, b.grnm3, a.code_bran
+						   ) aa
+					 GROUP BY tempcd1, groupname1, groupname2, groupname3, tempcol
+				  ) bb
+	</select>
+	
+</sqlMap>

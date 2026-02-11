@@ -1,0 +1,308 @@
+#contents{width:1100px;float:left;margin-left:5px;}
+table td{border:0;font-family:'돋움',dotum;font-size:12px;}
+caption{display:none}
+img{border:0;}
+input label{vertical-align:middle;}
+ol, ul, li {list-style : none ;}
+
+
+/*home*/
+.home{float:right;widht:300px;margin-top:20px;}
+.home li{float:left;padding-left:3px;}
+.home li a:hover{color:blue;}
+.NPage{color:blue;}
+
+/*mTabmenu*/
+#ts_tabmenu{font-size:12px;padding: 20px 0px 0px 20px;}
+#ts_tabmenu span{font-weight:bold;}
+#ts_tabmenu ul{line-height: 1em;margin:0px;list-style-type: none;float: left;padding: 0px 0px 0px 5px;}
+#ts_tabmenu ul li{float:left;}
+#ts_tabmenu ul li a{text-decoration: none; display: block; float: left; padding: 0px 0px 0px 10px;
+         background:url(../images/tabs.gif) no-repeat left top;margin-left: -5px;z-index: 0;position: relative;color: #666666;}
+#ts_tabmenu ul li a strong{font-weight: normal;display: block;float: left;background: url(../images/tabs.gif) no-repeat right top;
+	     padding:6px 10px 7px 5px;cursor:pointer;}
+
+#ts_tabmenu1{font-size:12px;padding: 5px 0px 0px 5px;}
+#ts_tabmenu1 span{font-weight:bold;}
+#ts_tabmenu1 ul{line-height: 1em;margin:0px;list-style-type: none;float: left;padding: 0px 0px 0px 5px;}
+#ts_tabmenu1 ul li{float:left;}
+#ts_tabmenu1 ul li a{text-decoration: none; display: block; float: left; padding: 0px 0px 0px 10px;
+         background:url(../images/tabs.gif) no-repeat left top;margin-left: -5px;z-index: 0;position: relative;color: #666666;}
+#ts_tabmenu1 ul li a strong{font-weight: normal;display: block;float: left;background: url(../images/tabs.gif) no-repeat right top;
+	     padding:6px 10px 7px 5px;cursor:pointer;}
+	     
+
+  /*버튼 롤오버시*/
+#ts_tabmenu ul li a:hover{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu ul li a:hover strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+#ts_tabmenu1 ul li a:hover{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu1 ul li a:hover strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+
+  /*활성화된 페이지 버튼 컨트롤*/
+#ts_tabmenu ul li .overMenu{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu ul li .overMenu strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+#ts_tabmenu1 ul li .overMenu{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu1 ul li .overMenu strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+
+#tsmenu1 #li_tsmenu1 a, #tsmenu2 #li_tsmenu2 a, 
+#tsmenu3 #li_tsmenu3 a, #tsmenu4 #li_tsmenu4 a, 
+#tsmenu5 #li_tsmenu5 a, #tsmenu6 #li_tsmenu6 a, 
+#tsmenu7 #li_tsmenu7 a {position: relative;z-index:5;background: url(../images/tabs.gif) no-repeat left bottom;color: #000000;}
+#tsmenu1 #li_tsmenu1 a strong, #tsmenu2 #li_tsmenu2 a strong, 
+#tsmenu3 #li_tsmenu3 a strong, #tsmenu4 #li_tsmenu4 a strong, 
+#tsmenu5 #li_tsmenu5 a strong, #tsmenu6 #li_tsmenu6 a strong, 
+#tsmenu7 #li_tsmenu7 a strong {background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+
+/*회원등록-기본정보 mTabmenu_01*/
+.mTabmenu_01{float:left;clear:both;}
+.mytable_01{width:1100px;padding:0;margin:0;}
+.mytable_01 td{width:20%;border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mytable_01 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:13%;}/*테이블상위 bg파란*/
+.mytable_01 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:13%;}/*테이블상위 bg파란*/
+.mytable_01 td.nobg1{border-top:1px solid #84B6BD;width:20%;} /*테이블상위 bg하얀*/
+
+.mytable_01 td.alt{background: #F5FAFA;width:13%;}
+.mytable_01 td.alt1{border-left: 1px solid #84B6BD;background: #F5FAFA;width:13%;}
+.mytable_01 select{width:125px;}
+p.btnEntry{float:right;clear:both;padding-top:10px;}
+
+/*회원등록-근무처정보 mTabmenu_01*/
+.mytable_02{width:1100px;padding:0;margin:0;}
+.mytable_02 td{width:16%;border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mytable_02 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:16%;}/*테이블상위 bg파란*/
+.mytable_02 td.nobg1{border-top:1px solid #84B6BD;width:16%;} /*테이블상위 bg하얀*/
+.mytable_02 td.nobg3{border-top:1px solid #84B6BD;background:#F5FAFA;}/*테이블상위 bg파란*/
+
+.mytable_02 td.alt{background: #F5FAFA;width:16%;}
+.mytable_02 td.alt1{border-left: 1px solid #84B6BD;background: #F5FAFA;width:16%;}
+.mytable_02 td.alt2{background:#fff;border-left: 1px solid #84B6BD;}
+.mytable_02 select{width:125px;}
+p.btnSave{float:right;clear:both;padding-top:10px;}
+
+/*조건검색 mtable_02*/
+.mtable_02{width:1100px;padding:0;margin:0;padding-top:10px;}
+.mtable_02 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;padding:6px;}
+
+.mtable_02 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_02 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_02 td.nobg1{border-top:1px solid #84B6BD;width:15%;} 
+
+.mtable_02 td.alt{background: #F5FAFA;}
+.mtable_02 td.alt1{border-left: 1px solid #84B6BD;background: #F5FAFA;}
+
+/*김성훈 2012.09.19 : 조건검색 수정 */
+ .mtable_02 select{width:110px;} 
+
+p.btnEntry{float:right;clear:both;padding:10px 0px;}
+
+/*조건검색 mHistroy_01*/
+table.mHistory_01{margin:10px 0px;clear:both;width:1100px;}
+.mHistory_01,.mHistory_01 td{border:0;/*font-weight:bold*/}
+.mHistory_01{width:100%;border:1px solid #d4d4d4;border-collapse:collapse;}
+.mHistory_01 td{border:1px solid #e5e5e5;color:#4c4c4c;}
+.mHistory_01 th{width:9%;font-size:12px;height:25px;border-right:1px solid #d4d4d4;border-bottom:1px solid #d4d4d4;color:#14756d;background:#e0fefc;text-align:center;}
+
+.btnIcon_1{position:relative;top:0px;left:667px;}
+.btnIcon_1 li{float:left;padding-left:5px;}
+/*김성훈 2012.09.26 : 검색버튼에 위치 수정 */
+.btnIcon_11{position:relative;top:0px;left:1040px;}/*한개짜리*/
+.btnIcon_11 li{float:left;padding-left:5px;}
+.btnIcon_12{position:relative;top:0px;left:985px;}/*두개짜리*/
+.btnIcon_12 li{float:left;padding-left:5px;}
+.btnIcon_14{position:relative;top:0px;left:800px;}/*네개짜리*/
+.btnIcon_14 li{float:left;padding-left:5px;}
+.btnIcon_16{position:relative;top:0px;left:615px;}/*여섯짜리*/
+.btnIcon_16 li{float:left;padding-left:5px;}
+.btnIcon_18{position:relative;top:0px;left:430px;}/*여덟짜리*/
+.btnIcon_18 li{float:left;padding-left:5px;}
+.btnIcon_19{position:relative;top:0px;left:270px;}/*아홉짜리*/
+.btnIcon_19 li{float:left;padding-left:5px;}
+
+/*예수금현황(예수금집계표, 지부별예수금현황)*/
+.mtable_03{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_03 td{width:10%;border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mtable_03 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:14%;}/*테이블상위 bg파란*/
+.mtable_03 td.nobg1{background:#F5FAFA;width:10%;}
+.mtable_03 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:10%;}
+.mtable_03 td.nobg3{border-top:1px solid #84B6BD;border-right:none;text-align:left;} 
+.mtable_03 td.nobg4{border-top:1px solid #84B6BD;text-align:lefkt;} 
+.mtable_03 td.alt1{border-left: 1px solid #84B6BD;background: #F5FAFA;}
+p.btnExcel{float:right;clear:both;padding:10px 0px;}
+
+/*평생회비예수금*/
+.mtable_04{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_04 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mtable_04 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_04 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:4%;}
+.mtable_04 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:9%;}
+.mtable_04 td.nobg3{border-top:1px solid #84B6BD;background:#F5FAFA;width:14%;}
+.mtable_04 td.alt1{border-left: 1px solid #84B6BD;background: #fff;}
+
+.btnIcon_2{position:relative;top:0px;left:817px;padding-top:10px;}
+.btnIcon_2 li{float:left;padding-left:5px;}
+
+/*평생회비예수금현황*/
+.mtable_05{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_05 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mtable_05 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:6%;}/*테이블상위 bg파란*/
+.mtable_05 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:4%;}
+.mtable_05 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:6%;}
+.mtable_05 td.alt1{border-left: 1px solid #84B6BD;background: #fff;}
+
+/*예수금현황*/
+.mtable_06{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_06 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_06 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;}/*테이블상위 bg파란*/
+.mtable_06 td.nobg1{border-top:1px solid #84B6BD;background:#fff;}
+.mtable_06 td.nobg2{background:#F5FAFA;width:9%;}
+.mtable_06 td.nobg3{border-top:1px solid #84B6BD;background:#F5FAFA;}
+
+.mtable_06 td.alt1{border-left: 1px solid #84B6BD;background:#F5FAFA;width:6%;}
+.mtable_06 td.alt2{border-left: 1px solid #84B6BD;width:6%;}
+
+.pNember{position:relative;top:20px;left:560px;}
+.pNember li{float:left;padding-left:5px;}
+.pNember span{font-weight:bold;}
+.pNember li a:hover{color:red;}
+
+/*예수금현황_1*/
+.mtable_06_1{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_06_1 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_06_1 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:10%;}
+.mtable_06_1 td.nobg1{border-top:1px solid #84B6BD;background:#fff;width:10%;}
+.mtable_06_1 td.nobg4{background:#F5FAFA;width:15%;}
+.mtable_06_1 td.nobg2{background:#eafefe;width:15%;}
+.mtable_06_1 td.nobg3{border-top:1px solid #84B6BD;background:#F5FAFA;}
+
+.mtable_06_1 td.alt1{border-left: 1px solid #84B6BD;background:#eafefe;width:6%;font-weight:bold;height:20px;color:#006b9d;}
+.mtable_06_1 td.alt3{border-left: 1px solid #84B6BD;background:#F5FAFA;width:6%;}
+.mtable_06_1 td.alt2{border-left: 1px solid #84B6BD;width:6%;}
+
+/*산하단체예수금현황*/
+.mtable_07{width:1100px;padding:0;margin:0;text-align:center;}
+.mtable_07 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_07 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;}
+.mtable_07 td.nobg1{border-top:1px solid #84B6BD;background:#fff;border-right:none;}
+.mtable_07 td.nobg4{background:#F5FAFA;width:15%;}
+.mtable_07 td.nobg2{background:#eafefe;}
+.mtable_07 td.nobg3{border-top:1px solid #84B6BD;text-align:left;}
+
+.mtable_07 td.alt1{border-left: 1px solid #84B6BD;background:#eafefe;width:6%;font-weight:bold;height:20px;color:#006b9d;}
+.mtable_07 td.alt3{border-left: 1px solid #84B6BD;background:#F5FAFA;width:15%;}
+.mtable_07 td.alt2{border-left: 1px solid #84B6BD;width:6%;}
+
+/*기부기금현황*/
+.mtable_08{width:1100px;padding:0;margin:0;text-align:center;margin-top:10px;border:2px solid #d4d4d4;border-collapse:collapse;}
+
+.mtable_08 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:14%;}/*테이블상위 bg파란*/
+.mtable_08 td.nobg1{background:#F5FAFA;width:10%;}
+.mtable_08 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:10%;}
+.mtable_08 td.nobg3{border-top:1px solid #84B6BD;border-right:none;text-align:left;width:32%;} 
+
+.mtable_09{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_09 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+
+.mtable_09 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_09 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_09 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+.mtable_09 td.alt1{border-left: 1px solid #84B6BD;background: #FFF;}
+
+/*현황 지부별회원 mTabmenu_01*/
+.mtable_10{width:1100px;padding:0;margin:0;text-align:center;margin-top:10px;border:2px solid #d4d4d4;border-collapse:collapse;}
+.mtable_10 td.nobg{background:#F5FAFA;width:10%;}/*테이블상위 bg파란*/
+.mtable_10 td.nobg1{width:20%;}
+.mtable_10 td.nobg2{text-align:left;width:25%;} 
+.mtable_10 td.nobg3{text-align:left;width:25%;} 
+
+.mtable_11{width:1100px;padding:0;margin:0;text-align:center;padding-top:20px;}
+.mtable_11 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_11 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:10%;font-weight:bold;}/*테이블상위 bg파란*/
+.mtable_11 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;font-weight:bold;}
+.mtable_11 td.nobg2{background:#F5FAFA;width:6%;}
+.mtable_11 td.nobg3{background:#F5FAFA;width:8%;}
+.mtable_11 td.alt1{border-left: 1px solid #84B6BD;background:#F5FAFA;font-weight:bold;}
+
+/*현황 소속별회원 mTabmenu_01*/
+.mtable_12{width:1100px;padding:0;margin:0;text-align:center;padding-top:20px;}
+.mtable_12 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_12 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:10%;font-weight:bold;}/*테이블상위 bg파란*/
+.mtable_12 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;font-weight:bold;}
+.mtable_12 td.nobg2{background:#F5FAFA;width:6%;}
+.mtable_12 td.nobg3{background:#F5FAFA;width:8%;}
+.mtable_12 td.alt1{border-left: 1px solid #84B6BD;background:#F5FAFA;font-weight:bold;}
+.mtable_12 td.alt2{background:#F5FAFA;font-weight:bold;}
+
+/*근무처분류별*/
+.mtable_13{padding:0;margin:0;text-align:center;margin-top:10px;border:2px solid #d4d4d4;border-collapse:collapse;}
+.mtable_13 td {padding:6px;}
+.mtable_13 td.nobg{background:#F5FAFA;width:10%;}/*테이블상위 bg파란*/
+.mtable_13 td.nobg1{text-align:left;width:10%;} 
+.mtable_13 td.nobg2{text-align:left;width:75%;}
+.mtable_13 .a01 {
+	TEXT-ALIGN: left; BACKGROUND-COLOR: #f4f4f4; PADDING-RIGHT: 10px; COLOR: #005797; FONT-SIZE: 12px; FONT-WEIGHT: bold; BORDER-RIGHT: #d5d5d5 1px solid
+}
+
+.mtable_14{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_14 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_14 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_14 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_14 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+.mtable_14 td.alt1{border-left: 1px solid #84B6BD;background:#F5FAFA;}
+
+/*운영형태별*/
+.mtable_15{width:1100px;padding:0;margin:0;text-align:center;margin-top:10px;border:2px solid #d4d4d4;border-collapse:collapse;}
+.mtable_15 td.nobg{background:#F5FAFA;width:10%;}/*테이블상위 bg파란*/
+.mtable_15 td.nobg1{text-align:left;width:25%;} 
+.mtable_15 td.nobg2{text-align:left;width:60%;} 
+
+.mtable_16{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_16 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_16 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_16 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+.mtable_16 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+.mtable_16 td.alt1{border-left: 1px solid #84B6BD;background:#F5FAFA;}
+
+/*위탁업체개인별*/
+.mtable_17{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_17 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_17 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_17 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+
+.mtable_17 td.alt1{border-left: 1px solid #84B6BD;background:#fff;}
+
+/*위탁업체업체별*/
+.mtable_18{width:1100px;padding:0;margin:0;text-align:center;margin-top:10px;border:2px solid #d4d4d4;border-collapse:collapse;}
+.mtable_18 td.nobg{background:#F5FAFA;width:10%;}/*테이블상위 bg파란*/
+.mtable_18 td.nobg1{text-align:left;width:15%;} 
+.mtable_18 td.nobg2{text-align:left;width:60%;} 
+
+.mtable_19{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_19 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_19 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_19 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_19 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:15%;}
+
+.mtable_19 td.alt1{border-left: 1px solid #84B6BD;background:#fff;}
+
+/*고용형태별*/
+.mtable_21{width:1100px;padding:0;margin:0;text-align:center;padding-top:10px;}
+.mtable_21 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_21 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_21 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:10%;}
+.mtable_21 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+
+.mtable_21 td.alt1{border-left: 1px solid #84B6BD;background:#fff;}
+
+/*급식인원별*/
+.mtable_20{width:1100px;padding:0;margin:0;text-align:center;padding-top:px;}
+.mtable_20 td{border-right:1px solid #84B6BD;border-bottom: 1px solid #84B6BD;background:#fff;color:#4f6b72;}
+.mtable_20 td.nobg{border-top:1px solid #84B6BD;border-left: 1px solid #84B6BD;background:#F5FAFA;width:5%;}/*테이블상위 bg파란*/
+.mtable_20 td.nobg1{border-top:1px solid #84B6BD;background:#F5FAFA;width:12%;}
+.mtable_20 td.nobg2{border-top:1px solid #84B6BD;background:#F5FAFA;width:8%;}
+.mtable_20 td.alt1{border-left: 1px solid #84B6BD;background:#fff;}
+

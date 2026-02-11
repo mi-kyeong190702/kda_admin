@@ -1,0 +1,23 @@
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Build
+/target/
+/bin/
+/build/
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java
+*.class

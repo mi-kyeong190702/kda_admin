@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+  <properties resource="com/ant/common/properties/db.properties" />
+    <settings cacheModelsEnabled="true" 
+	          enhancementEnabled="true" 
+	          useStatementNamespaces="false" 
+	          lazyLoadingEnabled="true" 
+	          maxRequests="512" 
+	          maxSessions="128" 
+	          maxTransactions="32" /> 
+	      
+  <transactionManager type="JDBC">
+    <dataSource type="SIMPLE">
+      <property name="JDBC.Driver"        value="${driver}"   />
+      <property name="JDBC.ConnectionURL" value="${url}"      />
+      <property name="JDBC.Username"      value="${username}" />
+      <property name="JDBC.Password"      value="${password}" />
+    </dataSource>
+  </transactionManager>
+  
+  <sqlMap resource="com/ant/common/xml/Login.xml"/>
+  
+
+  <sqlMap resource="com/ant/common/xml/sql_common.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberInsert.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberSearch.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberDues.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberDeposit.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberFund.xml"/>
+  <sqlMap resource="com/ant/common/xml/sql_memberState.xml"/>
+   
+  <sqlMap resource="com/ant/common/xml/memberState.xml"/>	
+   
+  <sqlMap resource="com/ant/common/xml/member1.xml"/> 
+  <sqlMap resource="com/ant/common/xml/trustName.xml"/>
+  <sqlMap resource="com/ant/common/xml/codeUseMember.xml"/>
+  <sqlMap resource="com/ant/common/xml/documentsend.xml"/> 
+  <sqlMap resource="com/ant/common/xml/conference.xml"/>
+  <sqlMap resource="com/ant/common/xml/setupdues.xml"/>  
+  <sqlMap resource="com/ant/common/xml/actol.xml"/> 
+  <sqlMap resource="com/ant/common/xml/educationstatus.xml"/> 
+  <sqlMap resource="com/ant/common/xml/license.xml"/> 
+  <sqlMap resource="com/ant/common/xml/lecture.xml"/>
+   
+</sqlMapConfig>

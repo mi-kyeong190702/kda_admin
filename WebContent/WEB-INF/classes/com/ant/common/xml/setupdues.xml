@@ -1,0 +1,971 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="setupdues">
+	
+	  <!-- 산하단체  코드 검색--> 	   
+	 <select id="codesubsearch"    resultClass="java.util.HashMap">
+		SELECT    code_sub
+			     ,sub_name
+		    FROM sub_tbl
+		 WHERE use_yn = 'Y'
+	    ORDER BY code_sub				
+	 </select>
+	
+	 <!-- 자격증 종류 검색--> 	   
+	 <select id="certififind"    resultClass="java.util.HashMap">
+		SELECT    code_certifi
+			     ,certifi_name
+		    FROM certifi
+		 WHERE use_yn = 'Y'
+	    ORDER BY code_certifi				
+	 </select>
+	 
+	 <!-- 회비 환경설정  count --> 	
+	 <select id="setupduescnt"    resultClass="java.util.HashMap">
+	 
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY dues_gubun ) no
+				  FROM dues 
+				  WHERE
+				  	    	yyyymm            = ( select max(yyyymm) yyyymm
+						 	                          from dues
+						 	                         where yyyymm <![CDATA[<=]]> #yyyymm# ) 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dues_gubun1">
+							  		dues_gubun = #dues_gubun1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_member1">
+							  		code_member = #code_member1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>					  		
+					 ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 회비 환경설정 검색 -->
+	 <select id="selectsetupdues" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY dues_gubun) no 
+						,a.yyyymm
+						,b.detcodename dues_gubun
+						,b.detcode dues_gubuncode
+				      	,c.detcodename code_member
+						,c.detcode code_membercode
+						,d.detcodename code_bran
+						,d.detcode code_brancode						
+						,a.bran_dues				     	
+						,a.bran_dues1
+						,a.head_dues
+						,a.sum_dues
+						,a.use_yn				    
+				  FROM dues a
+				  	left join  com_code b
+				  		 on  b.groupcode = '038'
+				  		 and  a.dues_gubun = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '006'
+				  		 and  a.code_member = c.detcode	
+			  		left join  com_code d
+				  		 on  d.groupcode = '007'
+				  		 and  a.code_bran = d.detcode	 	 				  
+				 	   WHERE
+						 	a.yyyymm            = ( select max(yyyymm) yyyymm
+						 	                          from dues
+						 	                         where yyyymm <![CDATA[<=]]> #yyyymm# ) 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dues_gubun1">
+							  		a.dues_gubun = #dues_gubun1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_member1">
+							  		a.code_member = #code_member1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		a.code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		a.use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>			  		 					  	
+					 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	
+	<insert id="insertsetupdues"   parameterClass="java.util.HashMap">
+		INSERT into dues (yyyymm, dues_gubun, code_member, code_bran, bran_dues, bran_dues1, head_dues, sum_dues, use_yn)
+				values ( #yyyymm#
+						, #dues_gubun1#
+				        , #code_member1#
+						, #code_bran1#
+				        , #bran_dues1#
+				        , #bran_dues11#  
+				        , #head_dues1#
+						, #sum_dues1#				       
+						, #use_yn1# 				        
+				        )	
+	</insert>
+	
+	<update id="updatesetupdues" parameterClass="java.util.HashMap">
+		UPDATE dues
+					SET 					    
+						  bran_dues   =  #bran_dues1#
+				        , bran_dues1  =  #bran_dues11# 
+				        , head_dues   =  #head_dues1#
+						, sum_dues    =  #sum_dues1#
+						, use_yn      =  #use_yn1# 				        
+					WHERE  yyyymm = #yyyymm# and dues_gubun = #dues_gubun1# and code_member = #code_member1# and code_bran =  #code_bran1#  	
+	</update>
+	
+	 <!-- 산하단체 환경설정  count --> 	
+	 <select id="setupsubduescnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY dues_gubun ) no
+				  FROM sub_dues 
+				 WHERE 
+				 		    yyyymm            = #yyyymm# 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dues_gubun1">
+							  		dues_gubun = #dues_gubun1# 
+							  	</isNotEmpty>
+							</dynamic>							
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_sub1">
+							  		code_sub = #code_sub1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>					
+					 ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 산하단체 환경설정 검색 -->
+	 <select id="selectsetupsubdues" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY dues_gubun) no 
+						,a.yyyymm
+						,b.detcodename dues_gubun
+						,b.detcode dues_gubuncode
+				      	,c.detcodename code_bran
+						,c.detcode code_brancode	
+						,d.sub_name
+						,d.code_sub										
+						,a.sub_dues				     	
+						,a.use_yn				    
+				  FROM sub_dues a
+				  	left join  com_code b
+				  		 on  b.groupcode = '038'
+				  		 and  a.dues_gubun = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '007'
+				  		 and   a.code_bran = c.detcode	
+			  		left join  sub_tbl d
+				  		 on  a.code_sub = d.code_sub				  			 					  
+				 	  WHERE 
+					 		a.yyyymm            = ( select max(yyyymm) yyyymm
+						 	                          from sub_dues
+						 	                         where yyyymm <![CDATA[<=]]> #yyyymm# ) 
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dues_gubun1">
+							  		a.dues_gubun = #dues_gubun1# 
+							  	</isNotEmpty>
+							</dynamic>							
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		a.code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_sub1">
+							  		a.code_sub = #code_sub1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		a.use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>						 		 		 				  	
+					 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	
+	<insert id="insertsetupduessub"   parameterClass="java.util.HashMap">
+		INSERT into sub_dues (yyyymm, dues_gubun, code_bran, code_sub, sub_dues, use_yn)
+				values ( #yyyymm#
+						, #dues_gubun1#
+				        , #code_bran1#
+				        , #code_sub1#
+				        , #sub_dues1#				          
+						, #use_yn1# 				        
+				        )	
+	</insert>
+	
+	<update id="updatesetupduessub" parameterClass="java.util.HashMap">
+		UPDATE sub_dues
+					SET 					    
+						  sub_dues =  #sub_dues1#
+				       	, use_yn   =  #use_yn1# 				        
+					WHERE  yyyymm = #yyyymm# and dues_gubun = #dues_gubun1# and code_bran = #code_bran1# and code_sub = #code_sub1# 	
+	</update>
+	
+	 <!-- 공동코드 환경설정  count --> 	
+	 <select id="comcodecnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY groupcode ) no
+				  FROM com_group 
+			       ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 공동코드 환경설정 검색 -->
+	 <select id="selectcomcode" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY groupcode) no 
+						,groupcode
+						,groupname
+						,codelen				      	
+				  FROM com_group				  
+				   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 
+	
+	 <!-- 공동코드(detail) 환경설정  count --> 	
+	 <select id="comcodedetailcnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY groupcode ) no
+				  FROM com_code
+				  	WHERE groupcode = #groupcode# 
+			       ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 공동코드(detail)  환경설정 검색 -->
+	 <select id="selectcomcodedetail" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.groupcode) no 
+						,a.groupcode
+						,b.groupname 
+						,a.detcode
+						,a.detcodename
+						,a.tempcd1
+						,a.tempcd2
+						,a.tempcd3
+						,a.cdseq
+						,a.use_yn				      	
+				  FROM com_code	a
+				 	 left join  com_group b
+				  		 on  a.groupcode = b.groupcode				  		
+			 		  WHERE a.groupcode = #groupcode# 			  
+				   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+			  order by detcode
+					 						     
+	</select> 		
+	
+	<insert id="insertcomcode"   parameterClass="java.util.HashMap">
+		INSERT into com_code (groupcode, detcode, detcodename, tempcd1, tempcd2, tempcd3, cdseq, use_yn)
+				values (  #groupcode1#
+						, #detcode1#
+				        , #detcodename1#
+				        , #tempcd11#
+				        , #tempcd21#				          
+						, #tempcd31#
+						, #cdseq1#				          
+						, #use_yn1#						 				        
+				        )	
+	</insert>
+	
+	<update id="updatecomcode" parameterClass="java.util.HashMap">
+		UPDATE com_code
+					SET 					    
+						  detcodename =  #detcodename1#
+				       	, tempcd1     =  #tempcd11#
+						, tempcd2     =  #tempcd21#
+						, tempcd3     =  #tempcd31#
+						, cdseq       =  #cdseq1#
+						, use_yn      =  #use_yn1# 				        
+					WHERE  groupcode = #groupcode1# and detcode = #detcode1#
+	</update>
+	
+	 <!-- 교육 및 시험명 환경설정 환경설정  count --> 	
+	 <select id="setupeducnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_kind) no
+				  FROM edu_test_name
+				  	 WHERE 
+					 		1=1				 		
+					 		<dynamic prepend="and">						    
+							 	<isNotEmpty property="edutest_name1">
+							  		 edutest_name like '%'+#edutest_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_certifi1">
+							  		 code_certifi = #code_certifi1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_kind1">
+							  		 code_kind = #code_kind1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="outside_yn1">
+							  		outside_yn = #outside_yn1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="edu_group1">
+							  		edu_group = #edu_group1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="conform1">
+							  		 conform = #conform1# 
+							  	</isNotEmpty>
+							</dynamic>								 
+			       ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 교육 및 시험명 환경설정  환경설정 검색 -->
+	 <select id="selectsetupedu" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 
+				SELECT   ROW_NUMBER()OVER(ORDER BY code_seq desc) no 
+						,a.code_kind
+						,b.detcodename code_kind_name							
+						,a.code_certifi
+						,c.certifi_name 
+						,a.code_seq
+						,a.edutest_name
+						,a.outside_yn
+						,d.detcodename outside_yn_name							
+						,a.edu_group
+						,e.detcodename edu_group_name							
+<!-- 						,a.finish_time -->
+<!-- 						,a.finish_date -->
+<!-- 						,a.finish_point -->
+						,a.point_manage	
+<!-- 						,a.edu_marks -->
+<!-- 						,a.service_marks -->
+						,a.print_kind
+						,f.detcodename print_kind_name							
+<!-- 						,a.new_cost -->
+<!-- 						,a.re_cost -->
+<!-- 						,a.mr_cost -->
+						,a.remark
+						,a.conform	
+						,a.use_yn				      	
+				  FROM edu_test_name  a
+				  	left join  com_code b
+				  		 on  b.groupcode = '016'
+				  		 and  a.code_kind = b.detcode
+			  		left join  certifi c
+				  		 on  a.code_certifi = c.code_certifi				  		 
+			  		left join  com_code d
+				  		 on  d.groupcode = '033'
+				  		 and  a.outside_yn = d.detcode
+			  		left join  com_code e
+				  		 on  e.groupcode = '017'
+				  		 and  a.edu_group = e.detcode 
+			  		left join  com_code f
+				  		 on  f.groupcode = '029'
+				  		 and  a.print_kind = f.detcode  
+						 
+				 	 WHERE	
+							1=1				 		
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="edutest_name1">
+							  		 a.edutest_name like '%'+#edutest_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_certifi1">
+							  		 a.code_certifi = #code_certifi1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_kind1">
+							  		 a.code_kind = #code_kind1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="outside_yn1">
+							  		a.outside_yn = #outside_yn1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="edu_group1">
+							  		a.edu_group = #edu_group1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		a.use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="conform1">
+							  		 a.conform = #conform1# 
+							  	</isNotEmpty>
+							</dynamic>
+							
+				   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 
+	
+	<insert id="insertedu"   parameterClass="java.util.HashMap">
+		INSERT into edu_test_name (code_kind, code_certifi, code_seq, edutest_name, outside_yn, edu_group,
+<!-- 								   finish_time, finish_date, -->
+<!-- 								   finish_point, -->
+								   point_manage,
+<!-- 								   edu_marks, -->
+<!-- 								   service_marks, -->
+								   print_kind,
+<!-- 								   new_cost, re_cost, mr_cost, -->
+								   remark, printform_no, 
+								   conform, register, regi_date, use_yn, updater, up_date)
+				values (  #code_kind1#
+						, #code_certifi1#
+						, (SELECT RIGHT('000'+convert(varchar, isnull(MAX(code_seq),0)+1),4) from edu_test_name where code_kind = #code_kind1# and code_certifi = #code_certifi1#)
+				        , #edutest_name1#
+				        , #outside_yn1#				          
+						, #edu_group1#
+<!-- 						, #finish_time1#				           -->
+<!-- 						, #finish_date1#						 -->
+<!-- 						, #finish_point1# -->
+						, #point_manage1#
+<!-- 				        , #edu_marks1# -->
+<!-- 				        , #service_marks1# -->
+				        , #print_kind1#
+<!-- 				        , #new_cost1#				           -->
+<!-- 						, #re_cost1# -->
+<!-- 						, #mr_cost1#				           -->
+						, #remark1#	
+						, ''						
+						, #conform1#
+						, #register1#
+				        , GETDATE()
+				        , #use_yn1#
+				        , #register1#				          
+						, GETDATE()																 				        
+				        )	
+	</insert>	
+	
+	<update id="updateedu" parameterClass="java.util.HashMap">
+		UPDATE edu_test_name
+					SET 					    
+						  edutest_name   =  #edutest_name1#
+				       	, outside_yn     =  #outside_yn1#
+						, edu_group      =  #edu_group1#
+<!-- 						, finish_time    =  #finish_time1# -->
+<!-- 						, finish_date    =  #finish_date1#						 -->
+<!-- 						, finish_point   =  #finish_point1# 	 -->
+						, point_manage   =  #point_manage1# 
+<!-- 						, edu_marks      =  #edu_marks1#  -->
+<!-- 						, service_marks  =  #service_marks1#  -->
+						, print_kind     =  #print_kind1# 
+<!-- 						, new_cost       =  #new_cost1#  -->
+<!-- 						, re_cost        =  #re_cost1#  -->
+<!-- 						, mr_cost        =  #finish_point1#  -->
+						, remark         =  #remark1# 						
+						, conform        =  #conform1# 
+						, use_yn         =  #use_yn1# 
+						, updater        =  #register1# 
+						, up_date        =  GETDATE() 									        
+					WHERE  code_kind = #code_kind1# and code_certifi = #code_certifi1# and code_seq = #code_seq1# 
+	</update>
+		
+	<!-- 자격증 종류  count --> 	
+	<select id="setupcertificnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_certifi) no
+				  FROM certifi
+				    WHERE  1=1				 		
+					  <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>				 		  	 
+			  ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 자격증 종류  환경설정 검색 -->
+	<select id="selectsetupcertifi" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY code_certifi) no 
+						,code_certifi											
+						,certifi_name						
+						,renewal
+						,finish_marks
+						,center_marks												
+						,service_marks													
+						,use_yn								      	
+				  FROM certifi
+					 WHERE  1=1					 		
+					  <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>							   
+			   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 
+	
+	<insert id="insertcertifi"   parameterClass="java.util.HashMap">
+		INSERT into certifi (code_certifi, certifi_name, renewal, finish_marks, center_marks, service_marks, use_yn)								  
+				values (  #code_certifi1#
+						, #certifi_name1#								        				
+				        , #renewal1#
+				        , #finish_marks1#				          
+						, #center_marks1#
+						, #service_marks1# 
+						, #use_yn1#      
+						)	
+	</insert>	
+	
+	<update id="updatecertifi" parameterClass="java.util.HashMap">
+		UPDATE certifi
+					SET 					    
+						  certifi_name   =  #certifi_name1#
+				       	, renewal        =  #renewal1#
+						, finish_marks   =  #finish_marks1#
+						, center_marks   =  #center_marks1#
+						, service_marks  =  #service_marks1#						
+						, use_yn         =  #use_yn1# 												        
+					WHERE  code_certifi = #code_certifi1# 
+	</update>	
+	
+	<!-- 산하 단체명  count --> 	
+	<select id="setupsubcnt"       resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_sub) no
+				  FROM sub_tbl
+				    WHERE 1=1 
+				  	  <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>							 		  	 
+			  ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 산하 단체명  환경설정 검색 -->
+	<select id="selectsetupsub"    resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.code_sub) no 
+						,a.code_sub											
+						,a.sub_name						
+						,a.sub_tel
+						,a.sub_fax											
+						,a.sub_master						
+						,a.sub_email
+						,b.detcodename code_email_name
+						,c.detcode code_email_comp
+						,a.sub_account
+						,a.sub_bank												
+						,a.sub_bank_ints													
+						,a.use_yn								      	
+				  FROM sub_tbl a
+				  	left join  com_code b
+				  		 on  b.groupcode = '025'
+				  		 and a.code_email_comp = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '025'
+				  		 and  a.code_email_comp = c.detcode
+			  		 WHERE 1=1
+			  	      <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		a.use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>	 						   
+					<dynamic prepend="and">
+					 	<isNotEmpty property="code_sub1">
+					  		a.code_sub = #code_sub1# 
+					  	</isNotEmpty>
+					</dynamic>	
+			   ) OUT
+			    WHERE 1=1 			  		 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 
+	
+	<insert id="insertsub"   parameterClass="java.util.HashMap">
+		INSERT into sub_tbl (code_sub, sub_name, sub_tel, sub_fax, sub_master, sub_email, code_email_comp, sub_account, sub_bank, sub_bank_ints, use_yn)								  
+				values (  #code_sub1#
+						, #sub_name1#								        				
+				        , #sub_tel1#
+				        , #sub_fax1#				          
+						, #sub_master1#
+						, #sub_email1# 
+						, #code_email_comp1# 
+						, #sub_account1#				          
+						, #sub_bank1#
+						, #sub_bank_ints1# 
+						, #use_yn1#           
+						)	
+	</insert>	
+	
+	<update id="updatesub" parameterClass="java.util.HashMap">
+		UPDATE sub_tbl
+					SET 					    
+						  sub_name           =  #sub_name1#
+				       	, sub_tel            =  #sub_tel1#
+						, sub_fax            =  #sub_fax1#
+						, sub_master         =  #sub_master1#
+						<isNotEmpty property="sub_email_upok">
+						, sub_email          =  #sub_email1#
+						</isNotEmpty>						
+						, code_email_comp    =  #code_email_comp1# 
+						, sub_account        =  #sub_account1#
+						, sub_bank           =  #sub_bank1#
+						, sub_bank_ints      =  #sub_bank_ints1#						
+						, use_yn             =  #use_yn1# 														        
+					WHERE  code_sub = #code_sub1# 
+	</update>	
+	
+	<!-- 사용자 등록  count --> 	
+	<select id="setupusercnt"       resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY UserId) no
+				  FROM User_Master				 		  	 
+			  ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 사용자 등록  환경설정 검색 -->
+	<select id="selectsetupuser"    resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.UserName, a.UserId) no 
+						,a.UserId											
+						,a.UserName
+						,b.detcodename UserBranname
+						,b.detcode UserBran
+						,c.detcodename UserPowername
+						,c.detcode UserPower	
+						,a.use_yn						
+				  FROM User_Master a
+			  		left join  com_code b
+				  		 on  b.groupcode = '007'
+				  		 and  a.UserBran = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '041'
+				  		 and  a.UserPower = c.detcode			  			   
+			   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 
+	
+	<!-- 프로그램 리스트  count --> 	
+	<select id="setupusercnt2"       resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY a.progid) no
+				   FROM prog_list a left join user_power b on b.progid = a.progid and  b.userid = #UserId#
+				 WHERE  a.use_yn = 'Y'   				   
+			  ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 프로그램 리스트  환경설정 검색 -->
+	<select id="selectsetupuser2"    resultClass="java.util.HashMap">
+	 	 SELECT OUT.*
+	 		 FROM ( 
+			SELECT   ROW_NUMBER()OVER(ORDER BY a.progid) no 
+					,a.progid											
+					,a.progname 						
+					,a.proghanname						
+					,isnull(b.use_yn,0) use_yn						
+			   FROM prog_list a left join user_power b on b.progid = a.progid and  b.userid = #UserId#
+			 WHERE  a.use_yn = 'Y'   				   
+		  ) OUT	   
+		  WHERE 1=1 
+		  		and out.no > #nstart#
+		  		and out.no <![CDATA[<=]]> #nend#	        						     
+	</select> 
+	
+	<!-- 아이디 중복 여부  count -->   
+    <select id="setupuserexist"       resultClass="java.util.HashMap">
+        SELECT COUNT(UserId) cnt FROM User_Master WHERE UserId = #UserId1#
+    </select>
+	
+	<insert id="insertuser"   parameterClass="java.util.HashMap">
+		INSERT into User_Master (UserId, UserPW, UserName, UserBran, UserPower, use_yn)								  
+				values (  #UserId1#
+						, PWDENCRYPT(#UserPW1#)													        				
+				        , #UserName1#
+				        , #UserBran1#				          
+						, #UserPower1#
+						, #use_yn1# 
+						)	
+	</insert>	
+	
+	<update id="updateuser" parameterClass="java.util.HashMap">
+		UPDATE User_Master
+					SET 						  					    
+						  UserName      =  #UserName1#
+						, UserBran      =  #UserBran1#
+						, UserPower     =  #UserPower1#						
+						, use_yn        =  #use_yn1#																			        
+					WHERE  UserId  =  #UserId1# 
+	</update>	
+	
+	<delete id="deleteuser1" parameterClass="java.util.HashMap">
+		DELETE user_power WHERE  userid  =  #UserId1#
+	</delete>	
+	<insert id="insertuser1" parameterClass="java.util.HashMap">
+		INSERT INTO user_power (userid, progid, use_yn)
+		       VALUES (#UserId1#, #progid1#, #use_yn1#)
+	</insert>
+	
+	<update id="updatepass"  parameterClass="java.util.HashMap">
+		UPDATE User_Master
+					SET 										
+						  UserPW        =  PWDENCRYPT(#UserPW1#)																			        
+					WHERE  UserId  =  #UserId1#
+	</update>
+		
+	<!-- 기관지 등록  count --> 	
+	<select id="setupbookscnt"       resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_book_kind) no
+				  FROM books_kind
+				  	 WHERE  1=1
+			   		  <dynamic prepend="and">
+					 	<isNotEmpty property="code_book_kind1">
+					  		code_book_kind = #code_book_kind1# 
+					  	</isNotEmpty>
+					  </dynamic>							 		
+					  <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>							 		  	 
+			  ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 기관지등록  환경설정 검색 -->
+	<select id="selectsetupbooks"    resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY code_book_kind) no 
+						,code_book_kind											
+						,book_name 						
+						,book_maker
+						,company_tel
+						,pers_name
+						,job_kind						
+						,use_yn						
+				  FROM books_kind
+				   WHERE  1=1
+			   		  <dynamic prepend="and">
+					 	<isNotEmpty property="code_book_kind1">
+					  		code_book_kind = #code_book_kind1# 
+					  	</isNotEmpty>
+					  </dynamic>							 		
+					  <dynamic prepend="and">
+					 	<isNotEmpty property="use_yn1">
+					  		use_yn = #use_yn1# 
+					  	</isNotEmpty>
+					  </dynamic>				 						   
+			   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 
+	
+	<insert id="insertbooks"   parameterClass="java.util.HashMap">
+		INSERT into books_kind (code_book_kind, book_name, book_maker, company_tel, pers_name, job_kind, use_yn)								  
+				values (  #code_book_kind1#
+						, #book_name1#													        				
+				        , #book_maker1#
+				        , #company_tel1#				          
+						, #pers_name1#
+						, #job_kind1#
+						, #use_yn1# 
+						)	
+	</insert>	
+	
+	<update id="updatebooks" parameterClass="java.util.HashMap">
+		UPDATE books_kind
+					SET 					    
+						  book_name      =  #book_name1#
+						, book_maker     =  #book_maker1#
+						, company_tel    =  #company_tel1#
+						, pers_name      =  #pers_name1#
+						, job_kind       =  #job_kind1#											
+						, use_yn         =  #use_yn1#																			        
+					WHERE  code_book_kind  =  #code_book_kind1# 
+	</update>
+	
+	<!-- 목표 인원  count --> 	
+	<select id="setuptargetcnt"       resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_bran) no
+				  FROM targetpersons
+				 WHERE  1=1				 		
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="yyyy1">
+							  		 yyyy = #yyyy1#
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		 code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_big1">
+							  		 code_big = #code_big1# 
+							  	</isNotEmpty>
+							</dynamic>  				 		  	 
+			  ) OUT
+			  WHERE 1=1
+			  		
+	</select>
+		
+	<!-- 목표 인원  환경설정 검색 -->
+	<select id="selectsetuptarget"    resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY code_bran) no 
+						,a.yyyy
+						,b.detcodename code_branname
+						,b.detcode code_bran											
+						,c.detcodename code_bigname
+						,c.detcode code_big						
+						,a.target_cnt										
+				  FROM  targetpersons a
+				  	left join  com_code b
+				  		 on  b.groupcode = '007'
+				  		 and  a.code_bran = b.detcode
+			  		left join  com_code c
+				  		 on  c.groupcode = '004'
+				  		 and  a.code_big = c.detcode			  				 
+			 	WHERE  
+							1=1				 		
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="yyyy1">
+							  		  a.yyyy = #yyyy1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_bran1">
+							  		 a.code_bran = #code_bran1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_big1">
+							  		 a.code_big = #code_big1# 
+							  	</isNotEmpty>
+							</dynamic> 					   
+			   ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 
+	
+	<insert id="inserttarget"   parameterClass="java.util.HashMap">
+		INSERT into targetpersons (yyyy, code_bran, code_big, target_cnt, regi_dt, register)								  
+				values (  #yyyy1#
+						, #code_bran1#													        				
+				        , #code_big1#
+				        , #target_cnt1#				          
+						, GETDATE()
+						, #register1#						
+						)	
+	</insert>	
+		
+	<update id="updatetarget" parameterClass="java.util.HashMap">
+		UPDATE targetpersons
+					SET 					    
+						  target_cnt      =  #target_cnt1#
+						, regi_dt         =  GETDATE()
+						, register        =  #register1#																									        
+					WHERE  yyyy  =  #yyyy1# and code_bran = #code_bran1# and code_big = #code_big1#
+	</update>
+				
+</sqlMap>    

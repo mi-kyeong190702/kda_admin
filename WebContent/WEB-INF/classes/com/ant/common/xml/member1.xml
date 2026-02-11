@@ -1,0 +1,2286 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="member">
+
+
+<select id="selectcount" resultClass="java.util.HashMap">
+SELECT count(no) cnt
+  FROM ( 
+	SELECT 
+	       ROW_NUMBER()OVER(ORDER BY A.CODE_PERS ) no
+	  FROM Person_M_TBL a ,
+	       id_tbl b
+	 WHERE 
+	       a.pers_no like #pers_no#+'%'
+	   and a.code_pers = b.code_pers
+	   and ISNULL(b.id,'') != ''
+	   and a.mem_gubun = 1
+	    ) OUT
+  WHERE 1=1
+</select>
+    
+    
+ <select id="selectmember" resultClass="java.util.HashMap">
+SELECT OUT.*
+  FROM ( 
+  
+  
+SELECT 
+       ROW_NUMBER()OVER(ORDER BY A.CODE_PERS ) no
+      ,b.id				,B.code_pers
+      ,a.code_member	,a.pers_name	,a.pers_no		,a.lic_no			,a.lic_print_dt
+      ,a.code_add_gubun	,a.code_post	,a.pers_add		,a.pers_add_detail	,a.pers_tel
+      ,a.pers_hp		,a.email		,a.code_sex		,a.code_religion	,a.code_marry
+      ,a.code_bran		,a.code_big		,a.code_sect	,a.code_scholar		,a.code_univer
+      ,a.code_school	,a.code_call	,a.code_place	,a.pers_career		,a.code_sub    
+  FROM Person_M_TBL a ,
+       id_tbl b
+ 
+ WHERE 
+       a.pers_no like #pers_no#+'%'
+   and b.id like #id#+'%'
+   and a.code_pers = b.code_pers
+   and ISNULL(b.id,'') != ''
+   and a.mem_gubun = 1
+   
+    ) OUT
+   
+  WHERE 1=1 
+  		and out.no > #nstart#
+  		and out.no <![CDATA[<=]]> #nend#
+    </select>
+    
+    
+    <!-- KSH 2012.09.04 : HOME > 통계 관리 > 회원 현황 > 근무처 분류별 현황  -->
+ <select id="getCompanyMemberStatusCount" resultClass="java.util.HashMap">
+SELECT count(no) no
+  FROM ( 
+	SELECT 
+	       ROW_NUMBER()OVER(ORDER BY A.CODE_PERS ) no
+	  FROM Person_M_TBL a where a.mem_gubun = 1 
+	    ) OUT
+  WHERE 1=1
+  
+</select>
+
+ <select id="getCompanyMemberStatusList" resultClass="java.util.HashMap">
+
+ 
+ select detcodename 
+      , SUM(isnull(col1,0)) col1
+      , SUM(isnull(col2,0)) col2
+      , SUM(isnull(col1,0))+SUM(isnull(col2,0)) totcount
+    <!--   , code_great -->
+  from(
+select detcodename 
+      ,case when tempcd2 = '1' then sum(pers_count) end col1
+      ,case when tempcd2 = '2' then sum(pers_count) end col2
+      ,code_great
+  from (
+  select a.code_great, b.tempcd2, b.detcodename, b.tempcd1, count(a.code_great) pers_count
+    from pers_company a left join com_code b on b.groupcode = '004' and a.code_great = b.detcode,
+         Person_M_TBL c     
+   where isnull(a.trust_name,'') != ''
+     and a.pers_in_dt <![CDATA[<=]]> '20120901'
+     and (isnull(a.pers_out_dt,'') = '' or (a.pers_out_dt <![CDATA[>=]]> '20120905'))
+     and ISNULL(b.detcodename,'') != ''
+     and a.code_pers = c.code_pers
+     and ISNULL(a.code_great,'') not in ('','0')
+     and c.mem_gubun = 1
+   group by a.code_great, b.tempcd2, b.detcodename, b.tempcd1
+       ) aa
+  group by code_great, detcodename, tempcd2
+  ) bb
+  group by  detcodename, code_great
+    </select>
+    
+    <!-- 
+	 * 작업명 : Home>팝업>회원검색
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	  * 작   업 : sMember		이름, 주민번호, 면허번호, 근무처명, 이메일, 아이디로 검색
+	  *            sMemberCnt	회원검색 카운트
+	 -->    
+    <select id="sMember" resultClass="java.util.HashMap">
+		SELECT OUT.*
+         FROM (SELECT ROW_NUMBER()OVER(ORDER BY aa.pers_birth ) no
+         					 ,  aa.*
+                     FROM      
+                   (SELECT distinct a.pers_name
+<!--                    			JUMIN_DEL -->
+<!-- 					         , dbo.GetPersNodecord(a.pers_no,'1') pers_no -->
+					         , a.lic_no
+					         , a.pers_add
+					         , d.detcodename code_member
+					         , ISNULL(b.id,'') id
+<!-- 					         , a.pers_hp -->
+<!-- 					         , a.email -->
+<!-- 					         , a.pers_tel -->
+                                 ,rtrim(damo.dbo.dec_varchar_pe('kda_ver3','dbo.Person_M_TBL','pers_hp',a.sec_pers_hp)) pers_hp
+                                 ,damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','email', a.sec_email ) email
+                                 ,damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_tel', a.sec_pers_tel ) pers_tel
+					         , a.code_pers
+					         , e.detcodename pers_state
+					         , a.pers_birth
+					         , (select company_name 
+					              from pers_company 
+					              where code_pers = a.code_pers 
+					              and primary_flag = '1'
+					              and comp_seq = (select max(comp_seq)
+													from pers_company 
+													where code_pers = a.code_pers 
+													and primary_flag = '1')) company_name
+					 FROM person_m_tbl_damo a
+					           left join pers_company c 
+					           on a.code_pers = c.code_pers
+					           left join com_code d
+					               on d.groupcode = '006'
+					              and d.detcode = a.code_member
+					           left join com_code e
+					               on e.groupcode = '021'
+					              and e.detcode = a.pers_state
+					           left join id_tbl b 
+					               on b.code_pers = a.code_pers
+				 	WHERE a.pers_state NOT IN ('02','03','04')
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="gbran">
+					  		a.code_bran=#gbran#
+					  	</isNotEmpty>
+					</dynamic> 
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="name">
+					  		a.pers_name like '%'+#name#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+<!-- 						JUMIN_DEL -->
+<!-- 					<dynamic prepend="and"> -->
+<!-- 						<isNotEmpty property="jumin"> -->
+<!-- 					  		dbo.GetPersNodecord(a.pers_no,'1') like #jumin#+'%' -->
+<!-- 					  	</isNotEmpty> -->
+<!-- 					  </dynamic> -->
+					<dynamic prepend="and">
+						<isNotEmpty property="birth">
+					  		a.pers_birth like '%'+#birth#+'%'
+					  	</isNotEmpty>
+					  </dynamic>
+					<dynamic prepend="and">
+						<isNotEmpty property="licno">
+					  		a.lic_no like #licno#+'%'
+					  	</isNotEmpty>
+					  </dynamic>
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="email">
+<!-- 					  		a.email like '%'+#email#+'%' -->
+							a.sec_email = damo.dbo.enc_varchar('kda_ver3','dbo.person_m_tbl','email', #email# )
+					  	</isNotEmpty>
+					</dynamic>
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="compname">
+					  		c.company_name like '%'+#compname#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="id">
+					  		b.id like '%'+#id#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+					and a.mem_gubun = 1 )aa
+				 	) OUT
+		 WHERE 1=1 
+  		     AND OUT.no > #nstart#
+  		     AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="sMemberCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+         FROM (SELECT ROW_NUMBER()OVER(ORDER BY aa.pers_name ) no
+         					 ,  aa.*
+                     FROM      
+                   (SELECT distinct a.pers_name
+					         , a.lic_no
+					         , a.pers_add
+					         , ISNULL(b.id,'') id
+<!-- 					         , a.pers_hp -->
+<!-- 					         , a.email -->
+<!-- 					         , a.pers_tel -->
+                                 ,rtrim(damo.dbo.dec_varchar_pe('kda_ver3','dbo.Person_M_TBL','pers_hp',a.sec_pers_hp)) pers_hp
+                                 ,damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','email', a.sec_email ) email
+                                 ,damo.dbo.dec_varchar('kda_ver3','dbo.person_m_tbl','pers_tel', a.sec_pers_tel ) pers_tel
+					         , a.code_pers
+					         , a.pers_birth
+					 FROM person_m_tbl_damo a
+					           left join pers_company c 
+					           on a.code_pers = c.code_pers
+					           left join id_tbl b 
+					           on b.code_pers = a.code_pers
+				 	WHERE a.pers_state NOT IN ('02','03','04')
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="gbran">
+					  		a.code_bran=#gbran#
+					  	</isNotEmpty>
+					</dynamic>
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="name">
+					  		a.pers_name like '%'+#name#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+<!-- 						JUMIN_DEL -->
+<!-- 					<dynamic prepend="and"> -->
+<!-- 						<isNotEmpty property="jumin"> -->
+<!-- 					  		dbo.GetPersNodecord(a.pers_no,'1') like #jumin#+'%' -->
+<!-- 					  	</isNotEmpty> -->
+<!-- 					  </dynamic> -->
+					<dynamic prepend="and">
+						<isNotEmpty property="birth">
+					  		a.pers_birth like '%'+#birth#+'%'
+					  	</isNotEmpty>
+					  </dynamic>
+					<dynamic prepend="and">
+						<isNotEmpty property="licno">
+					  		a.lic_no like #licno#+'%'
+					  	</isNotEmpty>
+					  </dynamic>
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="email">
+<!-- 					  		a.email like '%'+#email#+'%' -->
+							a.sec_email = damo.dbo.enc_varchar('kda_ver3','dbo.person_m_tbl','email', #email# )
+					  	</isNotEmpty>
+					</dynamic>
+				 	<dynamic prepend="and">
+					 	<isNotEmpty property="compname">
+					  		c.company_name like '%'+#compname#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="id">
+					  		b.id like '%'+#id#+'%'
+					  	</isNotEmpty>
+					</dynamic>
+					and a.mem_gubun = 1 )aa
+				 	) OUT
+		 WHERE 1=1 
+	</select>
+	
+	<!-- 
+	 * 작업명 : Home>팝업>회원정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	  * 작   업 : memInfo		팝업의 기본정보 탭의 폼에 필요한 회원정보를 select
+	  *            memInfo1		팝업의 기본정보를 제외한 나머지 탭의 폼에 필요한 회원정보를 select
+	 -->
+	<select  id="memInfo" resultClass="java.util.HashMap">
+    	SELECT a.code_pers
+			     , a.pers_name			
+			     , ISNULL(b.id,'') id
+<!-- 			     JUMIN_DEL								      -->
+<!-- 			     , dbo.GetPersNodecord(a.pers_no,'1') pers_no -->
+				 , a.pers_birth
+			     , a.code_sex				
+			     , a.lic_no
+			     , a.lic_print_dt				
+			     , a.code_member
+			     , e.detcodename c_member_name		
+			     , a.code_bran			
+			     , a.code_big			
+			     , case when isnull(a.code_sect,'')='' then '0000000' 
+			              else a.code_sect end code_sect			
+			     , isnull(c.company_name,'근무처 없음') company_name
+			     , isnull(c.company_add,'근무처 없음')+' '+isnull(c.company_add_detail,'') company_add
+			     , isnull(c.code_great,'') code_great			
+			     , isnull(c.code_part,'') code_part			
+			     , isnull(c.code_small,'') code_small			
+			     , isnull(c.comp_seq,'') comp_seq			
+			     , isnull(a.code_post,'') code_post
+			     , a.code_add_gubun			
+			     , a.pers_add			
+			     , a.pers_add_detail	
+			     , a.code_place			
+			     , a.pers_tel	
+			     , case when isnull(a.certifi_view,'')='' then '00000'
+			            else a.certifi_view end certifi_view		
+			     , a.pers_hp			
+			     , a.email
+			     , a.code_email_comp				
+			     , a.code_school		
+			     , a.code_scholar		
+			     , a.code_univer		
+			     , case when isnull(a.pers_career,'')='' then '0000'
+			            else a.pers_career end pers_career		
+			     , a.code_marry		
+			     , a.code_religion		
+			     , a.code_sub			
+			     , a.code_call
+			     , d.register			
+			     , a.recommender		
+			     , a.recm_division		
+			     , d.up_dt				
+			     , a.recm_hp			
+			     , a.kda_level
+			     , a.pers_state
+			     , a.regi_dt			
+			     , d.up_dt_seq		
+		 FROM Person_M_TBL a
+		           left join pers_company c
+		                  on a.code_pers=c.code_pers
+		               AND c.primary_flag='1'
+			       left join id_tbl b
+			              on a.code_pers=b.code_pers
+			       left join com_code e
+                         on e.groupcode='006'
+                        AND e.detcode=a.code_member
+			     , Person_M_history d
+	    WHERE a.code_pers=d.code_pers
+			AND d.up_dt=(SELECT MAX(up_dt) FROM Person_M_history WHERE code_pers=a.code_pers)		 	  
+			AND d.up_dt_seq=(SELECT MAX(up_dt_seq) FROM Person_M_history WHERE code_pers=a.code_pers and up_dt = d.up_dt)		 	  
+   			AND a.code_pers=#pCode#
+    </select>
+    
+    <select  id="memInfo1" resultClass="java.util.HashMap">
+        SELECT a.code_pers
+                 , a.pers_name          
+                 , ISNULL(b.id,'') id
+<!--                  JUMIN_DEL                            -->
+<!--                  , dbo.GetPersNodecord(a.pers_no,'1') pers_no -->
+                 , a.code_sex               
+                 , a.lic_no
+                 , a.lic_print_dt               
+                 , a.code_member
+                 , e.detcodename c_member_name      
+                 , a.code_bran
+                 , isnull(f.detcodename,'없음') bran_name         
+                 , a.code_big
+                 , isnull(g.detcodename,'없음') big_name          
+                 , a.code_sect  
+                 , isnull(h.detcodename,'없음') sect_name                     
+                 , isnull(c.code_great,'') code_great
+                 , isnull(c.great_name,'없음') great_name         
+                 , isnull(c.code_part,'') code_part
+                 , isnull(c.part_name,'없음') part_name           
+                 , isnull(c.code_small,'') code_small
+                 , isnull(c.company_name,'근무처없음') company_name
+                 , isnull(c.company_add,'') company_add
+                 , isnull(c.small_name,'없음') small_name 
+                 , ISNULL(a.code_sub,'00') code_sub
+                 , a.pers_birth             
+         FROM Person_M_TBL a
+                  left join com_code e
+                         on e.groupcode='006'
+                        AND e.detcode=a.code_member
+                  left join com_code f
+                         on f.groupcode='007'
+                        AND f.detcode=a.code_bran
+                  left join com_code g
+                         on g.groupcode='004'
+                        AND g.detcode=a.code_big
+                  left join com_code h
+                         on h.groupcode='009'
+                        AND h.detcode=a.code_sect 
+                  left join id_tbl b
+                         on a.code_pers=b.code_pers
+                  left join (SELECT aa.code_pers
+                        , isnull(aa.code_great,'') code_great
+                        , i.detcodename great_name          
+                        , isnull(aa.code_part,'') code_part
+                        , j.detcodename part_name           
+                        , isnull(aa.code_small,'') code_small
+                        , k.detcodename small_name          
+                        , isnull(aa.comp_seq,'') comp_seq
+                        , isnull(aa.company_name,'근무처 없음') company_name
+                        , isnull(aa.primary_flag,'') primary_flag
+				, isnull(aa.company_add,'근무처 없음')+' '+isnull(aa.company_add_detail,'') company_add 
+                     FROM pers_company aa
+                          left join com_code i
+                                 on i.groupcode='003'
+                                AND i.detcode=aa.code_part
+                          left join com_code j
+                                 on j.groupcode='004'
+                                AND j.detcode=aa.code_great
+                          left join com_code k
+                                 on k.groupcode='005'
+                                AND k.detcode=aa.code_small) c
+                    on a.code_pers=c.code_pers       
+                 AND c.primary_flag='1' 
+            WHERE a.code_pers=#pCode# and a.mem_gubun = 1
+    </select>
+	
+	<!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	  * 작   업 : sDetail		기본정보의 그리드에 표출할 데이터를 select
+	  *            sDetailCnt	sDetail 카운트
+	 --> 
+	<select id="sDetail" resultClass="java.util.HashMap">
+		SELECT OUT.*
+         FROM (SELECT ROW_NUMBER()OVER(ORDER BY a.up_dt desc, a.up_dt_seq desc ) no
+                         , a.code_pers
+					     , a.pers_name			
+					     , b.id					
+					     , b.passwd
+<!-- 					     JUMIN_DEL			 -->
+<!-- 					     , dbo.GetPersNodecord(a.pers_no,'1') pers_no	 -->
+					     , a.code_sex			
+					     , a.lic_no				
+					     , a.code_member		
+					     , a.code_bran			
+					     , a.code_big			
+					     , case when a.code_sect='' then '0000000' 
+			                      else a.code_sect end code_sect						
+					     , a.code_post	
+					     , a.code_add_gubun		
+					     , a.pers_add			
+					     , a.pers_add_detail	
+					     , a.code_place			
+					     , a.pers_tel			
+					     , a.pers_hp
+					     , a.email
+			    		 , a.code_email_comp			
+					     , a.code_school		
+					     , a.code_scholar		
+					     , a.code_univer		
+					     , a.pers_career		
+					     , a.code_marry		
+					     , a.code_religion		
+					     , a.code_sub			
+					     , a.code_call					
+					     , a.recommender		
+					     , a.recm_division
+					     , a.certifi_view		
+					     , a.up_dt				
+					     , a.recm_hp			
+					     , a.kda_level			
+					     , a.up_dt_seq
+					     , a.pers_state	
+					     , a.register
+				 FROM Person_M_history a
+					     , id_tbl b
+			    WHERE a.code_pers=b.code_pers		 	  
+		   			AND a.code_pers=#pCode#
+		   			and a.mem_gubun = 1
+				 	) OUT
+		 WHERE 1=1 
+  		     AND OUT.no > #nstart#
+  		     AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="sDetailCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_pers) no
+					 FROM Person_M_history
+				 	WHERE code_pers = #pCode# and mem_gubun = 1
+				 	) OUT
+		 WHERE 1=1
+	</select>
+	
+	<!-- 
+	 * 작업명 : Home>팝업>
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : code		code select
+	 *             code1		기본정보 이외의 탭에 필요한 code를 select
+	 --> 
+	<select  id="code" resultClass="java.util.HashMap">
+    	SELECT groupcode
+			     , detcode
+			     , detcodename
+	     FROM com_code
+	    WHERE use_yn='Y'
+	    ORDER BY cdseq, detcode
+    </select>
+    <select  id="code1" resultClass="java.util.HashMap">
+    	SELECT groupcode
+			     , detcode
+			     , detcodename
+	     FROM com_code	       
+	    WHERE groupcode in ('004','005','009','025')
+	        AND use_yn='Y'
+	    ORDER BY cdseq, detcode
+    </select>
+    <select  id="code2" resultClass="java.util.HashMap">
+    	  SELECT groupcode
+				   , detcode
+				   , detcodename
+
+                   , ISNULL(CASE WHEN tempcd2 = '0' THEN '1' 
+				                 WHEN tempcd2 = '1' THEN '2'
+				                 WHEN tempcd2 = '2' THEN '3'	 /* 산하단체회비 추가 */ 
+				                 WHEN tempcd2 = '3' THEN '4' END,'') tempcd /* CMS 추가 */
+		   FROM com_code	       
+		 WHERE groupcode ='006'
+		     AND (use_yn='Y' or (use_yn='N' and tempcd2 = '2'))
+	 ORDER BY cdseq, detcode
+    </select>
+    <!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : subcom		기본정보의 산하단체를 표출을 위한 쿼리
+	 -->
+    <select  id="subcom" resultClass="java.util.HashMap">
+    	SELECT code_sub
+			     , sub_name			   
+	     FROM sub_tbl
+	    ORDER BY code_sub
+    </select>
+    
+    <!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : certifi		기본정보의 전문자격증에 표출에 필요한 데이터를 select
+	 -->
+    <select  id="certifi" resultClass="java.util.HashMap">
+    	SELECT b.code_certifi
+			   	 , a.certifi_name
+			   	 , MAX(CAST(b.result_no as integer)) result_no
+			   	 , MAX(b.result_start_dt) result_start_dt
+			   	 , MAX(b.result_end_dt) result_end_dt
+	     FROM certifi a, result_print b
+	   WHERE a.code_certifi=b.code_certifi
+		  AND b.code_pers=#pCode#
+	  GROUP BY b.code_certifi, a.certifi_name
+	  ORDER BY code_certifi
+    </select>
+    
+    <!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sLicCnt	면허번호 중복체크를 위한 쿼리
+	 -->
+    <select  id="sLicCnt" resultClass="java.util.HashMap">
+		SELECT COUNT(code_pers) cnt
+		 FROM Person_M_TBL
+		WHERE lic_no=#lic_no#
+		    AND code_pers <![CDATA[<>]]> #code_pers# and mem_gubun = 1
+	</select>
+    
+    <!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : iModify		갱신된 회원 기본정보를 Person_M_history테이블에 삽입하기 위한 쿼리
+	 -->
+    <insert id="iModify" parameterClass="HashMap">
+		INSERT INTO Person_M_history
+				           (code_pers
+				           , up_dt
+				           , up_dt_seq
+				           , code_member
+				           , pers_name
+							<!-- [JUMIN_DEL] 아래 pers_no 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 				           , pers_no -->
+				           , lic_no
+				           , lic_print_dt
+				           , code_add_gubun
+				           , code_post
+				           , pers_add
+				           , pers_add_detail
+				           , pers_tel
+				           , pers_hp
+				           , email
+				           , code_email_comp
+				           , code_sex
+				           , code_religion
+				           , code_marry
+				           , code_bran
+				           , code_big
+				           , code_sect
+				           , code_scholar
+				           , code_univer
+				           , code_school
+				           , code_call
+				           , code_place
+				           , pers_career
+				           , certifi_view
+				           , code_sub
+				           , regi_dt
+				           , Up_date
+				           , kda_level
+				           , recommender
+				           , recm_division
+				           , recm_hp
+				           , pers_state
+				           , register
+				           , pers_birth
+				           , mem_gubun)
+			   VALUES (#code_pers#
+				           , (SELECT CONVERT(VARCHAR(8),GETDATE(),112))
+				           , (SELECT ISNULL(MAX(up_dt_seq),0) FROM Person_M_history WHERE code_pers=#code_pers# and up_dt = (SELECT CONVERT(VARCHAR(8),GETDATE(),112)) and mem_gubun = 1)+1
+				           , #mCode#
+				           , #m_name#
+						<!-- [JUMIN_DEL] 아래 0 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 				           , dbo.GetPersNoencord(#mId#) -->
+<!-- 							, 0 -->
+				           , #m_licno#
+				           , (SELECT lic_print_dt FROM Person_M_TBL WHERE code_pers=#code_pers# and mem_gubun = 1)
+				           , #pGubun#
+				           , #m_post#
+				           , #m_addr#
+				           
+				           <isEqual property="d_addr_upok" compareValue="Y">
+				           , #d_addr#
+				           </isEqual>
+				           <isNotEqual property="d_addr_upok" compareValue="Y">
+				           ,(select pers_add_detail from person_m_tbl where code_pers = #code_pers#)
+				           </isNotEqual>
+				           
+				           <isEqual property="m_tel_upok" compareValue="Y">
+				           , #m_tel#
+				           </isEqual>
+				           <isNotEqual property="m_tel_upok" compareValue="Y">
+				           ,(select pers_tel from person_m_tbl where code_pers = #code_pers#)
+				           </isNotEqual>
+				           
+				           <isEqual property="m_hp_upok" compareValue="Y">
+				           , #m_hp#
+				           </isEqual>
+				           <isNotEqual property="m_hp_upok" compareValue="Y">
+				           ,(select pers_hp from person_m_tbl where code_pers = #code_pers#)
+				           </isNotEqual>
+				           
+				           <isEqual property="m_email_upok" compareValue="Y">
+				           , #m_email#
+				           </isEqual>
+				           <isNotEqual property="m_email_upok" compareValue="Y">
+				           ,(select email from person_m_tbl where code_pers = #code_pers#)
+				           </isNotEqual>
+				           
+				           , #mEcomp#
+				           , #mSex#
+				           , #mReligion#
+				           , #mMarry#
+				           , #mBran#
+				           , #mBig#
+				           , #mSect#
+				           , #mScholar#
+				           , #mUniver#
+				           , #mSchool#
+				           , #mCall#
+				           , #mPlace#
+				           , #mCareer#
+				           , #mCerti#
+				           , #mSub#
+				           , (SELECT regi_dt FROM Person_M_TBL WHERE code_pers=#code_pers# and mem_gubun = 1)
+				           , GETDATE()
+				           , #mLevel#
+				           , #mRecm#
+				           , #mRdivision#
+				           , #mReHp#
+				           , #mState#
+				           , #register#
+				           , #mBirth#
+				           , 1)
+	</insert>
+	
+	<!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : uModify		회원 기본정보 갱신을 위한 쿼리
+	 *            ucModify		기본정보 탭의 근무처구분/대분류/소분류 갱신을 위한 쿼리
+	 -->
+	<update id="uModify" parameterClass="HashMap">
+		UPDATE Person_M_TBL 
+		      SET code_member		=#mCode#
+				  , pers_name			=#m_name#
+<!-- 				  JUMIN_DEL -->
+<!-- 				  , pers_no				=dbo.GetPersNoencord(#mId#) -->
+				  , lic_no					=#m_licno#
+				  , code_add_gubun	=#pGubun#
+				  , code_post			=#m_post#
+				  , pers_add				=#m_addr#
+		           <isEqual property="d_addr_upok" compareValue="Y">
+				  , pers_add_detail	=#d_addr#
+		           </isEqual>
+		           <isEqual property="m_tel_upok" compareValue="Y">
+				  , pers_tel				=#m_tel#
+		           </isEqual>
+		           <isEqual property="m_hp_upok" compareValue="Y">
+				  , pers_hp				=#m_hp#
+		           </isEqual>
+		           <isEqual property="m_email_upok" compareValue="Y">
+				  , email					=#m_email#
+		           </isEqual>
+				  , code_email_comp	=#mEcomp#
+				  , code_sex				=#mSex#
+				  , code_religion		=#mReligion#
+				  , code_marry			=#mMarry#
+				  , code_bran			=#mBran#
+				  , code_big				=#mBig#
+				  , code_sect			=#mSect#
+				  , code_scholar		=#mScholar#
+				  , code_univer			=#mUniver#
+				  , code_school		=#mSchool#
+				  , code_call			=#mCall#
+				  , code_place			=#mPlace#
+				  , pers_career			=#mCareer#
+				  , certifi_view			=#mCerti#
+				  , code_sub			=#mSub#
+				  , Up_date				=GETDATE()
+				  , kda_level			=#mLevel#
+				  , recommender		=#mRecm#
+				  , recm_division		=#mRdivision#
+				  , recm_hp				=#mReHp#
+				  , pers_state			=#mState#
+				  , register				=#register#
+				  , pers_birth				=#mBirth#
+		  FROM Person_M_TBL a
+	     WHERE code_pers	 		=#code_pers# and mem_gubun = 1
+	</update>
+	
+	<update id="ucModify" parameterClass="HashMap">
+		UPDATE pers_company
+			  SET code_part=#mPart#
+			     , code_great=#mGreat#
+			     , code_small=#mSmall#
+		 WHERE code_pers = #code_pers#
+		     AND comp_seq = #comp_seq#
+	</update>
+	
+	<!-- 
+	 * 작업명 : Home>팝업>기본정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : uPWreset		패스워드 초기화를 위한 쿼리
+	 -->
+	<update id="uPWreset" parameterClass="HashMap">
+		UPDATE id_tbl
+			   SET passwd=PWDENCRYPT(#pw#)
+		  WHERE code_pers=#code_pers#
+	</update>
+    
+    <!-- 
+	 * 작업명 : Home>팝업>근무처정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sComp		근무처정보 탭의 그리드를 위한 쿼리
+	 *             sCompCnt 	sComp의 카운트 쿼리
+	 -->
+    <select  id="sComp" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY primary_flag desc, regi_date desc, comp_seq desc) no				             
+						     , a.comp_seq
+						     , isnull(a.company_name,'') company_name
+						     , isnull(a.code_post,'000000') code_post
+						     , isnull(a.company_add,'') company_add
+						     , isnull(a.company_add_detail,'') company_add_detail
+						     , isnull(a.company_tel,'') company_tel
+						     , isnull(a.company_fax,'') company_fax					
+						     , isnull(a.pers_in_dt,'') pers_in_dt
+						     , isnull(a.pers_out_dt,'') pers_out_dt
+						     , isnull(a.code_use,'') code_use
+						     , isnull(b.detcodename,'') useName
+						     , isnull(a.job_dept,'') job_dept
+						     , isnull(a.job_level_code,'') job_level_code
+						     , isnull(c.detcodename,'') levelName
+						     , isnull(a.job_line_code,'') job_line_code
+						     , isnull(d.detcodename,'') lineName
+						     , isnull(a.lic_pay,'0') lic_pay
+						     , isnull(a.year_pay,'0') year_pay
+						     , isnull(a.company_sick_bad,'0') company_sick_bad
+						     , isnull(a.company_meal,'0') company_meal
+						     , isnull(a.join_con,'1') join_con
+						     , isnull(a.join_cook,'1') join_cook
+						     , isnull(a.primary_flag,'0') primary_flag
+						     , isnull(a.pers_multy,'0') pers_multy
+						     , ISNULL(a.company_count_mom,0) company_count_mom
+						     , ISNULL(a.company_count_lunch,0) company_count_lunch
+						     , ISNULL(a.company_count_dinner,0) company_count_dinner
+						     , ISNULL(a.company_count_midnig,0) company_count_midnig
+						     , isnull(a.trust_code,'') trust_code
+						     , isnull(a.trust_name,'') trust_name
+						     , isnull(a.trust_addr,'') trust_addr
+						     , isnull(a.trust_tel,'') trust_tel
+						     , isnull(a.secu_no,'') secu_no
+						     , isnull(a.regi_date,'') regi_date
+						     , isnull(a.register,'') register
+				     FROM pers_company a
+				     		  LEFT JOIN com_code b
+		                               ON b.groupcode = '001'
+                                     AND b.detcode = a.code_use
+                              LEFT JOIN com_code c
+		                               ON c.groupcode = '011'
+                                     AND c.detcode = a.job_level_code
+                              LEFT JOIN com_code d
+		                               ON d.groupcode = '010'
+                                     AND d.detcode = a.job_line_code
+				    WHERE code_pers=#pCode# ) OUT
+		   WHERE 1=1 
+		       AND OUT.no > #nstart#
+			   AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select  id="sCompCnt" resultClass="java.util.HashMap">
+	    SELECT count(no) cnt
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY comp_seq desc) no
+				     FROM pers_company
+				    WHERE code_pers=#pCode# ) OUT
+		   WHERE 1=1 
+	</select>
+	
+	 <!-- 
+	 * 작업명 : Home>팝업>근무처정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : defComp		근무처정보 탭의 폼에 들어갈 데이터를 위한 쿼리
+	 			   uComp		근무처 정보 갱신을 위한 쿼리
+	 -->
+	<select  id="defComp" resultClass="java.util.HashMap">
+                    SELECT a.code_pers
+						     , a.comp_seq
+						     , ISNULL(a.company_name,'') company_name
+						     , ISNULL(a.code_post,'000000') code_post
+						     , ISNULL(a.company_add,'') company_add
+						     , ISNULL(a.company_add_detail,'') company_add_detail
+						     , ISNULL(a.company_tel,'') company_tel
+						     , ISNULL(a.company_fax,'')	company_fax	 			
+						     , ISNULL(a.pers_in_dt,'') pers_in_dt
+						     , ISNULL(a.pers_out_dt,'') pers_out_dt
+						     , ISNULL(a.code_use,'') code_use
+						     , ISNULL(b.detcodename,'') useName
+						     , ISNULL(a.job_dept,'') job_dept
+						     , ISNULL(a.job_level_code,'') job_level_code
+						     , ISNULL(c.detcodename,'') levelName
+						     , ISNULL(a.job_line_code,'') job_line_code
+						     , ISNULL(d.detcodename,'') lineName
+						     , ISNULL(a.lic_pay,0) lic_pay
+						     , ISNULL(a.year_pay,0) year_pay
+						     , ISNULL(a.company_sick_bad,'0') company_sick_bad
+						     , ISNULL(a.company_meal,'0') company_meal
+						     , ISNULL(a.join_con,'0') join_con
+						     , ISNULL(a.join_cook,'0') join_cook
+						     , ISNULL(a.primary_flag,'1') primary_flag
+						     , ISNULL(a.pers_multy,'0') pers_multy
+						     , ISNULL(a.company_count_mom,0) company_count_mom
+						     , ISNULL(a.company_count_lunch,0) company_count_lunch
+						     , ISNULL(a.company_count_dinner,0) company_count_dinner
+						     , ISNULL(a.company_count_midnig,0) company_count_midnig
+						     , ISNULL(a.trust_code,'') trust_code
+						     , ISNULL(a.trust_name,'') trust_name
+						     , ISNULL(a.trust_addr,'') trust_addr
+						     , ISNULL(a.trust_tel,'') trust_tel
+						     , ISNULL(a.secu_no,'') secu_no
+						     , ISNULL(a.regi_date,'') regi_date
+						     , ISNULL(a.register,'') register
+				     FROM pers_company a
+				     		  LEFT JOIN com_code b
+		                               ON b.groupcode = '001'
+                                     AND b.detcode = a.code_use
+                              LEFT JOIN com_code c
+		                               ON c.groupcode = '011'
+                                     AND c.detcode = a.job_level_code
+                              LEFT JOIN com_code d
+		                               ON d.groupcode = '010'
+                                     AND d.detcode = a.job_line_code
+				    WHERE a.code_pers=#pCode# 
+			        AND a.primary_flag='1'		            		 	  
+	</select>
+	
+	<update  id="uCompPrime" parameterClass="HashMap">
+		UPDATE pers_company 
+   		   SET primary_flag='0'
+         WHERE code_pers=#code_pers#
+	</update>
+	
+	<update  id="uComp" parameterClass="HashMap">
+	    UPDATE pers_company
+			  SET company_name = #company_name#
+			      , code_post = #code_post#
+			      , company_add = #company_add#
+			      , company_add_detail = #company_add_detail#
+			      , company_tel = #company_tel#
+			      , company_fax = #company_fax#
+			      , pers_in_dt = #pers_in_dt#
+			      , pers_out_dt = #pers_out_dt#
+			      , code_use = #code_use#
+			      , job_dept = #job_dept#
+			      , job_level_code = #job_level_code#
+			      , job_line_code = #job_line_code#
+			      , lic_pay = #lic_pay#
+			      , year_pay = #year_pay#
+			      , company_sick_bad = #company_sick_bad#
+			      , company_meal = #company_meal#
+			      , join_con = #join_con#
+			      , join_cook = #join_cook#
+			      , primary_flag = #primary_flag#
+			      , pers_multy = #pers_multy#
+			      , company_count_mom = #company_count_mom#
+			      , company_count_lunch = #company_count_lunch#
+			      , company_count_dinner = #company_count_dinner#
+			      , company_count_midnig = #company_count_midnig#
+			      , trust_code = #trust_code#
+			      , trust_name = #trust_name#
+			      , trust_addr = #trust_addr#
+			      , trust_tel = #trust_tel#
+			      , secu_no = #secu_no#
+			      , regi_date = GETDATE()
+			      , register = #register#
+		 WHERE code_pers = #code_pers#
+		     AND comp_seq = #comp_seq#
+	</update>
+	
+	<insert id="iComp" parameterClass="HashMap">
+		INSERT INTO  pers_company
+           ( code_pers
+           , comp_seq
+           , company_name
+           , code_post
+           , company_add
+           , company_add_detail
+           , company_tel
+           , company_fax
+           , code_part
+           , code_great
+           , code_small
+           , pers_in_dt
+           , pers_out_dt
+           , code_use
+           , job_dept
+           , job_level_code
+           , job_line_code
+           , lic_pay
+           , year_pay
+           , company_sick_bad
+           , company_meal
+           , join_con
+           , join_cook
+           , primary_flag
+           , pers_multy
+           , company_count_mom
+           , company_count_lunch
+           , company_count_dinner
+           , company_count_midnig
+           , trust_code
+           , trust_name
+           , trust_addr
+           , trust_tel
+           , secu_no
+           , regi_date
+           , register )
+     VALUES
+           ( #code_pers#
+           , (SELECT COUNT(*)+1 FROM pers_company where code_pers=#code_pers#)
+           , #company_name#
+           , #code_post#
+           , #company_add#
+           , #company_add_detail#
+           , #company_tel#
+           , #company_fax#
+           , #code_part#
+           , #code_great#
+           , #code_small#
+           , #pers_in_dt#
+           , #pers_out_dt#
+           , #code_use#
+           , #job_dept#
+           , #job_level_code#
+           , #job_line_code#
+           , #lic_pay#
+           , #year_pay#
+           , #company_sick_bad#
+           , #company_meal#
+           , #join_con#
+           , #join_cook#
+           , #primary_flag#
+           , #pers_multy#
+           , #company_count_mom#
+           , #company_count_lunch#
+           , #company_count_dinner#
+           , #company_count_midnig#
+           , #trust_code#
+           , #trust_name#
+           , #trust_addr#
+           , #trust_tel#
+           , #secu_no#
+           , GETDATE()
+           , #register# )
+	</insert>
+	<!-- 
+	 * 작업명 : Home>팝업>근무처정보
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : tCompany		근무처정보 탭의 소속 위탁업체 검색을 위한 쿼리
+	 *            tComCnt			tCompany의 카운트 쿼리
+	 			  iTcomp			신규 위탁업체 삽입을 위한 쿼리
+	 -->
+	<select id="tCompany" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY convert(integer,trust_code) ) no
+					         , trust_code
+					         , trust_name
+					         , trust_post
+					         , trust_addr
+					         , trust_tel
+				     FROM trust_company
+				     <dynamic prepend="WHERE">
+					 	<isNotEmpty property="trust_name">
+					  		trust_name like '%'+#trust_name#+'%'
+					  	</isNotEmpty>
+					</dynamic>) OUT
+		 WHERE 1=1 
+		    AND OUT.no > #nstart#
+		    AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="tComCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY convert(integer,trust_code) ) no					      
+				     FROM trust_company
+				     <dynamic prepend="WHERE">
+					 	<isNotEmpty property="trust_name">
+					  		trust_name like '%'+#trust_name#+'%'
+					  	</isNotEmpty>
+					</dynamic>) OUT
+		 WHERE 1=1 
+	</select>
+	
+	<insert id="iTcomp" parameterClass="HashMap">
+		INSERT INTO trust_company
+				           (trust_code
+				           , trust_name
+				           , trust_post
+				           , trust_addr
+				           , trust_tel
+				           , regi_date
+				           , register)
+			 VALUES   ((SELECT MAX(CAST(trust_code as integer))+1 FROM trust_company)
+				           , #trust_name#
+				           , #trust_post#
+				           , #trust_addr#
+				           , #trust_tel#
+				           , GETDATE()
+				           , #register#)
+	</insert>
+	
+    <!-- 
+	 * 작업명 : Home>팝업>회비입출
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sBank		근무처정보 탭의 소속 위탁업체 검색을 위한 쿼리
+	 *            sBankCnt			tCompany의 카운트 쿼리
+	 -->
+    <select id="sBank" resultClass="java.util.HashMap">
+		SELECT OUT.*
+         FROM (
+		SELECT ROW_NUMBER()OVER(ORDER BY a.regi_date desc,a.pres_let_dt desc, a.dues_h_seq desc, a.dues_b_seq desc) no
+			      , ISNULL(p.code_pers,'Y') as duesDelYn
+			      , a.dues_gubun
+			      , c.detcodename dg_name
+    			  , a.dues_h_seq
+     			  , a.dues_b_seq
+     			  , a.pres_let_dt
+   				  , a.code_inout_gubun
+   				  , d.detcodename iog_name
+     			  , a.code_receipt
+     			  , e.detcodename rc_name
+    			  , a.pres_money
+    			  , a.bank_name
+     			  , a.code_pay_flag
+     			  , f.detcodename pf_name
+     			  , a.conform_dt
+     			  , a.conform_yn
+     			  , h.detcodename cf_name 
+     			  , a.regi_date
+     			  , a.register
+     			  , b.auth_start
+     			  , b.auth_end
+     			  , b.code_member
+     			  , g.detcodename cm_name
+     			  , b.incom_flag
+     			  , case when b.incom_flag = 'Y' then '완납'  when b.incom_flag = 'D' then '출금처리'  else '미완납' end  if_name
+		 FROM dues_b_tbl a
+		           LEFT JOIN com_code c
+		                    ON c.groupcode = '038'
+                          AND c.detcode = a.dues_gubun
+                   LEFT JOIN com_code d
+		                    ON d.groupcode = '015'
+                          AND d.detcode = a.code_inout_gubun
+                   LEFT JOIN com_code e
+		                    ON e.groupcode = '013'
+                          AND e.detcode = a.code_receipt
+                   LEFT JOIN com_code f
+		                    ON f.groupcode = '014'
+                          AND f.detcode = a.code_pay_flag
+                  LEFT JOIN com_code h
+                           ON h.groupcode='052'
+                         AND h.detcode=a.conform_yn 
+                  LEFT JOIN (select distinct code_pers, dues_gubun, dues_h_seq
+				               from dues_P) p
+                           ON a.code_pers = p.code_pers
+                         AND a.dues_gubun = p.dues_gubun
+                         AND a.dues_h_seq = p.dues_h_seq
+		         , dues_h_tbl b
+		          LEFT JOIN com_code g
+		                    ON g.groupcode = '006'
+                          AND g.detcode = b.code_member
+	   WHERE a.code_pers=b.code_pers
+   		   AND a.dues_gubun = b.dues_gubun
+   		   AND a.dues_h_seq = b.dues_h_seq
+   		   AND a.code_pers  = #pCode# 
+   		   ) OUT
+	   WHERE 1=1 
+	       AND OUT.no > #nstart#
+		   AND OUT.no <![CDATA[<=]]> #nend#		
+	</select>
+	
+	<select id="sBankCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+         FROM (
+		SELECT ROW_NUMBER()OVER(ORDER BY a.pres_let_dt desc) no
+		 FROM dues_b_tbl a, dues_h_tbl b
+	   WHERE a.code_pers=b.code_pers
+   		   AND a.dues_gubun=b.dues_gubun
+   		   AND a.dues_h_seq=b.dues_h_seq
+   		   AND a.code_pers=#pCode# ) OUT
+	   WHERE 1=1 
+	</select>
+    
+    <select  id="sDuesHSeq" resultClass="java.util.HashMap">
+		SELECT CASE WHEN a.incom_flag='Y' OR a.incom_flag='D' OR ISNULL(a.incom_flag,'')='' THEN a.dues_h_seq+1
+                               WHEN a.incom_flag='N' THEN ISNULL(a.dues_h_seq,1) END dues_h_seq
+                        , ISNULL(a.incom_flag,'') incom_flag
+                        , ISNULL(a.dues_gubun,'') dues_gubun
+                        , ISNULL(a.sum_dues,'') sum_dues
+                        , ISNULL(a.mem_dues,'') mem_dues
+                        , ISNULL(a.auth_start,'') auth_start
+                        , ISNULL(a.auth_end,'') auth_end
+                        , ISNULL(a.regi_dt,'') regi_dt
+                    FROM dues_h_tbl a
+                         LEFT JOIN (SELECT CASE WHEN MAX(incom_flag) = 'N' THEN ISNULL(MAX(dues_h_seq),1)
+                                               WHEN MAX(incom_flag) = 'Y' OR MAX(incom_flag) = 'D'  OR ISNULL(MAX(incom_flag),'') = '' THEN ISNULL(MAX(dues_h_seq),0) END dues_h_seq
+                                        , ISNULL(MAX(incom_flag),'') incom_flag
+                                        , code_pers
+                                        , dues_gubun
+                                     FROM dues_h_tbl
+                                     group by code_pers, dues_gubun) b
+                                ON b.code_pers=a.code_pers
+                               AND b.dues_gubun=a.dues_gubun
+        WHERE a.code_pers=#code_pers#
+           AND a.dues_h_seq=b.dues_h_seq
+           <dynamic prepend="and">
+				<isNotEmpty property="dues_gubun">
+					a.dues_gubun=#dues_gubun#
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<select  id="sSubDues" resultClass="java.util.HashMap">
+		SELECT b.sub_dues
+			     , MAX(yyyymm)
+		 FROM sub_dues b              
+	   WHERE code_bran=#code_bran#
+		   AND code_sub=#code_sub#
+		   AND dues_gubun=#dues_gubun#  
+		   AND yyyymm  <![CDATA[<=]]>CONVERT(char(6),GETDATE(),112)
+       GROUP BY sub_dues
+	</select>
+	
+	<select  id="sSumDues" resultClass="java.util.HashMap">
+		SELECT ISNULL(a.sum_dues,0) sum_dues
+                 , a.yyyymm
+              FROM dues a
+                   LEFT JOIN   (SELECT MAX(yyyymm) yyyymm
+                                     , code_bran
+                                     , code_member
+                                     , dues_gubun
+                                  FROM dues               
+                                 WHERE yyyymm <![CDATA[<=]]> CONVERT(char(6),GETDATE(),112)
+                                 GROUP BY code_bran, code_member, dues_gubun) b
+                          ON b.code_bran=a.code_bran
+                         AND b.code_member=a.code_member
+                         AND b.dues_gubun=a.dues_gubun
+             WHERE a.yyyymm=b.yyyymm              
+		      AND a.code_bran=#code_bran#  
+			  AND a.code_member=#code_member#
+			  AND a.dues_gubun=#dues_gubun#  
+			  AND a.use_yn='Y'
+	</select> 
+	
+	<select  id="sSubDues2" resultClass="java.util.HashMap">
+	     SELECT b.yyyymm
+                  , b.code_bran
+                  , b.code_sub
+                  , b.dues_gubun
+                  , b.sub_dues 
+          FROM (SELECT MAX(yyyymm) yyyymm
+                              , dues_gubun
+                              , code_bran
+                              , code_sub
+                      FROM sub_dues 
+                    WHERE yyyymm <![CDATA[<=]]> CONVERT(char(6),GETDATE(),112) 
+                       AND use_yn='Y'
+                   GROUP BY dues_gubun, code_bran, code_sub) a
+                  , sub_dues b
+              WHERE a.yyyymm=b.yyyymm
+                AND a.code_bran=b.code_bran
+                AND a.code_sub=b.code_sub
+                AND a.dues_gubun=b.dues_gubun
+                AND b.use_yn='Y'
+                AND b.dues_gubun='3'
+              ORDER BY code_bran, code_sub
+	</select>
+	
+	<select  id="sSumDues2" resultClass="java.util.HashMap">
+        SELECT b.yyyymm
+                  , b.code_bran
+                  , b.code_member
+                  , b.dues_gubun
+                  , b.sum_dues 
+               FROM (   SELECT MAX(yyyymm) yyyymm
+                                      , dues_gubun
+                                      , code_bran
+                                      , code_member
+                              FROM dues 
+                            WHERE yyyymm <![CDATA[<=]]> CONVERT(char(6),GETDATE(),112) 
+                                AND use_yn='Y'
+                            GROUP BY dues_gubun, code_bran, code_member) a
+                      , dues b
+            WHERE a.yyyymm=b.yyyymm
+                AND a.code_bran=b.code_bran
+                AND a.code_member=b.code_member
+                AND a.dues_gubun=b.dues_gubun
+                AND b.use_yn='Y'
+             ORDER BY code_bran, code_member, dues_gubun
+    </select> 
+    
+	<select  id="sDuesH" resultClass="java.util.HashMap">
+		SELECT mem_dues
+			     , sum_dues
+		 FROM dues_h_tbl
+	   WHERE code_pers = #code_pers#
+		  AND dues_gubun = #dues_gubun#
+		  AND dues_h_seq = #dues_h_seq#
+	</select>
+	
+	<insert id="iDuesH" parameterClass="HashMap">
+		 INSERT INTO dues_h_tbl
+				          ( code_pers
+				          , dues_gubun
+				          , dues_h_seq
+				          , code_member
+				          , auth_start
+				          , auth_end
+				          , mem_dues
+				          , sum_dues
+				          , incom_flag)
+			    VALUES
+				          ( #code_pers#
+				          , #dues_gubun#
+				          , #dues_h_seq#
+				          , #code_member#
+				          , #auth_start#
+				          , #auth_end#
+				          , #mem_dues#
+				          , 0
+				          , #incom_flag#)
+	</insert>
+	
+	<insert id="iDuesB" parameterClass="HashMap">
+		 INSERT INTO dues_b_tbl
+				          ( code_pers
+				          , dues_gubun
+				          , dues_h_seq
+				          , dues_b_seq
+				          , pres_let_dt
+				          , code_inout_gubun
+				          , bank_name
+				          , code_receipt
+				          , pres_money
+				          , code_pay_flag
+				          , conform_dt
+				          , conform_yn
+				          , regi_date
+				          , register)
+		        VALUES
+				          ( #code_pers#
+				          , #dues_gubun#
+				          , #dues_h_seq#
+				          , #dues_b_seq#
+				          , #pres_let_dt#
+				          , #code_inout_gubun#
+				          , #bank_name#
+				          , #code_receipt#
+				          , #pres_money#
+				          , #code_pay_flag#
+				          , #conform_dt#
+				          , #conform_yn#
+				          , GETDATE()
+				          , #register#)
+	</insert>
+	
+	<insert id="iDuesB2" parameterClass="HashMap">
+		 INSERT INTO dues_b_tbl
+				          ( code_pers
+				          , dues_gubun
+				          , dues_h_seq
+				          , dues_b_seq
+				          , pres_let_dt
+				          , code_inout_gubun
+				          , bank_name
+				          , code_receipt
+				          , pres_money
+				          , code_pay_flag
+				          , conform_dt
+				          , conform_yn
+				          , regi_date
+				          , register)
+		        VALUES
+				          ( #code_pers#
+				          , #dues_gubun#
+				          , #dues_h_seq#
+				          , (SELECT COUNT(dues_b_seq)
+				              FROM dues_b_tbl 
+				            WHERE code_pers=#code_pers# 
+				               AND dues_h_seq=#dues_h_seq# 
+				               AND dues_gubun=#dues_gubun#)+1
+				          , #pres_let_dt#
+				          , #code_inout_gubun#
+				          , #bank_name#
+				          , #code_receipt#
+				          , #pres_money#
+				          , #code_pay_flag#
+				          , #conform_dt#
+				          , #conform_yn#
+				          , GETDATE()
+				          , #register#)
+	</insert>
+	
+	<update id="uDuesB" parameterClass="HashMap">
+		UPDATE dues_b_tbl
+			   SET pres_let_dt 			= #pres_let_dt#
+			      ,  code_inout_gubun 	= #code_inout_gubun#
+			      ,  bank_name 			= #bank_name#
+			      ,  code_receipt 			= #code_receipt#
+			      ,  pres_money 			= #pres_money#
+			      ,  code_pay_flag 		= #code_pay_flag#
+			      ,  conform_dt 			= #conform_dt#
+			      ,  conform_yn 			= #conform_yn#
+			      ,  regi_date 				= GETDATE()
+			      ,  register 					= #register#
+		 WHERE code_pers 				= #code_pers#
+		     AND dues_gubun 			= #dues_gubun#
+			 AND dues_h_seq 			= #dues_h_seq#
+			 AND dues_b_seq 			= #dues_b_seq#
+	</update>
+	
+	<update id="uDuesH" parameterClass="HashMap">
+		 UPDATE dues_h_tbl
+			   SET sum_dues = sum_dues+(#pres_money#)     
+		  WHERE code_pers = #code_pers#
+		 	 AND dues_gubun = #dues_gubun#
+			 AND dues_h_seq = #dues_h_seq#
+     </update>
+     
+     <update id="uDuesH2" parameterClass="HashMap">
+		 UPDATE dues_h_tbl
+			   SET incom_flag = #incom_flag#     
+		  WHERE code_pers = #code_pers#
+		 	 AND dues_gubun = #dues_gubun#
+			 AND dues_h_seq = #dues_h_seq#
+     </update>
+    
+    <update id="uDuesH3" parameterClass="HashMap">
+		 UPDATE dues_h_tbl
+			   SET auth_start = #auth_start#
+                   , auth_end = #auth_end# 
+		  WHERE code_pers = #code_pers#
+		 	 AND dues_gubun = #dues_gubun#
+			 AND dues_h_seq = #dues_h_seq#
+     </update>
+    
+    <update id="uDuesH4" parameterClass="HashMap">
+         UPDATE dues_h_tbl
+               SET auth_start = #auth_start#
+                   , auth_end = #auth_end#
+                   , sum_dues = sum_dues+(#pres_money#) 
+          WHERE code_pers = #code_pers#
+             AND dues_gubun = #dues_gubun#
+             AND dues_h_seq = #dues_h_seq#
+     </update>
+     
+     <update id="uDuesH5" parameterClass="HashMap">
+         UPDATE dues_h_tbl
+               SET sum_dues = sum_dues-(#pres_money#) 
+                   , incom_flag = #incom_flag#     
+          WHERE code_pers = #code_pers#
+             AND dues_gubun = #dues_gubun#
+             AND dues_h_seq = #dues_h_seq#
+     </update>
+     
+    <update id="uPersState" parameterClass="HashMap">
+        UPDATE Person_M_TBL
+               SET pers_state = #pers_state#
+          WHERE code_pers  = #code_pers# and mem_gubun = 1
+    </update>
+    <!-- 
+	 * 작업명 : Home>팝업>회비처리
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sDues			회비처리 탭의 검색을 위한 쿼리
+	 *            sDuesCnt		sDues의 카운트 쿼리
+	 -->
+    <select id="sDues" resultClass="java.util.HashMap">
+	     SELECT OUT.*
+          FROM (
+		 SELECT ROW_NUMBER()OVER(ORDER BY c.auth_end desc, d.pers_mem_order desc, d.receipt_dt desc, b.conform_dt desc) no 
+	              , cc.detcodename gubun
+		          , c.auth_start
+		          , c.auth_end
+		          , b.conform_dt
+		          , d.receipt_dt
+		          , d.center_money
+		          , d.bran_money
+		          , d.sub_dues
+		          , d.pers_mem_order
+		          , case when b.dues_gubun = '3' 
+					       then (SELECT sub_name FROM sub_tbl WHERE code_sub=a.code_sub) 
+					       else (SELECT detcodename FROM com_code WHERE groupcode='007' AND detcode=d.code_bran) end  bran_name
+		  FROM Person_M_TBL a
+		     , (select code_pers, dues_gubun, dues_h_seq, min(conform_dt) conform_dt from dues_b_tbl group by code_pers, dues_gubun, dues_h_seq) b
+			   left join (SELECT detcode, detcodename FROM com_code WHERE groupcode='038') cc on cc.detcode=b.dues_gubun
+		     , dues_h_tbl c, dues_P d
+		 WHERE a.code_pers=b.code_pers
+		   AND a.code_pers=c.code_pers
+		   AND a.code_pers=d.code_pers
+		   AND b.dues_gubun=c.dues_gubun
+		   AND b.dues_gubun=d.dues_gubun
+		   AND b.dues_h_seq=c.dues_h_seq
+		   AND b.dues_h_seq=d.dues_h_seq
+ 	       AND c.incom_flag = 'Y'
+    	   AND d.auth_flag = 'Y'
+		   AND a.code_pers=#pCode# and a.mem_gubun = 1 ) OUT
+		 WHERE 1=1 
+		    AND OUT.no > #nstart#
+		    AND OUT.no <![CDATA[<=]]> #nend#
+	</select>	
+	
+	<select id="sDuesCnt" resultClass="java.util.HashMap">
+	     SELECT count(no) cnt
+          FROM (
+		 SELECT ROW_NUMBER()OVER(ORDER BY d.regi_date, b.conform_dt) no 
+		  FROM Person_M_TBL a
+		     , (select code_pers, dues_gubun, dues_h_seq, min(conform_dt) conform_dt from dues_b_tbl group by code_pers, dues_gubun, dues_h_seq) b
+			   left join (SELECT detcode, detcodename FROM com_code WHERE groupcode='038') cc on cc.detcode=b.dues_gubun
+		     , dues_h_tbl c, dues_P d
+		 WHERE a.code_pers=b.code_pers
+		   AND a.code_pers=c.code_pers
+		   AND a.code_pers=d.code_pers
+		   AND b.dues_gubun=c.dues_gubun
+		   AND b.dues_gubun=d.dues_gubun
+		   AND b.dues_h_seq=c.dues_h_seq
+		   AND b.dues_h_seq=d.dues_h_seq
+ 	       AND c.incom_flag = 'Y'
+    	   AND d.auth_flag = 'Y'
+		   AND a.code_pers=#pCode# and a.mem_gubun = 1) OUT
+		 WHERE 1=1 
+	</select>
+    
+    
+    <!-- 
+	 * 작업명 : Home>팝업>교육
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sEdu			교육 탭의 검색을 위한 쿼리
+	 *            sEduCnt		sEdu의 카운트 쿼리
+	 -->
+    <select id="sEdu" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (
+			 SELECT ROW_NUMBER()OVER(ORDER BY code_kind, yyyy desc ) no, qq.*
+			   from ( select 
+			       distinct  m.detcodename code_kind       , aa.yyyy 
+      ,case when aa.code_kindg = '1' then convert(varchar,aa.yyyy)+'년도 '+'제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + (case when aa.season in (1,2) then convert(varchar,aa.season)+'학기 ' when aa.season = 3 then '집합교육 ' when aa.season = 4 then '온라인교육 ' else convert(varchar,aa.season)+' ' end) + aa.edutest_name + '-' + k.detcodename  
+            when aa.code_kindg = '2' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '-'+convert(varchar,aa.edu_marks)+'평점' else '('+isnull(aa.bran_txt,'')+')'+'-'+convert(varchar,aa.edu_marks)+'평점' end)
+            when aa.code_kindg = '3' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '' else '('+isnull(aa.bran_txt,'')+')' end) 
+            when aa.code_kindg = '4' or aa.code_kindg = '8' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,aa.operation_cnt)+'차'
+            when aa.code_kindg = '5' then convert(varchar,aa.yyyy)+'년도 '+'제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + (case when aa.season in (1,2) then convert(varchar,aa.season)+'학기 ' when aa.season = 3 then '집합교육 ' when aa.season = 4 then '온라인교육 ' else convert(varchar,aa.season)+' ' end) + aa.edutest_name + '-' + k.detcodename  
+            when aa.code_kindg = '6' then '제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + aa.edutest_name 
+            when aa.code_kindg = '7' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '' else '('+isnull(aa.bran_txt,'')+')' end) 
+            else aa.edutest_name + '-' + isnull(aa.bran_txt,'') + '-(' + k.detcodename + ')' end  edutest_name
+					     , aa.oper_start_dt
+					     , aa.oper_end_dt
+					     , case when isnull(d.detcodename,'') = '' then e.detcodename else d.detcodename end result_state   
+					     , aa.up_date, isnull(aa.result_point,'0') result_point, isnull(aa.attend_cnt,'0') attend_cnt, isnull(aa.time_cnt,'0') time_cnt
+				 FROM ( select case when g.point_manage = '1111111111' then f.oper_start_dt else s.result_start_dt end result_start_dt2
+					       , case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end code_certifi2
+					       , case 
+					              when g.code_kind = '3' then '3' 
+					              when g.code_kind = '4' then '3'
+					              when g.code_kind = '5' then '5' /*test*/ 
+					              when ISNULL(
+					                         case when g.point_manage = '1111111111' then f.oper_start_dt else s.result_start_dt end
+					                         ,'') <![CDATA[<=]]> f.oper_start_dt 
+					                  then 
+					                       case when substring(g.point_manage, convert(int,
+					                                                                       case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end
+					                                                                   ), 1) = '1' and g.code_kind='1' then '1' 
+					                            when substring(g.point_manage, convert(int,
+					                                                                       case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end
+					                                                                   ), 1) = '1' and g.code_kind='2' then '2'
+					                            else '3' end
+					                  else '1' end kind        
+					       , f.code_certifi code_certifif, s.code_certifi code_certifis
+					       , c.result_state, c.up_date
+					       , a.oper_state, a.code_bran, a.code_certifi, a.code_kind, a.person_yn, a.code_seq
+					       , f.yyyy, f.operation_cnt, f.season, f.bran_txt, f.oper_start_dt, f.oper_end_dt
+					       , g.code_kind code_kindg, replace(g.edutest_name, '"', '') as edutest_name
+<!-- 					       ,g.edu_marks -->
+					       ,f.edu_marks
+					       , c.result_point, c.attend_cnt, c.time_cnt  
+					  FROM operater a         
+					      left join oper_result c     on c.code_kind = a.code_kind     
+					                and c.code_certifi = a.code_certifi                    
+					                and c.code_seq = a.code_seq                    
+					                and c.code_bran = a.code_bran                    
+					                and c.bran_seq = a.bran_seq                    
+					                and c.receipt_no = a.receipt_no              
+					      left join ( select code_pers, code_certifi, 
+					                         MIN(result_start_dt) result_start_dt,
+					                         MAX(result_end_dt) result_end_dt
+					                    from result_print
+					                   group by code_pers, code_certifi
+					                 ) s on s.code_pers = a.person_yn 
+					      , edu_test f 
+					      left join edu_test_name g  on g.code_kind = f.code_kind                    
+					            and g.code_certifi = f.code_certifi                    
+					            and g.code_seq = f.code_seq              
+					  where f.code_kind = a.code_kind
+					    and (f.code_certifi = a.code_certifi)
+					    and f.code_seq = a.code_seq
+					    and f.code_bran = a.code_bran
+					    and f.bran_seq = a.bran_seq
+					        ) aa 
+					        left join com_code d
+					               on d.groupcode='023'
+					              and d.detcode=aa.result_state					       					       					      
+						    left join com_code e                    
+						           on e.groupcode='022'                    
+						          and e.detcode= aa.oper_state                                               
+						     left join com_code k
+						          on k.groupcode = '034'
+						         and k.detcode = aa.code_bran
+					        left join com_code m
+					               on m.groupcode = '016'
+					              and m.detcode = aa.kind
+					 WHERE aa.person_yn=#pCode#
+					     /* AND aa.code_kind NOT IN ('5') */ 
+					     ) qq
+					   ) OUT
+		 WHERE 1=1 
+	</select>
+	
+	<select id="sEduCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		 FROM (
+ SELECT ROW_NUMBER()OVER(ORDER BY code_kind, yyyy ) no, qq.*
+			   from ( select 
+			       distinct  m.detcodename code_kind       , aa.yyyy 
+      ,case when aa.code_kindg = '1' then convert(varchar,aa.yyyy)+'년도 '+'제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + (case when aa.season in (1,2) then convert(varchar,aa.season)+'학기 ' when aa.season = 3 then '집합교육 ' when aa.season = 4 then '온라인교육 ' else convert(varchar,aa.season)+' ' end) + aa.edutest_name + '-' + k.detcodename  
+            when aa.code_kindg = '2' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '-'+convert(varchar,aa.edu_marks)+'평점' else '('+isnull(aa.bran_txt,'')+')'+'-'+convert(varchar,aa.edu_marks)+'평점' end)
+            when aa.code_kindg = '3' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '' else '('+isnull(aa.bran_txt,'')+')' end) 
+            when aa.code_kindg = '4' or aa.code_kindg = '8' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,aa.operation_cnt)+'차'
+            when aa.code_kindg = '5' then convert(varchar,aa.yyyy)+'년도 '+'제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + (case when aa.season in (1,2) then convert(varchar,aa.season)+'학기 ' when aa.season = 3 then '집합교육 ' when aa.season = 4 then '온라인교육 ' else convert(varchar,aa.season)+' ' end) + aa.edutest_name + '-' + k.detcodename  
+            when aa.code_kindg = '6' then '제'+CONVERT(varchar,aa.operation_cnt)+'회 ' + aa.edutest_name 
+            when aa.code_kindg = '7' then convert(varchar,aa.yyyy)+'년도 '+ aa.edutest_name + '-' + k.detcodename + (case when isnull(aa.bran_txt,'') = '' then '' else '('+isnull(aa.bran_txt,'')+')' end) 
+            else aa.edutest_name + '-' + isnull(aa.bran_txt,'') + '-(' + k.detcodename + ')' end  edutest_name
+					     , aa.oper_start_dt
+					     , aa.oper_end_dt
+					     , case when isnull(d.detcodename,'') = '' then e.detcodename else d.detcodename end result_state   
+					     , aa.up_date
+				 FROM ( select case when g.point_manage = '1111111111' then f.oper_start_dt else s.result_start_dt end result_start_dt2
+					       , case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end code_certifi2
+					       , case 
+					              when g.code_kind = '3' then '3' 
+					              when g.code_kind = '4' then '3' 
+					              when g.code_kind = '5' then '5' /*test*/ 
+					              when ISNULL(
+					                         case when g.point_manage = '1111111111' then f.oper_start_dt else s.result_start_dt end
+					                         ,'') <![CDATA[<=]]> f.oper_start_dt 
+					                  then 
+					                       case when substring(g.point_manage, convert(int,
+					                                                                       case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end
+					                                                                   ), 1) = '1' and g.code_kind='1' then '1' 
+					                            when substring(g.point_manage, convert(int,
+					                                                                       case when g.point_manage = '1111111111' then s.code_certifi else f.code_certifi end
+					                                                                   ), 1) = '1' and g.code_kind='2' then '2'
+					                            else '3' end
+					                  else '1' end kind        
+					       , f.code_certifi code_certifif, s.code_certifi code_certifis
+					       , c.result_state, c.up_date
+					       , a.oper_state, a.code_bran, a.code_certifi, a.code_kind, a.person_yn, a.code_seq
+					       , f.yyyy, f.operation_cnt, f.season, f.bran_txt, f.oper_start_dt, f.oper_end_dt
+					       , g.code_kind code_kindg, g.edutest_name
+<!-- 					       , g.edu_marks   -->
+					       , f.edu_marks  
+					  FROM operater a         
+					      left join oper_result c     on c.code_kind = a.code_kind     
+					                and c.code_certifi = a.code_certifi                    
+					                and c.code_seq = a.code_seq                    
+					                and c.code_bran = a.code_bran                    
+					                and c.bran_seq = a.bran_seq                    
+					                and c.receipt_no = a.receipt_no              
+					      left join ( select code_pers, code_certifi, 
+					                         MIN(result_start_dt) result_start_dt,
+					                         MAX(result_end_dt) result_end_dt
+					                    from result_print
+					                   group by code_pers, code_certifi
+					                 ) s on s.code_pers = a.person_yn 
+					      , edu_test f 
+					      left join edu_test_name g  on g.code_kind = f.code_kind                    
+					            and g.code_certifi = f.code_certifi                    
+					            and g.code_seq = f.code_seq              
+					  where f.code_kind = a.code_kind
+					    and (f.code_certifi = a.code_certifi)
+					    and f.code_seq = a.code_seq
+					    and f.code_bran = a.code_bran
+					    and f.bran_seq = a.bran_seq
+					        ) aa 
+					        left join com_code d
+					               on d.groupcode='023'
+					              and d.detcode=aa.result_state					       					       					      
+						    left join com_code e                    
+						           on e.groupcode='022'                    
+						          and e.detcode= aa.oper_state                                               
+						     left join com_code k
+						          on k.groupcode = '034'
+						         and k.detcode = aa.code_bran
+					        left join com_code m
+					               on m.groupcode = '016'
+					              and m.detcode = aa.kind
+					 WHERE aa.person_yn=#pCode#
+					     /* AND aa.code_kind NOT IN ('5') */ 
+					      ) qq
+			) OUT
+		 WHERE 1=1 
+	</select>
+    
+    
+    <!-- 
+	 * 작업명 : Home>팝업>자격증
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sCertiList			자격증 탭의 자격증 종류별 검색을 위한 쿼리
+	 *            sCertiList2		자격증 탭의 기간별 교육 세부검색을 위한 쿼리
+	 -->
+    <select  id="sCertiList" resultClass="java.util.HashMap">
+		   		SELECT a.code_certifi 
+					     , d.certifi_name
+					     , a.result_start_dt+'~'+a.result_end_dt resultdt
+					     , a.result_start_dt
+					     , a.result_end_dt
+					     , SUM(ISNULL(col1,0)) col1
+<!-- 					     , SUM(ISNULL(col2,0)) col2  -->
+<!-- 					     , SUM(ISNULL(col1,0))+SUM(ISNULL(col2,0)) total  -->
+						,SUM(ISNULL(col2, 0)) + SUM(ISNULL(col3, 0)) col2
+						,SUM(ISNULL(col1, 0)) + SUM(ISNULL(col2, 0)) + SUM(ISNULL(col3, 0)) total
+
+<!-- 					     , case when a.print_state='0' then '미수료' -->
+<!--                                   when a.print_state='1' then '수료' end print_state  -->
+						, case when SUM(ISNULL(col1, 0)) >= 8 and SUM(ISNULL(col1, 0)) + SUM(ISNULL(col2, 0)) + SUM(ISNULL(col3, 0)) >= 20 then '수료' else '미수료' end print_state
+
+			  FROM result_print a
+					       left join (
+					       				
+					       				select * from (
+					       				SELECT case when g.outside_yn='N' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col1
+												 , case when g.outside_yn='Y' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col2
+												 , case when g.outside_yn='S' then
+												 		(
+												 			case when isnull(c.edu_marks,0)+isnull(c.service_marks,0) > 4 then 4 else isnull(c.edu_marks,0)+isnull(c.service_marks,0) end 
+												 		)
+												   end col3
+												 , f.oper_end_dt
+												 , a.code_certifi			     
+												, c.point_manage
+										 FROM operater a 							
+												  left join oper_result c 
+														 on c.code_kind = a.code_kind 
+														and c.code_certifi = a.code_certifi
+														and c.code_seq = a.code_seq
+														and c.code_bran = a.code_bran
+														and c.bran_seq = a.bran_seq
+														and c.receipt_no = a.receipt_no					        					        				      
+												LEFT JOIN result_print p ON p.code_pers = #code_pers# and p.code_certifi = c.point_manage
+											   , edu_test f
+												  left join edu_test_name g
+														 on g.code_kind = f.code_kind
+														and g.code_certifi = f.code_certifi
+														and g.code_seq = f.code_seq					        
+											WHERE a.code_kind = f.code_kind
+											  AND a.code_certifi = f.code_certifi
+											  AND a.code_seq = f.code_seq
+											  AND a.code_bran = f.code_bran
+											  AND a.bran_seq = f.bran_seq
+											/*  AND f.code_kind NOT IN ('1','5') */
+											  AND f.code_kind  IN ('2','5')
+											  AND a.person_yn=#code_pers#
+											  AND f.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-3,convert(date,p.result_end_dt))) and DATEADD(year,-2,convert(date,p.result_end_dt))
+											and c.result_state = '11'
+									) y1
+									group by col1, col2, col3, oper_end_dt, code_certifi,point_manage
+									
+									union all
+									 
+					       				select * from (
+					       				SELECT case when g.outside_yn='N' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col1
+												 , case when g.outside_yn='Y' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col2
+												 , case when g.outside_yn='S' then
+												 		(
+												 			case when isnull(c.edu_marks,0)+isnull(c.service_marks,0) > 4 then 4 else isnull(c.edu_marks,0)+isnull(c.service_marks,0) end 
+												 		)
+												   end col3
+												 , f.oper_end_dt
+												 , a.code_certifi			     
+												, c.point_manage
+										 FROM operater a 							
+												  left join oper_result c 
+														 on c.code_kind = a.code_kind 
+														and c.code_certifi = a.code_certifi
+														and c.code_seq = a.code_seq
+														and c.code_bran = a.code_bran
+														and c.bran_seq = a.bran_seq
+														and c.receipt_no = a.receipt_no					        					        				      
+												LEFT JOIN result_print p ON p.code_pers = #code_pers# and p.code_certifi = c.point_manage
+											   , edu_test f
+												  left join edu_test_name g
+														 on g.code_kind = f.code_kind
+														and g.code_certifi = f.code_certifi
+														and g.code_seq = f.code_seq					        
+											WHERE a.code_kind = f.code_kind
+											  AND a.code_certifi = f.code_certifi
+											  AND a.code_seq = f.code_seq
+											  AND a.code_bran = f.code_bran
+											  AND a.bran_seq = f.bran_seq
+											/*  AND f.code_kind NOT IN ('1','5') */
+											  AND f.code_kind  IN ('2','5')
+											  AND a.person_yn=#code_pers#
+											  and f.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-2,convert(date,p.result_end_dt))) and DATEADD(year,-1,convert(date,p.result_end_dt))
+											and c.result_state = '11'
+									) y2
+									group by col1, col2, col3, oper_end_dt, code_certifi,point_manage
+									
+									union all
+									 
+					       				select * from (
+					       				SELECT case when g.outside_yn='N' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col1
+												 , case when g.outside_yn='Y' then isnull(c.edu_marks,0)+isnull(c.service_marks,0) end col2
+												 , case when g.outside_yn='S' then
+												 		(
+												 			case when isnull(c.edu_marks,0)+isnull(c.service_marks,0) > 4 then 4 else isnull(c.edu_marks,0)+isnull(c.service_marks,0) end 
+												 		)
+												   end col3
+												 , f.oper_end_dt
+												 , a.code_certifi			     
+												, c.point_manage
+										 FROM operater a 							
+												  left join oper_result c 
+														 on c.code_kind = a.code_kind 
+														and c.code_certifi = a.code_certifi
+														and c.code_seq = a.code_seq
+														and c.code_bran = a.code_bran
+														and c.bran_seq = a.bran_seq
+														and c.receipt_no = a.receipt_no					        					        				      
+												LEFT JOIN result_print p ON p.code_pers = #code_pers# and p.code_certifi = c.point_manage
+											   , edu_test f
+												  left join edu_test_name g
+														 on g.code_kind = f.code_kind
+														and g.code_certifi = f.code_certifi
+														and g.code_seq = f.code_seq					        
+											WHERE a.code_kind = f.code_kind
+											  AND a.code_certifi = f.code_certifi
+											  AND a.code_seq = f.code_seq
+											  AND a.code_bran = f.code_bran
+											  AND a.bran_seq = f.bran_seq
+											/*  AND f.code_kind NOT IN ('1','5') */
+											  AND f.code_kind  IN ('2','5')
+											  AND a.person_yn=#code_pers#
+											  and f.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-1,convert(date,p.result_end_dt))) and convert(date,p.result_end_dt)
+											and c.result_state = '11'
+									) y3
+									group by col1, col2, col3, oper_end_dt, code_certifi,point_manage
+											  
+					) c on c.oper_end_dt between a.result_start_dt and a.result_end_dt and a.code_certifi = c.point_manage
+					left join certifi d
+					       on  d.code_certifi=a.code_certifi
+			  WHERE a.code_pers=#code_pers#	
+			  GROUP BY a.result_start_dt,a.result_end_dt, a.print_state,a.code_certifi,d.certifi_name
+			  ORDER BY code_certifi,result_end_dt
+   	</select>
+   	<select  id="sCertiList2" resultClass="java.util.HashMap">
+	  SELECT  case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+<!-- 	            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+	            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+	            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+	            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+	            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+	            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+	            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+	            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + k.detcodename + ')' end  edutest_name
+	     , case when g.outside_yn='Y' then '기타'
+	     
+<!-- 	            when g.outside_yn='N' then '본회' end outside_yn -->
+	            when g.outside_yn='N' then '본회'
+	            when g.outside_yn='S' then '봉사' end outside_yn
+	            
+		 , f.oper_end_dt
+		 , isnull(c.edu_marks,0)+isnull(c.service_marks,0) result_point
+		 , d.detcodename result_state
+	  FROM (SELECT code_kind
+			     , code_certifi
+	             , code_seq
+				 , code_bran
+				 , bran_seq
+				 , receipt_no
+				 , person_yn  
+			 FROM operater )a 
+	    left join (select x.code_kind
+		                , x.code_certifi
+		                , x.code_seq
+		                , x.code_bran
+		                , x.bran_seq
+		                , x.receipt_no
+		                , replace(replace(ISNULL(x.신청서,' ')+','+ISNULL(x.사진,' ')+','
+		  			      +ISNULL(x.영양사면허증사본,' ')+','+ISNULL(x.경력증명서,' ')+','
+						  +ISNULL(x.학위증명서,' ')+ISNULL(x.최종학위성적증명서,' ')+','
+						  +ISNULL(x.기존자격증사본,' '),' ,',''),', ','') detcodename
+				     from ( select * 
+					          from (select ab.code_kind
+					                     , ab.code_certifi
+					                     , ab.code_seq
+					                     , ab.code_bran
+					                     , ab.bran_seq
+					                     , ab.receipt_no
+					                     , bb.detcodename
+					                  from oper_add_file ab, com_code bb
+					                 where bb.groupcode = '037' 
+						               and bb.detcode = ab.add_file_no) z
+						              pivot (max(z.detcodename) for z.detcodename 
+						                 in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서],[최종학위성적증명서],[기존자격증사본])
+										                              ) as pvt ) x) b 
+										               on b.code_kind = a.code_kind 
+										              and b.code_certifi = a.code_certifi
+										              and b.code_seq = a.code_seq
+										              and b.code_bran = a.code_bran
+										              and b.bran_seq = a.bran_seq
+										              and b.receipt_no = a.receipt_no
+										        left join oper_result c 
+										               on c.code_kind = a.code_kind 
+										              and c.code_certifi = a.code_certifi
+										              and c.code_seq = a.code_seq
+										              and c.code_bran = a.code_bran
+										              and c.bran_seq = a.bran_seq
+										              and c.receipt_no = a.receipt_no
+										        left join com_code d
+										               on d.groupcode='023'
+										              and d.detcode=c.result_state					        				      
+										   , edu_test f
+										        left join com_code k
+	                                                   on k.groupcode = '034'
+	                                                  and k.detcode = f.code_bran 
+										        left join edu_test_name g
+										               on g.code_kind = f.code_kind
+										              and g.code_certifi = f.code_certifi
+										              and g.code_seq = f.code_seq					        
+										 WHERE a.code_kind = f.code_kind
+										     AND a.code_certifi = f.code_certifi
+										     AND a.code_seq = f.code_seq
+										     AND a.code_bran = f.code_bran
+										     AND a.bran_seq = f.bran_seq
+											/*  AND f.code_kind NOT IN ('1','5') */
+											  AND f.code_kind  IN ('2','5')
+										     AND a.person_yn=#pCode#
+										     AND f.oper_end_dt <![CDATA[>=]]> #start_dt#
+										     AND f.oper_end_dt <![CDATA[<=]]> #end_dt#
+											and g.outside_yn in ('Y','N','S')
+											and isnull(c.edu_marks, 0) + isnull(c.service_marks, 0) > 0
+											and c.result_state = '11'
+											and c.point_manage = #code_certifi#
+						ORDER BY f.oper_end_dt desc, f.yyyy, f.code_kind
+   	</select>
+    
+    
+    <!-- 
+	 * 작업명 : Home>팝업>기부/기금
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : donation			기부/기금 탭의 검색을 위한 쿼리
+	 *            donCnt		    donation쿼리의 count 쿼리
+	 *            uDon				기부/기금 항목의 갱신을 위한 쿼리
+	 -->
+    <select  id="donation" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		  FROM (SELECT ROW_NUMBER()OVER(ORDER BY a.pres_let_dt desc, a.day_seq desc) no
+							 , a.code_pers
+							 , a.pres_let_dt
+							 , a.day_seq
+							 , a.gubun
+							 , b.detcodename gName
+							 , a.bank_name
+							 , a.pres_money
+							 , a.code_pay_flag
+							 , c.detcodename pfName
+							 , a.promise_no
+							 , a.promise_seq
+							 , a.donation_remark
+							 , a.conform_dt
+							 , a.register
+					 FROM donation a
+							   LEFT JOIN com_code b
+					  				    ON b.groupcode='040'
+									   AND b.detcode=a.gubun
+							   LEFT JOIN com_code c
+									    ON c.groupcode='014'
+									   AND c.detcode=a.code_pay_flag
+					WHERE a.code_pers=#pCode# ) OUT
+		 WHERE 1=1 
+		    AND OUT.no > #nstart#
+		    AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select  id="promise" resultClass="java.util.HashMap">
+		  SELECT a.promise_no
+			       , d.detcodename payflag
+			       , a.promise_amt
+			       , a.promise_mon
+			       , a.start_yyyymm
+			       , a.end_yyyymm
+			       , a.promise_remark
+			       , c.detcodename promise_state
+		   FROM promise a
+			        left join (SELECT MAX(promise_no) promise_no
+			                              , code_pers  
+			                      FROM promise
+			                    GROUP BY code_pers) b
+			               on b.code_pers=a.code_pers
+			        left join com_code c
+			               on c.groupcode='053'
+			             and c.detcode=a.promise_state
+			        left join com_code d
+			               on d.groupcode='014'
+			             and d.detcode=a.code_pay_flag
+			 WHERE a.code_pers=#pCode#
+			    AND a.promise_no=b.promise_no
+	</select>
+	
+	<select  id="donCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		  FROM (SELECT ROW_NUMBER()OVER(ORDER BY pres_let_dt) no
+					 FROM donation							
+					WHERE code_pers=#pCode# ) OUT
+		 WHERE 1=1 
+	</select>
+	
+	<update  id="uDon" parameterClass="HashMap">
+		 UPDATE donation
+			   SET gubun					= #gubun#
+			       , pres_money			= #pres_money#
+			       , bank_name			= #bank_name#
+			       , code_pay_flag			= #code_pay_flag#
+			       , donation_remark		= #donation_remark#
+			       , conform_dt			= CASE WHEN #conform_dt#='Y' THEN (SELECT CONVERT(VARCHAR(8),GETDATE(),112)) ELSE '' END
+			       , register					= #register#
+		 WHERE code_pers				= #code_pers#
+		     AND pres_let_dt				= #pres_let_dt#
+			 AND day_seq					= #day_seq#
+	</update>    
+    
+	
+	<!-- 
+	 * 작업명 : Home>팝업>기부/기금
+	 * 작업자 : 박상모
+	 * 작업일 : 2012..
+	 * 작   업 : sMemo			메모 탭의 검색을 위한 쿼리
+	 *            sMemoCnt		sMemo쿼리의 count 쿼리
+	 *            iMemo				메모 신규추가를 위한 쿼리
+	 *			  uMemo			기존 메모의 갱신을 위한 쿼리
+	 -->
+	<select id="sMemo" resultClass="java.util.HashMap">
+		SELECT OUT.*
+         FROM (SELECT ROW_NUMBER()OVER(ORDER BY rdate desc ) no
+                            , a.code_pers
+                            , a.rdate
+                            , a.register
+                            , a.code_memo
+                            , b.detcodename code_memo_name
+                            , a.memo_text 
+				  FROM tbl_memo a
+				  		   left join com_code b
+					               on b.groupcode = '026'
+					              and b.detcode = a.code_memo					      
+			    WHERE a.code_pers=#pCode#
+				 	) OUT
+		 WHERE 1=1 
+  		     AND OUT.no > #nstart#
+  		     AND OUT.no <![CDATA[<=]]> #nend#
+	</select>
+	
+	<select id="sMemoCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		 FROM (SELECT ROW_NUMBER()OVER(ORDER BY code_pers) no
+					 FROM tbl_memo
+				 	WHERE code_pers = #pCode#
+				 	) OUT
+		 WHERE 1=1
+	</select>
+
+	<insert id="iMemo" parameterClass="HashMap">
+		INSERT INTO tbl_memo
+           				  (code_pers
+           				 , rdate
+           				 , register
+           				 , code_memo
+           				 , memo_text)
+     		   VALUES (#code_pers#
+           				 , #rdate#
+           				 , #register#
+           				 , #code_memo#
+           				 , #memo_text#)
+	</insert>
+
+	<update id="uMemo" parameterClass="HashMap">
+		UPDATE tbl_memo
+		      SET code_memo=#code_memo#
+           		  , memo_text=#memo_text#
+        WHERE code_pers	=#code_pers#
+            AND rdate			=#rdate#
+            AND register		=#register#
+           	AND code_memo=#code_memo#
+   	</update> 
+   	
+   	<insert id="iDuesMemHis" parameterClass="HashMap">
+   		INSERT INTO Person_M_history
+        ( code_pers
+		, up_dt
+		, up_dt_seq
+		, code_member
+		, pers_name
+	<!-- [JUMIN_DEL] 아래 pers_no 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 		, pers_no -->
+		, pers_birth
+		, lic_no
+		, lic_print_dt
+		, code_add_gubun
+		, code_post
+		, pers_add
+		, pers_add_detail
+		, pers_tel
+		, pers_hp
+		, email
+		, code_email_comp
+		, code_sex
+		, code_religion
+		, code_marry
+		, code_bran
+		, code_big
+		, code_sect
+		, code_scholar
+		, code_univer
+		, code_school
+		, code_call
+		, code_place
+		, pers_career
+		, certifi_view
+		, code_sub
+		, regi_dt
+		, Up_date
+		, kda_level
+		, recommender
+		, recm_division
+		, recm_hp
+		, pers_state
+		, register
+		, mem_gubun)
+     VALUES
+        ( #code_pers#
+		, (SELECT CONVERT(VARCHAR(8),GETDATE(),112))
+		, (SELECT ISNULL(MAX(up_dt_seq),0) FROM Person_M_history WHERE code_pers=#code_pers# and up_dt = (SELECT CONVERT(VARCHAR(8),GETDATE(),112)) and mem_gubun = 1)+1
+		, #code_member#
+		, #pers_name#
+		<!-- [JUMIN_DEL] 아래 0 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 		, dbo.GetPersNoencord(#pers_no#) -->
+<!-- 		, 0 -->
+		, #pers_birth#
+		, #lic_no#
+		, #lic_print_dt#
+		, #code_add_gubun#
+		, #code_post#
+		, #pers_add#
+		, #pers_add_detail#
+		, #pers_tel#
+		, #pers_hp#
+		, #email#
+		, #code_email_comp#
+		, #code_sex#
+		, #code_religion#
+		, #code_marry#
+		, #code_bran#
+		, #code_big#
+		, #code_sect#
+		, #code_scholar#
+		, #code_univer#
+		, #code_school#
+		, #code_call#
+		, #code_place#
+		, #pers_career#
+		, #certifi_view#
+		, #code_sub#
+		, #regi_dt#
+		, GETDATE()
+		, #kda_level#
+		, #recommender#
+		, #recm_division#
+		, #recm_hp#
+		, #pers_state#
+		, #register#
+		, 1)
+   	</insert> 
+   	
+   	<update id="uDuesCMem" parameterClass="HashMap">
+   		UPDATE Person_M_TBL
+		   SET code_member=#code_member#
+		     , pers_state=#pers_state#
+		     , code_sub=#code_sub#
+		     , Up_date=GETDATE()
+		     , register=#register# 
+ 		WHERE code_pers=#code_pers# and mem_gubun = 1	
+   	</update>
+   	
+   	<update id="uDuesHmemDues" parameterClass="HashMap">
+   		UPDATE dues_h_tbl
+		   SET code_member=#code_member#
+		     , mem_dues=#mem_dues#
+		 WHERE code_pers=#code_pers#
+		   AND dues_gubun=#dues_gubun#
+		   AND dues_h_seq=#dues_h_seq# 	
+   	</update>
+   	
+   	<select id="sMaxAend" resultClass="java.util.HashMap">
+   		SELECT MAX(auth_end) auth_end
+		  FROM dues_h_tbl 
+		 WHERE code_pers=#code_pers#
+		   AND incom_flag!='D'
+   	</select>
+   	
+   	<update id="canDuesH" parameterClass="java.util.HashMap">
+   		UPDATE dues_h_tbl
+		   SET regi_dt=''
+		     , sum_dues=0
+		     , incom_flag='N'
+		 WHERE code_pers=#code_pers#
+		   AND dues_h_seq=#dues_h_seq#
+		   AND dues_gubun=#dues_gubun# 
+   	</update>
+   	
+   	<update id="canDuesB" parameterClass="java.util.HashMap">
+   		UPDATE dues_b_tbl
+		   SET conform_dt=''
+		     , conform_yn=1
+		 WHERE code_pers=#code_pers#
+		   AND dues_h_seq=#dues_h_seq#
+		   AND dues_b_seq=#dues_b_seq#
+		   AND dues_gubun=#dues_gubun#
+   	</update>
+   	
+   	<delete id="canDuesP" parameterClass="java.util.HashMap">
+   		DELETE FROM dues_P
+		 WHERE code_pers=#code_pers#
+		   AND dues_h_seq=#dues_h_seq#   
+		   AND dues_gubun=#dues_gubun#
+   	</delete>
+   	
+   	<select id="chkDuesP" resultClass="java.util.HashMap">
+   		SELECT *
+   		  FROM dues_P
+		 WHERE code_pers  = #code_pers#
+		   AND dues_gubun = #dues_gubun#
+		   AND dues_h_seq = #dues_h_seq#
+   	</select>
+   	
+   	<select id="chkDuesB" resultClass="java.util.HashMap">
+   		SELECT *
+   		  FROM dues_b_tbl
+		 WHERE code_pers  = #code_pers#
+		   AND dues_gubun = #dues_gubun#
+		   AND dues_h_seq = #dues_h_seq#
+   	</select>
+   	
+   	<delete id="deleteDuesH" parameterClass="java.util.HashMap">
+   		DELETE FROM dues_h_tbl
+		 WHERE code_pers  = #code_pers#
+		   AND dues_gubun = #dues_gubun#
+		   AND dues_h_seq = #dues_h_seq#
+   	</delete>
+   	
+   	<delete id="deleteDuesB" parameterClass="java.util.HashMap">
+   		DELETE FROM dues_b_tbl
+		 WHERE code_pers  = #code_pers#
+		   AND dues_gubun = #dues_gubun#
+		   AND dues_h_seq = #dues_h_seq#
+		   AND dues_b_seq = #dues_b_seq#
+   	</delete>
+   	
+	<select id="sLastCmname" resultClass="java.util.HashMap">
+		select top 1 c.detcodename lastcmname , b.code_member
+		from dues_b_tbl a , dues_h_tbl b
+			left join com_code c on c.groupcode = '006' and c.detcode = b.code_member
+		where 1=1
+			and a.code_pers = b.code_pers
+			and a.dues_gubun = b.dues_gubun
+			and a.dues_h_seq = b.dues_h_seq
+			and a.code_pers = #code_pers#
+			and conform_yn = '3'
+		order by auth_end desc
+	</select>
+	
+   	<update id="uLastCmname" parameterClass="java.util.HashMap">
+   		update Person_M_TBL set code_member = #code_member# where code_pers = #code_pers#
+   	</update>
+   	
+   	<select id="idInfo" resultClass="java.util.HashMap">
+	 	SELECT 	A.code_pers
+	 				,  A.pers_name
+	 				, A.pers_birth
+	 				, A.lic_no
+	 				, A.pers_hp
+	 				, B.id 
+	 	FROM 	Person_M_TBL AS A
+	 				, id_tbl AS B
+    	WHERE 	A.code_pers = B.code_pers 
+    	AND 		A.pers_name = #pers_name#
+	    <isEqual property="use_code_pers" compareValue="Y">
+			AND code_pers =#code_pers#
+	    </isEqual>
+	    <isEqual property="use_lic_no" compareValue="Y">
+	       AND A.lic_no = #lic_no#
+		</isEqual>
+		<isEqual property="use_pers_birth" compareValue="Y">
+           AND A.pers_birth = #pers_birth#
+        </isEqual>
+	</select>
+	
+	<select id="idCheck" resultClass="java.util.HashMap">
+	SELECT count(id) cnt 
+	FROM id_tbl
+	WHERE id = #pers_id#
+	</select>
+	
+	<update id="idUpt" parameterClass="java.util.HashMap">
+	UPDATE id_tbl SET id = #pers_id#
+	WHERE code_pers = #code_pers#
+	</update>
+	
+	<update id="uCompany" parameterClass="HashMap">
+		UPDATE pers_company
+		   SET job_line_code = case when code_great = '103' then '60' else '70' end
+		 WHERE code_pers = #code_pers# AND code_great in ('103', '104') and
+		       comp_seq =
+		       (select MAX(COMP_SEQ) from pers_company where code_pers = #code_pers#)
+     </update>
+	
+</sqlMap>
+

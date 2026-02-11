@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="trustManager">
+<select id="trustCnt" resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+		 FROM ( SELECT ROW_NUMBER()OVER(ORDER BY trust_code ) no
+			        FROM trust_company 
+			        <dynamic prepend="where">
+		  		 	<isNotEmpty property="trust_nm">
+		  		 		trust_name like '%'+#trust_nm#+'%'
+		  		 	</isNotEmpty>
+		  		 </dynamic>
+			      ) OUT
+		  WHERE 1=1
+</select>
+    
+    
+<select id="selectTrustCom" resultClass="java.util.HashMap">
+		SELECT OUT.*
+		 FROM (	SELECT ROW_NUMBER()OVER(ORDER BY trust_code ) no
+		 					, trust_code
+		      				, trust_name
+		      				, trust_post
+		      				, trust_addr
+		      				, trust_tel
+		  			 FROM trust_company
+		  		 <dynamic prepend="where">
+		  		 	<isNotEmpty property="trust_nm">
+		  		 		trust_name like '%'+#trust_nm#+'%'
+		  		 	</isNotEmpty>
+		  		 </dynamic>
+		  		 ) OUT
+		  WHERE 1=1 
+		  		and out.no > #nstart#
+		  		and out.no <![CDATA[<=]]> #nend#
+</select>
+<select id="selectAll" resultClass="java.util.HashMap">
+		SELECT trust_code
+				, trust_name
+				, substring(trust_post,0,4)+' - '+substring(trust_post,4,3) as post
+				, trust_addr
+				, trust_tel
+		 FROM trust_company
+		 <dynamic prepend="where">
+		 	<isNotEmpty property="trust_nm">
+		  		trust_name like '%'+#trust_nm#+'%'
+		  	</isNotEmpty>
+		  </dynamic>
+</select>
+</sqlMap>

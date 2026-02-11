@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+  <properties resource="com/ant/common/properties/db.properties" />
+    <settings cacheModelsEnabled="true" 
+	          enhancementEnabled="true" 
+	          useStatementNamespaces="false" 
+	          lazyLoadingEnabled="true" 
+	          maxRequests="512" 
+	          maxSessions="128" 
+	          maxTransactions="32" /> 
+	      
+  <transactionManager type="JDBC">
+    <dataSource type="SIMPLE">
+      <property name="JDBC.Driver"        value="${driver}"   />
+      <property name="JDBC.ConnectionURL" value="${url_sp}"      />
+      <property name="JDBC.Username"      value="${username_sp}" />
+      <property name="JDBC.Password"      value="${password_sp}" />
+    </dataSource>
+  </transactionManager>
+  
+  <sqlMap resource="com/ant/common/xml/Login.xml"/>
+  
+
+  <sqlMap resource="com/ant/common/xml/sql_common.xml"				/>	<!-- 김성훈 2012.09.18 : 2.0 회원>공통코드 		-->
+  <sqlMap resource="com/ant/common/xml/sql_memberInsert.xml"		/>	<!-- 김성훈 2012.10.10 : 2.1 회원>회원등록 		-->
+  <sqlMap resource="com/ant/common/xml/sql_memberSearch.xml"		/>	<!-- 김성훈 2012.09.17 : 2.2 회원>상세조회 		-->
+  <sqlMap resource="com/ant/common/xml/sql_memberDues.xml"		/>	<!-- 김성훈 2012.09.26 : 2.3 회원>회비처리 		-->
+  <sqlMap resource="com/ant/common/xml/sql_memberDeposit.xml"	/>	<!-- 김성훈 2012.09.26 : 2.4 회원>예수금현황 		-->
+  <sqlMap resource="com/ant/common/xml/sql_memberFund.xml"		/>	<!-- 김성훈 2012.10.20 : 2.5 회원>기부/기부 현황 	-->
+  <sqlMap resource="com/ant/common/xml/sql_memberState.xml"		/>	<!-- 김성훈 2012.09.12 : 2.6 회원>현황 쿼리 추가 	-->
+   
+  <sqlMap resource="com/ant/common/xml/memberState.xml"/>	
+   
+  <sqlMap resource="com/ant/common/xml/member1.xml"/> 
+  <sqlMap resource="com/ant/common/xml/trustName.xml"/>
+  <sqlMap resource="com/ant/common/xml/codeUseMember.xml"/>
+  <sqlMap resource="com/ant/common/xml/documentsend.xml"/> 
+  <sqlMap resource="com/ant/common/xml/conference.xml"/>
+  <sqlMap resource="com/ant/common/xml/setupdues.xml"/>  
+  <sqlMap resource="com/ant/common/xml/actol.xml"/> 
+  <sqlMap resource="com/ant/common/xml/educationstatus.xml"/> 
+  <sqlMap resource="com/ant/common/xml/license.xml"/> 
+  <sqlMap resource="com/ant/common/xml/lecture.xml"/>
+   
+</sqlMapConfig>

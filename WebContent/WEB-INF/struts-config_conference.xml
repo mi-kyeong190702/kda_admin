@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans> 
+	
+	<global-forwards>		
+		<forward name="ajaxout"                     path="/jsp/common/ajaxout.jsp" />	 	
+	</global-forwards>
+	
+
+	<!-- Action Mapping Definitions -->
+	
+  	<action-mappings>
+  	
+  	    <!-- 회의실 Depth.2 leftMenu -->
+	    <action path="/conferenceinsert_ok"		    forward=".layout_conferenceinsert_ok"/>
+  		<action path="/conferenceForm"		        forward=".layout_conferenceForm"/>
+		  				
+		<action path="/conference"   type="com.ant.conference.action.conferenceAction" parameter="method" scope="request">
+			<forward name="conferenceList"          path=".layout_conferenceList"/>
+			<forward name="insert_ok"               path=".layout_conferenceinsert_ok" />
+			<forward name="update_ok"               path=".layout_conferenceinsert_ok" />
+			<forward name="delete_ok"               path=".layout_conferenceinsert_ok" />
+			<forward name="conferencemeetList"      path=".layout_conferencemeetList"/>
+			<forward name="insert_meetok"           path=".layout_conferencemeetinsert_ok" />
+			<forward name="update_meetok"           path=".layout_conferencemeetinsert_ok" />				
+		</action>
+			
+    </action-mappings>	
+    
+
+</struts-config>

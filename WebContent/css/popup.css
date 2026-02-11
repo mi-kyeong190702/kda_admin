@@ -1,0 +1,329 @@
+
+/* CSS Document */
+ 
+/* A:link		{text-decoration:none; color:000000}
+A:visited	{text-decoration:none; color:000000}
+A:hover		{text-decoration:none; color:#FF3366}
+
+	body {
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+	background-color:#FFFFFF;
+	background-image:url(../images/bg.gif);
+	background-position:0px 0px;
+	background-repeat:repeat-x;
+	font-size: 12px;
+	line-height: 130%;
+	font-style: normal;
+	font-weight: normal;
+	color:#595959;
+	}
+	
+	td {
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+	font-size: 12px;
+	line-height: 130%;
+	font-style: normal;
+	font-weight: normal;
+	color:#595959;
+	}
+	
+	form { margin:0px; }
+
+Quick Link
+	.ql_tbl {
+	border-left:3px solid #ffffff; border-top:4px solid #ffffff; border-right:3px solid #ffffff; border-bottom:20px solid #ffffff; 
+	text-align:center;
+	background-color:#FFFFFF;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+	font-size: 11px;
+	line-height: 130%;
+	font-style: normal;
+	font-weight: normal;
+	color:#595959;
+	}
+	
+	.ql_td {
+	border-top:6px solid #ffffff; border-bottom:1px solid #d2d2d2; 
+	vertical-align:bottom;
+	padding:0px;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+	font-size: 11px;
+	line-height: 130%;
+	font-style: normal;
+	font-weight: normal;
+	color:#595959;
+	}
+		.ql_td A:link { font-size:11px; font-weight: normal;text-decoration: none;color:#595959; }
+		.ql_td A:visited { font-size:11px; font-weight: normal; text-decoration: none;color:#595959; }
+		.ql_td A:hover { font-size:11px; font-weight: normal;text-decoration: none;color:#0099cc; }
+
+	.id_input {
+	paddidng-top:6px; padding-bottom:1px;
+	font-family: Arial, Helvetica, geneva, sans-serif, Dotum, Dotumche, Gulim, Gulimche  ;
+	font-size: 11px;
+	line-height: 130%;
+	color:#7C7C7C;
+	height:20px;
+	background-repeat:no-repeat;
+	}
+
+
+Top Table	
+	.top_mtbl{ background-image:url(../images/top_menu_cbg.gif); background-position:0px 0px; background-repeat:repeat-x;}
+	
+	.top_sub{ font-weight:bold; color:#347a9f;}
+		.top_sub A:link { font-weight: bold;text-decoration: none;color:#347a9f; }
+		.top_sub A:visited { font-weight: bold; text-decoration: none;color:#347a9f; }
+		.top_sub A:hover { font-weight: bold;text-decoration: none;color:#00a7ff; }
+
+Left Table	
+	.left_tbl { text-align:center; vertical-align:top; background-color:#e4f4fb;}
+	
+	.left_m{ font-weight:bold; color:#595959;border-bottom:1px solid #bfbfbf;}
+		.left_m A:link { font-weight: bold;text-decoration: none;color:#595959; }
+		.left_m A:visited { font-weight: bold; text-decoration: none;color:#595959; }
+		.left_m A:hover { font-weight: bold;text-decoration: none;color:#ffa201; }
+		
+	.left_msub{ font-weight:normal; color:#595959;border-bottom:1px solid #ffffff;}
+		.left_msub A:link { font-weight: normal;text-decoration: none;color:#595959; }
+		.left_msub A:visited { font-weight: normal; text-decoration: none;color:#595959; }
+		.left_msub A:hover { font-weight: normal;text-decoration: none;color:#ff9001; }
+
+Body Table
+	.body_tbl { text-align:left; vertical-align:top; padding-left:20px; padding-bottom:80px;}
+	
+	.loctn {
+	background-image:url(../images/dot_3xb2.gif);
+	background-position:0px 25px;
+	background-repeat:repeat-x;
+	text-align:right;
+	vertical-align:middle;
+	height:26px;
+	width:100%;
+	color:#8d8d8d;
+	font-size:11px;
+	padding-top:3px;
+	}
+	
+	.title{margin-left:10px; margin-top:20px; margin-bottom:16px;}
+	
+	.tbl {
+	border-collapse: collapse;
+	border-bottom:0px; border-top:2px solid #52003f;
+	margin-left:5px; 
+	}
+	
+	.tblNew {
+	border-collapse: collapse;
+	border-bottom:0px;
+	margin-left:10px; 
+	}
+	
+	.th {
+ 	border-color:#BDBDBD;
+	border-top:none;border-left:none;  
+ 	background-color:#caebf9;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:bold;
+ 	empty-cells: show ;
+ 	color:#595959;
+ 	text-align:center;
+ 	nowrap;
+ 	padding-left:4px;padding-right:4px;padding-top:4px; padding-bottom:2px;
+ 	} */
+ 	
+	.th_gray {
+ 	border-color:#BDBDBD;
+	border-top:none;border-left:none;  
+ 	background-color:#f2f2f2;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:bold;
+ 	empty-cells: show ;
+ 	color:#595959;
+ 	text-align:center;
+ 	nowrap;
+ 	padding-left:4px;padding-right:4px;padding-top:4px; padding-bottom:2px;
+ 	}
+ 	
+ /* 	.th_yel {
+ 	border-color:#BDBDBD;
+	border-top:none;border-left:none;  
+ 	background-color:#F7F3DE;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:bold;
+ 	empty-cells: show ;
+ 	color:#595959;
+ 	text-align:center;
+ 	nowrap;
+ 	padding-left:4px;padding-right:4px;padding-top:4px; padding-bottom:2px;
+ 	}
+ 	
+ 	�Է� ���̺� TD Style bg-color #f2f2f2
+ 	table
+ 	.tbl_1 {
+	border-collapse: collapse;
+	border-bottom:0px; border-top:1px solid #52003f;
+	margin-left:0px; 
+	}
+	
+	.tbl_2 {
+	border-color:#BDBDBD;
+	border-collapse: collapse;
+	margin-left:0px; 
+	margin-top:0px;
+	}
+	
+	td �Է� �κ�
+ 	.td_all {
+  	background-color:#F0F0F0;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:normal;
+ 	empty-cells: show ;
+ 	color:black;
+ 	text-align:left;
+ 	nowrap;
+ 	padding-top:4px; padding-bottom:2px;
+ 	}
+ 	
+ 	td ���� �κ�
+ 	.td_all_01 {
+  	background-color:#E6E6FA;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:normal;
+ 	empty-cells: show ;
+ 	color:#595959;
+ 	text-align:left;
+ 	nowrap;
+ 	}
+ 	
+ 	td ���� �κ� 2
+ 	.td_all_02 {
+  	background-color:#E6E6FA;
+	font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ;
+ 	font-size: 12px;
+ 	line-height: 110%;
+ 	font-style: normal;
+ 	font-weight:normal;
+ 	empty-cells: show ;
+ 	color:#595959;
+ 	text-align:left;
+ 	nowrap;
+ 	padding-top:4px; padding-bottom:2px;
+ 	}
+ 	
+	.td {
+ 	border-color:#BDBDBD; 
+	background-color:#ecf8fd;
+	border-top:none;border-left:none;
+ 	padding-left:4px;padding-right:4px;padding-top:2px; padding-bottom:3px;
+ 	vertical-align:middle;
+	color:#595959;
+ 	font-size: 12px;
+ 	nowrap;
+ 	}
+
+	.td_readonly {
+	background-color:#DCDCDC;
+	color:#595959;
+ 	font-size: 12px;
+ 	nowrap;
+ 	}
+ 	
+	.c_td {
+	text-align:left;
+	border-color:#BDBDBD; 
+	border-top:none;border-left:none;
+ 	padding-left:2px;padding-right:2px;padding-top:2px; padding-bottom:2px;
+	vertical-align:middle;
+	color:#595959;
+	font-size: 12px;
+	nowrap;
+	}
+	
+	.i_td {
+	text-align:center;
+	border-color:#BDBDBD; 
+	border-top:none;border-left:none;
+	vertical-align:middle;
+	color:#595959;
+	font-size: 12px;
+	nowrap;
+	}
+	
+	.page {
+	font-family:  Arial, Geneva, Helvetica, sans-serif, Dotum, DotumChe  ;
+	font-style: normal;
+	line-height: 130%;
+	font-weight: bold;
+	color:#333333;
+	font-size:11px;
+	text-align:center;
+	margin-top:10px; margin-bottom:25px;
+	width:100%;
+	}
+		.page A:link { font-weight: normal;font-size:11px;text-decoration: none;color:#333333; }
+		.page A:visited { font-weight: normal;font-size:11px; text-decoration: none;color:#333333; }
+		.page A:hover { font-weight: normal;font-size:11px;text-decoration: none;color:#ff7301; }
+
+	.btn_tbl { margin-left:10px; background-image:url(../images/bottom_btn_embobgc.gif); background-repeat:repeat-x; }
+
+Input Box
+input {
+        font-family:����;
+        font-size:9pt;
+        background-color:#FFFFFF;
+        color:#333333;
+        border-top:#558DD8 1px solid;
+        border-bottom: #558DD8 1px solid; 
+        border-left: #558DD8 1px solid; 
+        border-right: #558DD8 1px solid;
+	    height:14pt;
+        cursor:text;
+  		}
+ select Box
+select {
+        font-family:����;
+        font-size:9pt;
+        background-color:#FFFFFF;
+        color:#333333;
+        border-top:#558DD8 1px solid;
+        border-bottom: #558DD8 1px solid; 
+        border-left: #558DD8 1px solid; 
+        border-right: #558DD8 1px solid;
+	    height:14pt;
+        cursor:text;
+  		}			
+Bottom Table
+	.copyright {
+	margin-top:2px; 
+	border-top:1px solid #dadada; border-bottom:1px solid #dadada; 
+	background-color:#f5f5f5; 
+	height:35px;
+	}
+
+#scrollbox_x6 {width:100%; height:340; overflow:auto; padding:0px;}
+#scrollbox_x7 {width:460; height:400; overflow:auto; padding:0px;}
+
+Default Link
+
+    A:link    {font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ; font-size: 12px; color: #595959; font-weight:normal; line-height: 130%; text-decoration: none;}
+	A:active  {font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ; font-size: 12px; color: #595959; font-weight:normal; line-height: 130%; text-decoration: none;}
+    A:hover   {font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ; font-size: 12px; color: #31a8e0; font-weight:normal; line-height: 130%; text-decoration: none;}
+	A:visited {font-family: Dotum, Dotumche, Gulim, Gulimche, Arial, Helvetica, geneva, sans-serif ; font-size: 12px; color: #595959; font-weight:normal; line-height: 130%; text-decoration: none;}
+
+ */

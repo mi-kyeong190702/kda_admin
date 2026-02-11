@@ -1,0 +1,1104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="memberDues">
+	
+
+<!-- * 3.5.0
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.28
+	 * 작  업 : getDuesUmsSeq 문자발송 seq맥스값 얻기
+	 * 얘는 맥스값 없이 그냥 진행한다.
+	 * -->
+
+<!-- * 3.5.1
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.28
+	 * 작  업 : getDuesUmsForCnt	문자발송 개수
+	 * -->
+<select id="getDuesUmsForCnt" resultClass="java.util.HashMap">
+<!-- select COUNT( sout.code_pers ) ncount -->
+select COUNT( * ) ncount
+  from (
+<!-- 		select distinct A.code_pers  -->
+		select distinct A.pers_name , a.sec_pers_hp  
+         from Person_M_TBL_damo a
+             ,dues_h_tbl b left join dues_b_tbl c
+                             on b.code_pers  = c.code_pers
+		  	                and b.dues_gubun = c.dues_gubun
+		  	                and b.dues_h_seq = c.dues_h_seq
+		  	                and b.incom_flag not in  ('D')
+		  	                and c.dues_b_seq = ( select max(dues_b_seq)
+		  	                                       from dues_b_tbl
+		  	                                      where b.code_pers = code_pers
+		  	                                        and b.dues_gubun = dues_gubun
+		  	                                        and b.dues_h_seq = dues_h_seq)
+        where a.code_pers = b.code_pers
+          and ISNULL(a.pers_name, '') != ''
+	      and ISNULL(a.sec_pers_hp, '') != ''
+<!-- 		  and LEN(a.pers_hp) > 9 -->
+		  and LEN(a.sec_pers_hp) > 40
+
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	 and a.mem_gubun = 1
+
+		) sout
+</select>
+
+<!-- * 3.5.2
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.28
+	 * 작  업 : getDuesUmsList 문자발송리스트 조회
+	 * -->
+<select id="getDuesUmsList" resultClass="java.util.HashMap">
+
+select ROW_NUMBER()OVER(ORDER BY pers_hp ) ncount
+     , rtrim(damo.dbo.dec_varchar_pe('kda_ver3','dbo.Person_M_TBL','pers_hp',pers_hp)) pers_hp
+     , pers_name
+  from (
+		select
+		       distinct isnull(a.sec_pers_hp   , '') pers_hp
+		       ,isnull(a.pers_name   , '') pers_name
+         from Person_M_TBL_damo a
+             ,dues_h_tbl b left join dues_b_tbl c
+                             on b.code_pers  = c.code_pers
+		  	                and b.dues_gubun = c.dues_gubun
+		  	                and b.dues_h_seq = c.dues_h_seq
+		  	                and b.incom_flag not in  ('D')
+		  	                and c.dues_b_seq = ( select max(dues_b_seq)
+		  	                                       from dues_b_tbl
+		  	                                      where b.code_pers = code_pers
+		  	                                        and b.dues_gubun = dues_gubun
+		  	                                        and b.dues_h_seq = dues_h_seq)
+        where a.code_pers = b.code_pers
+          and ISNULL(a.pers_name, '') != ''
+	      and ISNULL(a.sec_pers_hp, '') != ''
+<!-- 		  and LEN(a.pers_hp) > 9 -->
+		  and LEN(a.sec_pers_hp) > 40
+
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pers"		>  a.code_pers=#code_pers#  	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+		   
+   		) sout
+</select>
+
+<!-- * 3.5.3
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.28
+	 * 작  업 : setDuesUmsList	문자발송리스트 저장
+	 * -->
+
+<insert id="setDuesUmsList" >
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						 REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , GETDATE()
+				        , #dest_phone#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#	
+				        , #etc1#
+				        , #etc2#
+				        , #etc3#				        							      
+					   )	
+</insert>
+
+
+<!-- * 3.5.3_2
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.12.04
+	 * 작  업 : setDuesUmsResultList	문자예약발송리스트 저장
+	 * -->
+
+<insert id="setDuesUmsResultList" >
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						 REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , #request_time#
+				        , #dest_phone#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#	
+				        , #etc1#
+				        , #etc2#	
+				        , #etc3#			        							      
+					   )	
+</insert>
+
+		
+<!-- * 3.2.1
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.12.26
+	 * 작  업 : getMembershipCnt	회원증 발급을 위한 카운터
+	 * -->
+<select id="getMembershipCnt" resultClass="java.util.HashMap">
+
+select COUNT( sout.ncount ) ncount
+  from(select ROW_NUMBER()OVER(ORDER BY A.pers_name ) ncount
+            , a.code_pers
+            , a.pers_name
+         from Person_M_TBL a
+             ,dues_h_tbl b left join dues_b_tbl c
+                             on b.code_pers  = c.code_pers
+		  	                and b.dues_gubun = c.dues_gubun
+		  	                and b.dues_h_seq = c.dues_h_seq
+		  	                and b.incom_flag not in  ('D')
+		  	                and c.dues_b_seq = ( select max(dues_b_seq)
+		  	                                       from dues_b_tbl
+		  	                                      where b.code_pers = code_pers
+		  	                                        and b.dues_gubun = dues_gubun
+		  	                                        and b.dues_h_seq = dues_h_seq)
+        where a.code_pers = b.code_pers
+          and ISNULL(a.pers_name, '') != ''
+
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"		> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+
+       ) sout
+
+</select>
+	
+<!-- * 3.2.2
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.23
+	 * 작  업 : getMembershipList	회원증 출력용 조회
+	 *
+	 * 조  회 : 회원증 출력 - 아이디
+	 * 기  타 : 회원증 출력 - http://www.dietitian.or.kr/doc_form/docu_print.asp?doc_code=  뒤에 code_pers 를 붙여서 보내는데 (,로)
+	 *                        한번에 보내는게 750 여건 밖에 안된다.
+	 *                        전체 조회 후 500 건씩 잘라서 붙여 보내는 걸로 처리한다.
+	 * -->
+<select id="getMembershipList" resultClass="java.util.HashMap">
+select ROW_NUMBER()OVER(ORDER BY ltrim(pers_name) ) ncount
+     , code_pers+convert(varchar,dues_gubun)+convert(varchar, dues_h_seq) code_MS
+     , code_pers
+     , dues_gubun
+     , dues_h_seq
+     , pers_name
+     
+  from(
+		select ROW_NUMBER()OVER(ORDER BY ltrim(A.pers_name) ) ncount
+             , isnull(a.code_pers  , '') code_pers
+             , ISNULL(a.pers_name  , '') pers_name
+             , ISNULL(b.dues_gubun , '') dues_gubun
+             , ISNULL(b.dues_h_seq , '') dues_h_seq
+             
+         from Person_M_TBL a
+            , dues_h_tbl b left join dues_b_tbl c
+                             on b.code_pers  = c.code_pers
+                            and b.dues_gubun = c.dues_gubun
+                            and b.dues_h_seq = c.dues_h_seq
+		  	                and b.incom_flag not in  ('D')
+                            and c.dues_b_seq = ( select max(dues_b_seq)
+                                                   from dues_b_tbl
+                                                  where b.code_pers  = code_pers
+                                                    and b.dues_gubun = dues_gubun
+                                                    and b.dues_h_seq = dues_h_seq)
+        where a.code_pers = b.code_pers
+          and ISNULL(a.pers_name, '') != ''
+
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 		</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+
+       ) sout
+ where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+
+</select>
+
+
+
+
+
+<!-- * 3.3.0
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 :  getDuesDmForSeq	DM리스트 목표 dm_print_yymm_seq맥스값 얻기
+	 * -->
+<select id="getDuesDmForSeq" resultClass="java.util.HashMap">
+ SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1') dm_print_yymm_seq 
+	from dm_list 
+   where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+     and code_book_kind = #code_book_kind#
+</select>
+
+
+<!-- * 3.3.1
+	 * 작업명 : Home>회원>조건검색
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getDuesDMForCnt	DM리스트 저장할 개수 조회
+	 * -->
+<select id="getDuesDMForCnt" resultClass="java.util.HashMap">
+select COUNT( sout.ncount ) ncount
+  from (
+		select ROW_NUMBER()OVER(ORDER BY A.code_pers ) ncount
+		  from Person_M_TBL a 
+	             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+	                                  from pers_company c          
+	                                 where c.primary_flag = '1' 
+	                                   and c.comp_seq = (select MAX(comp_seq) 
+	                                                       from pers_company   
+	                                                      where primary_flag = '1'
+	                                                        and code_pers = c.code_pers)
+	                                 ) d     
+                                      on a.code_pers = d.code_pers        
+		  	  ,dues_h_tbl b left join dues_b_tbl c on b.code_pers = c.code_pers
+		  	                                      and b.dues_gubun = c.dues_gubun
+		  	                                      and b.dues_h_seq = c.dues_h_seq
+		  	                                      and b.incom_flag not in  ('D')
+		  	                                      and c.dues_b_seq = ( select max(dues_b_seq)
+		  	                                                            from dues_b_tbl
+		  	                                                            where b.code_pers = code_pers
+		  	                                      						  and b.dues_gubun = dues_gubun
+		  	                                      						  and b.dues_h_seq = dues_h_seq  
+		  	                                                            )
+		 where a.code_pers = b.code_pers
+		   and ISNULL(a.pers_name, '') != ''
+		   and ISNULL(a.code_pers, '') != ''
+		   and ISNULL((select case when code_place = '1' then a.code_post
+                                   when code_place = '2' then d.code_post
+                                   else '' end  ), '')!=''
+           and ISNULL((select case when code_place = '1' then a.pers_add
+                                   when code_place = '2' then d.company_add
+                                   else '' end p ), '')!=''
+
+	<dynamic prepend="and">	<isNotEmpty property="code_pers"		> isnull(a.code_pers, '') = #code_pers#	</isNotEmpty></dynamic>
+	
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+
+		) sout
+</select>
+
+ 
+<!-- * 3.3.2
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : getDuesDMForList	DM리스트 저장할 목표물 조회
+	 * -->
+<select id="getDuesDMForList" resultClass="java.util.HashMap">
+select ROW_NUMBER()OVER(ORDER BY pers_name ) ncount
+
+     , code_pers
+     , pers_name
+     , code_member
+     , lic_no
+     , case when code_place = '1' then pers_post
+            when code_place = '2' then company_post
+            else '' end code_post
+     , case when code_place = '1' then ISNULL(pers_add, '')
+            when code_place = '2' then ISNULL(company_add, '')
+            else '' end pers_add
+     , pers_hp
+     , case when code_email_comp = '' then ''
+            when code_email_comp = '01' then email
+            else rtrim(email) + '@' + q.detcodename end email
+            
+     , code_bran
+     , r.detcodename print_call
+     , code_place
+     
+     , case when code_place = '1' then '1'
+            when code_place = '2' then '1'
+            else '0' end rece_yn
+     , oper_comp_name1
+  from (
+		select
+		       ROW_NUMBER()OVER(ORDER BY A.pers_name ) ncount
+			 , isnull(a.code_pers   , '') code_pers
+			 , isnull(a.code_member , '') code_member
+			 , isnull(a.pers_name   , '') pers_name
+			 , isnull(a.lic_no      , '') lic_no
+			 , ISNULL(a.code_post   , '') pers_post
+			 , ISNULL(d.code_post   , '') company_post
+			 , isnull(a.pers_add    , '')+' '+isnull(pers_add_detail,'') pers_add
+			 , isnull(d.company_add , '')+' '+isnull(d.company_add_detail,'') company_add
+			 , isnull(a.pers_hp     , '') pers_hp
+			 , isnull(a.code_email_comp,'') code_email_comp
+			 , isnull(a.email       , '') email
+			 , isnull(a.code_bran   , '') code_bran
+			 , isnull(a.code_call   , '') code_call
+			 , isnull(a.code_place  , '') code_place
+
+             , isnull(d.company_name,'') oper_comp_name1
+		  from Person_M_TBL a 
+	             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+	                                  from pers_company c          
+	                                 where c.primary_flag = '1' 
+	                                   and c.comp_seq = (select MAX(comp_seq) 
+	                                                       from pers_company   
+	                                                      where primary_flag = '1'
+	                                                        and code_pers = c.code_pers)
+	                                 ) d     
+                                      on a.code_pers = d.code_pers        
+		  	  ,dues_h_tbl b left join dues_b_tbl c on b.code_pers = c.code_pers
+		  	                                      and b.dues_gubun = c.dues_gubun
+		  	                                      and b.dues_h_seq = c.dues_h_seq
+		  	                                      and b.incom_flag not in  ('D')
+		  	                                      and c.dues_b_seq = ( select max(dues_b_seq)
+		  	                                                            from dues_b_tbl
+		  	                                                            where b.code_pers = code_pers
+		  	                                      						  and b.dues_gubun = dues_gubun
+		  	                                      						  and b.dues_h_seq = dues_h_seq  
+		  	                                                            )
+		 where a.code_pers = b.code_pers
+		   and ISNULL(a.pers_name, '') != ''
+		   and ISNULL(a.code_pers, '') != ''
+		   and ISNULL((select case when code_place = '1' then a.code_post
+                                   when code_place = '2' then d.code_post
+                                   else '' end  ), '')!=''
+           and ISNULL((select case when code_place = '1' then a.pers_add
+                                   when code_place = '2' then d.company_add
+                                   else '' end p ), '')!=''
+		
+	<dynamic prepend="and">	<isNotEmpty property="code_pers"		> isnull(a.code_pers, '') = #code_pers#	</isNotEmpty></dynamic>
+	
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.pres_let_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.pres_let_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 		</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+
+   		) sout
+      left join com_code q on q.groupcode = '025' and q.detcode = sout.code_email_comp
+      left join com_code r on r.groupcode = '018' and r.detcode = code_call
+</select>
+
+<!-- * 3.3.3
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 : setDuesDMList		DM 발송 저장
+	 * -->
+<insert id="setDuesDMList" >
+ insert into dm_list 
+(      code_book_kind
+      ,dm_pers_code
+      ,dm_print_yymm
+      ,dm_print_yymm_seq
+      ,code_member
+      ,pers_name
+      ,lic_no
+      ,code_post
+      ,pers_add
+      ,pers_hp
+      ,email
+      ,code_bran
+      ,print_call
+      ,code_place
+      ,rece_yn
+      ,dm_name
+      ,dm_creater
+     , company_name)
+ values
+ (     #code_book_kind#
+      ,#dm_pers_code#
+      ,substring( CONVERT(varchar, getdate(),112), 3,4)
+ 	 , #dm_print_yymm_seq#
+      ,#code_member#
+      ,#pers_name#
+      ,#lic_no#
+      ,#code_post#
+      ,#pers_add#
+      ,#pers_hp#
+      ,#email#
+      ,#code_bran#
+      ,#print_call#
+      ,#code_place#
+      ,'2'
+      ,#dm_name#
+      ,#dm_creater#
+     , #oper_comp_name1#
+ )
+</insert>
+
+
+
+
+
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.9.26
+	 * 작   업 : getMemberDuesPtabelCount	회원 (연회비 분배대상) 페이징 카운터
+	 -->
+<select id="getMemberDuesPtabelCount" resultClass="java.util.HashMap">
+select COUNT( code_pers ) ncount
+  from (
+		select
+		    distinct  isnull(a.code_pers, '') code_pers
+			 , isnull(a.pers_name, '') pers_name
+			 , isnull(a.code_member, '') code_member	 
+			 , isnull(d.detcodename,'') han_code_member
+			 , isnull(a.code_bran, '')	code_bran			 
+			 , isnull(e.detcodename,'') han_code_bran
+			 , isnull(b.dues_gubun, '') dues_gubun		 
+			 , isnull(f.detcodename,'') han_dues_gubun
+			 , isnull(b.mem_dues, '') mem_dues
+			 , isnull(b.auth_start, '') auth_start
+			 , isnull(k.pers_mem_order, '') auth_end
+			 , isnull(k.auth_flag, '') incom_flag
+			 , isnull(b.regi_dt, '') conform_yn
+			 , isnull(a.code_sub, '') code_sub				 
+			 , isnull(g.sub_name,'') han_code_sub
+			 , isnull(b.dues_h_seq, '') dues_h_seq
+			 , isnull(b.regi_dt, '') regi_dt
+			 , isnull(a.sec_email, 0) email
+			 , isnull(a.code_email_comp, '') code_email_comp
+			 , isnull(a.sec_pers_hp, '') pers_hp
+			 , isnull(c.code_receipt, '') code_receipt
+		  from Person_M_TBL_damo a 
+  	            left join com_code e on  e.groupcode = '007' and e.detcode = a.code_bran
+  	            left join sub_tbl g on  g.code_sub = a.code_sub
+		  	  ,dues_h_tbl b 
+		  	        left join com_code d on d.groupcode = '006' and d.detcode = b.code_member
+		  	        left join com_code f on f.groupcode = '038' and f.detcode = b.dues_gubun
+		  	  ,dues_b_tbl c 
+		  	  ,dues_P k		  	                                       
+		 where a.code_pers = b.code_pers
+          and b.code_pers = c.code_pers
+          and b.dues_gubun = c.dues_gubun
+          and b.dues_h_seq = c.dues_h_seq
+          and b.incom_flag not in  ('D')
+          and a.code_pers = k.code_pers
+          and b.dues_gubun = k.dues_gubun
+          and k.dues_gubun = '2'
+          and c.dues_h_seq = ( select max(dues_h_seq)
+                                from dues_h_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+                                )
+          and c.dues_b_seq = ( select max(dues_b_seq)
+                                from dues_b_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+          						  and b.dues_h_seq = dues_h_seq  
+                                )
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         k.auth_flag	= #conform_y#	
+	         <isNotEmpty property="regi_dt"	> and k.receipt_year = #regi_dt#	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         k.auth_flag	= #conform_n#	
+	         <isNotEmpty property="regi_dt"	> and k.receipt_year = #regi_dt#	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+		) sout
+</select>
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.9.26
+	 * 작   업 : getMemberDuesPtabelList	회원 (연회비 분배대상) 리그트 조회
+	 -->
+<select id="getMemberDuesPtabelList" resultClass="java.util.HashMap">
+select  ROW_NUMBER()OVER(ORDER BY ltrim(pers_name), code_pers ) ncount
+       , code_pers
+       ,  pers_name
+       , code_member		, han_code_member
+       , code_bran			, han_code_bran
+       , dues_gubun		, han_dues_gubun
+       , mem_dues
+       , auth_start
+       , auth_end
+       , conform_yn
+       , incom_flag
+       , code_sub			, han_code_sub
+       , dues_h_seq
+       , regi_dt
+     , case when code_email_comp = '' then Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')
+            when code_email_comp = '01' then Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')
+            else rtrim(Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')) + '@' + q.detcodename end email
+	, rtrim(damo.dbo.dec_varchar_pe('kda_ver3','dbo.Person_M_TBL','pers_hp',pers_hp)) pers_hp
+	,r.detcodename code_receipt
+	
+     , code_pers+convert(varchar,dues_gubun)+convert(varchar, dues_h_seq) code_MS
+     , pers_add + ' ' + Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','pers_add_detail',adrs), '') adrs
+     , company_name
+     , cadrs
+     , bigname
+     , sectname
+     , lic_no
+  from (
+		select
+		     ROW_NUMBER()OVER(ORDER BY ltrim(pers_name), qq.code_pers ) ncount, *
+		  from ( 
+		select
+		    distinct  isnull(a.code_pers, '') code_pers
+			 , isnull(a.pers_name, '') pers_name
+			 , isnull(a.code_member, '') code_member	 
+			 , isnull(d.detcodename,'') han_code_member
+			 , isnull(a.code_bran, '')	code_bran			 
+			 , isnull(e.detcodename,'') han_code_bran
+			 , isnull(b.dues_gubun, '') dues_gubun		 
+			 , isnull(f.detcodename,'') han_dues_gubun
+			 , isnull(b.mem_dues, '') mem_dues
+			 , isnull(b.auth_start, '') auth_start
+			 , convert(varchar,isnull(k.receipt_year,'')) + convert(varchar,isnull(k.pers_mem_order, '')) auth_end
+			 , 'Y' incom_flag
+			 , case when isnull(k.auth_flag, '') = 'N' then '' else 'Y' end  conform_yn
+			 , isnull(a.code_sub, '') code_sub				 
+			 , isnull(g.sub_name,'') han_code_sub
+			 , isnull(b.dues_h_seq, '') dues_h_seq
+			 , isnull(b.regi_dt, '') regi_dt
+			 , isnull(a.sec_email, 0) email
+			 , isnull(a.code_email_comp, '') code_email_comp
+			 , isnull(a.sec_pers_hp, '') pers_hp
+			 , isnull(c.code_receipt, '') code_receipt
+			 , ISNULL(a.pers_add, '') pers_add
+			 , ISNULL(a.sec_pers_add_detail, 0) adrs
+			 , ISNULL(x.company_name,'') company_name
+			 , ISNULL(x.company_add,'')+ISNULL(x.company_add_detail,'') cadrs
+			 , ISNULL(y.detcodename,'') bigname
+			 , ISNULL(z.detcodename,'') sectname 
+			 , ISNULL(a.lic_no,'') lic_no
+		  from Person_M_TBL_damo a 
+  	            left join com_code e on  e.groupcode = '007' and e.detcode = a.code_bran
+  	            left join com_code y on y.groupcode='004' and y.detcode=a.code_big
+  	            left join com_code z on z.groupcode='009' and z.detcode=a.code_sect
+  	            left join sub_tbl g on  g.code_sub = a.code_sub
+  	            left join pers_company x on x.code_pers=a.code_pers and x.primary_flag=1
+		  	  ,dues_h_tbl b 
+		  	        left join com_code d on d.groupcode = '006' and d.detcode = b.code_member
+		  	        left join com_code f on f.groupcode = '038' and f.detcode = b.dues_gubun
+		  	  ,dues_b_tbl c 
+		  	  ,dues_P k		  	                                       
+		 where a.code_pers = b.code_pers
+          and b.code_pers = c.code_pers
+          and b.dues_gubun = c.dues_gubun
+          and b.dues_h_seq = c.dues_h_seq
+          and b.incom_flag not in  ('D')
+          and a.code_pers = k.code_pers
+          and b.dues_gubun = k.dues_gubun
+          and k.dues_gubun = '2'
+          and c.dues_h_seq = ( select max(dues_h_seq)
+                                from dues_h_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+                                )
+          and c.dues_b_seq = ( select max(dues_b_seq)
+                                from dues_b_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+          						  and b.dues_h_seq = dues_h_seq  
+                                ) 
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         k.auth_flag	= #conform_y#	
+	         <isNotEmpty property="regi_dt"	> and k.receipt_year = #regi_dt#	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         k.auth_flag	= #conform_n#	
+	         <isNotEmpty property="regi_dt"	> and k.receipt_year = #regi_dt#	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+		)qq ) sout
+      left join com_code q on q.groupcode = '025' and q.detcode = sout.code_email_comp
+      left join com_code r on r.groupcode = '013' and r.detcode = sout.code_receipt
+where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+</select>
+	
+	
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.9.26
+	 * 작   업 : getMemberDuesCount	회원 회비처리 페이징 카운터
+	 -->
+<select id="getMemberDuesCount" resultClass="java.util.HashMap">
+select COUNT( code_pers ) ncount
+  from (
+		select
+		    distinct  isnull(a.code_pers, '') code_pers
+			 , isnull(a.pers_name, '') pers_name
+			 , isnull(b.code_member, '') code_member	 
+			 , isnull(d.detcodename,'') han_code_member
+			 , isnull(a.code_bran, '')	code_bran			 
+			 , isnull(e.detcodename,'') han_code_bran
+			 , isnull(b.dues_gubun, '') dues_gubun		 
+			 , isnull(f.detcodename,'') han_dues_gubun
+			 , isnull(b.mem_dues, '') mem_dues
+			 , isnull(b.auth_start, '') auth_start
+			 , isnull(b.auth_end, '') auth_end
+			 , isnull(b.incom_flag, '') incom_flag
+			 , isnull(b.regi_dt, '') conform_yn
+			 , isnull(a.code_sub, '') code_sub				 
+			 , isnull(g.sub_name,'') han_code_sub
+			 , isnull(b.dues_h_seq, '') dues_h_seq
+			 , isnull(b.regi_dt, '') regi_dt
+			 , isnull(a.sec_email, 0) email
+			 , isnull(a.code_email_comp, '') code_email_comp
+			 , isnull(a.sec_pers_hp, '') pers_hp
+			 , isnull(c.code_receipt, '') code_receipt
+		  from Person_M_TBL_damo a 
+  	            left join com_code e on  e.groupcode = '007' and e.detcode = a.code_bran
+  	            left join sub_tbl g on  g.code_sub = a.code_sub
+		  	  ,dues_h_tbl b 
+		  	        left join com_code d on d.groupcode = '006' and d.detcode = b.code_member
+		  	        left join com_code f on f.groupcode = '038' and f.detcode = b.dues_gubun
+		  	  ,dues_b_tbl c 		  	                                       
+		 where a.code_pers = b.code_pers
+          and b.code_pers = c.code_pers
+          and b.dues_gubun = c.dues_gubun
+          and b.dues_h_seq = c.dues_h_seq
+          and b.incom_flag not in  ('D')
+   /*       and c.dues_h_seq = ( select max(dues_h_seq)
+                                from dues_h_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+                                )
+          and c.dues_b_seq = ( select max(dues_b_seq)
+                                from dues_b_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+          						  and b.dues_h_seq = dues_h_seq  
+                                )  */
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.conform_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.conform_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt  = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 		</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+		) sout
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.9.26
+	 * 작   업 : getMemberDuesList		회원 회비처리 리스트 조회
+	 -->
+<select id="getMemberDuesList" resultClass="java.util.HashMap">
+select  ROW_NUMBER()OVER(ORDER BY ltrim(pers_name), code_pers ) ncount
+       , code_pers
+       ,  pers_name
+       , code_member		, han_code_member
+       , code_bran			, han_code_bran
+       , dues_gubun		, han_dues_gubun
+       , mem_dues
+       , auth_start
+       , auth_end
+       , conform_yn
+       , incom_flag
+       , code_sub			, han_code_sub
+       , dues_h_seq
+       , regi_dt
+     
+     , case when code_email_comp = '' then Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')
+            when code_email_comp = '01' then Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')
+            else rtrim(Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','email',email), '')) + '@' + q.detcodename end email
+	, rtrim(damo.dbo.dec_varchar_pe('kda_ver3','dbo.Person_M_TBL','pers_hp',pers_hp)) pers_hp
+	,r.detcodename code_receipt
+	
+     , code_pers+convert(varchar,dues_gubun)+convert(varchar, dues_h_seq) code_MS
+     , pers_add + ' ' + Isnull(damo.dbo.dec_varchar('kda_ver3','dbo.Person_M_TBL','pers_add_detail',adrs), '') adrs
+     , company_name
+     , cadrs
+     , bigname
+     , sectname
+     , lic_no
+  from (
+		select
+		     ROW_NUMBER()OVER(ORDER BY ltrim(pers_name), qq.code_pers ) ncount, *
+		  from ( select distinct 
+		      isnull(a.code_pers, '') code_pers
+			 , isnull(a.pers_name, '') pers_name
+			 , isnull(b.code_member, '') code_member	 
+			 , isnull(d.detcodename,'') han_code_member
+			 , isnull(a.code_bran, '')	code_bran			 
+			 , isnull(e.detcodename,'') han_code_bran
+			 , isnull(b.dues_gubun, '') dues_gubun		 
+			 , isnull(f.detcodename,'') han_dues_gubun
+			 , CAST(isnull(b.mem_dues, '') AS INT) mem_dues
+			 , isnull(b.auth_start, '') auth_start
+			 , isnull(b.auth_end, '') auth_end
+			 , isnull(b.incom_flag, '') incom_flag
+			 , isnull(b.regi_dt, '') conform_yn
+			 , isnull(a.code_sub, '') code_sub				 
+			 , isnull(g.sub_name,'') han_code_sub
+			 , isnull(b.dues_h_seq, '') dues_h_seq
+			 , isnull(b.regi_dt, '') regi_dt
+			 , isnull(a.sec_email, 0) email
+			 , isnull(a.code_email_comp, '') code_email_comp
+			 , isnull(a.sec_pers_hp, '') pers_hp
+			 , isnull(c.code_receipt, '') code_receipt
+			 , ISNULL(a.pers_add, '') pers_add
+			 , ISNULL(a.sec_pers_add_detail, 0) adrs
+			 , ISNULL(x.company_name,'') company_name
+			 , ISNULL(x.company_add,'')+ISNULL(x.company_add_detail,'') cadrs
+			 , ISNULL(y.detcodename,'') bigname
+			 , ISNULL(z.detcodename,'') sectname 
+			 , ISNULL(a.lic_no,'') lic_no
+		  from Person_M_TBL_damo a 
+  	            left join com_code e on  e.groupcode = '007' and e.detcode = a.code_bran
+  	            left join com_code y on y.groupcode='004' and y.detcode=a.code_big
+  	            left join com_code z on z.groupcode='009' and z.detcode=a.code_sect
+  	            left join sub_tbl g on  g.code_sub = a.code_sub
+  	            left join pers_company x on x.code_pers=a.code_pers and x.primary_flag=1
+		  	  ,dues_h_tbl b 
+		  	        left join com_code d on d.groupcode = '006' and d.detcode = b.code_member
+		  	        left join com_code f on f.groupcode = '038' and f.detcode = b.dues_gubun
+		  	  ,dues_b_tbl c 		  	                                       
+		 where a.code_pers = b.code_pers
+          and b.code_pers = c.code_pers
+          and b.dues_gubun = c.dues_gubun
+          and b.dues_h_seq = c.dues_h_seq
+          and b.incom_flag not in  ('D')
+    /*      and c.dues_h_seq = ( select max(dues_h_seq)
+                                from dues_h_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+                                )
+          and c.dues_b_seq = ( select max(dues_b_seq)
+                                from dues_b_tbl
+                                where b.code_pers = code_pers
+          						  and b.dues_gubun = dues_gubun
+          						  and b.dues_h_seq = dues_h_seq  
+                                )  */
+	<dynamic prepend="and">	<isNotEmpty property="regi_dt_batch"	> isnull(b.regi_dt, '') = ''			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="dues_gubun"		> b.dues_gubun	= #dues_gubun#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_member"		> b.code_member	= #code_member#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="incom_flag"		> b.incom_flag	= #incom_flag#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_bran"		> a.code_bran	= #code_bran#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_sub"			> a.code_sub	= #code_sub#			</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_y"		> 
+	         isnull(b.regi_dt,'')<![CDATA[!=]]> ''	
+	         <isNotEmpty property="regi_dt"	> and b.regi_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="conform_n"		> 
+	         isnull(b.regi_dt,'') = ''	and isnull(c.conform_dt,'') <![CDATA[!=]]> ''			
+	         <isNotEmpty property="regi_dt"	> and c.conform_dt like #regi_dt#+'%'	</isNotEmpty>
+	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_receipt"		> c.code_receipt = #code_receipt#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pay_flag"	> c.code_pay_flag = #code_pay_flag#		</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="cfyn"		>  c.conform_yn=#cfyn#  and b.incom_flag='N' 	</isNotEmpty></dynamic>
+	<dynamic prepend="and">	<isNotEmpty property="code_pers">
+		<iterate property="code_pers" open="(" conjunction=" or " close=")">
+			(a.code_pers = #code_pers[].[0]# and b.dues_gubun = #code_pers[].[1]# and b.dues_h_seq = #code_pers[].[2]#)
+		</iterate>		
+	</isNotEmpty></dynamic>
+	and a.mem_gubun = 1
+		)qq ) sout
+      left join com_code q on q.groupcode = '025' and q.detcode = sout.code_email_comp
+      left join com_code r on r.groupcode = '013' and r.detcode = sout.code_receipt
+where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.04
+	 *           getDuesList				년회비, 일반회비 조회
+	 -->
+<select id="getDuesList" resultClass="java.util.HashMap">
+select yyyymm
+       , dues_gubun
+       , code_member
+       , code_bran
+       , bran_dues
+       , bran_dues1
+       , head_dues
+       , head_dues2
+       , use_yn
+  from
+	(
+	SELECT yyyymm
+		  ,dues_gubun		, isnull((select detcodename from com_code where groupcode = '038' and detcode = dues_gubun),'') han_dues_gubun
+		  ,code_member	, isnull((select detcodename from com_code where groupcode = '006' and detcode = code_member),'') han_code_member
+		  ,code_bran		, isnull((select detcodename from com_code where groupcode = '007' and detcode = code_bran),'') han_code_bran
+		  ,bran_dues      ,bran_dues1      ,head_dues , head_dues2     ,use_yn
+	  FROM dues
+	 where use_yn = 'Y'
+	   and yyyymm <![CDATA[<=]]>  SUBSTRING(CONVERT(varchar, getdate(),112),1,6)
+	   and dues_gubun= #dues_gubun#
+	   and code_member= #code_member#
+	   and code_bran= #code_bran#
+	) sout
+	 where 1=1
+       and yyyymm = (select MAX(yyyymm)
+                       from dues
+                      where 1=1
+						   and yyyymm <![CDATA[<=]]> SUBSTRING(CONVERT(varchar, getdate(),112),1,6)
+						   and dues_gubun= #dues_gubun#
+						   and code_member= #code_member#
+						   and code_bran= #code_bran#
+				)
+ 
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.04
+	 * 작   업 : getSubDuesList			산업체회비 조회
+	 -->
+<select id="getSubDuesList" resultClass="java.util.HashMap">
+select yyyymm
+       , dues_gubun
+       , code_bran
+       , code_sub
+       , sub_dues
+       , use_yn
+  from
+	(
+	SELECT yyyymm
+		  ,dues_gubun		, isnull((select detcodename from com_code where groupcode = '038' and detcode = dues_gubun),'') han_dues_gubun
+		  ,code_bran		, isnull((select detcodename from com_code where groupcode = '007' and detcode = code_bran),'') han_code_bran
+	      ,code_sub			, isnull((select sub_name    from sub_tbl  where code_sub=a.code_sub                       ),'') han_code_sub
+          ,sub_dues      ,use_yn
+  FROM sub_dues a
+ where use_yn = 'Y'
+   and yyyymm <![CDATA[<=]]> SUBSTRING(CONVERT(varchar, getdate(),112),1,6)
+   and dues_gubun= #dues_gubun#
+   and code_bran= #code_bran#
+	) sout
+ where 1=1
+    and yyyymm = (
+                 select MAX(yyyymm)
+                   from sub_dues
+                  where use_yn = 'Y'
+                    and yyyymm <![CDATA[<=]]>  SUBSTRING(CONVERT(varchar, getdate(),112),1,6)
+                    and dues_gubun= #dues_gubun#
+                    and code_bran= #code_bran#
+                 )
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.08
+	 * 작   업 : setDues_P	평생회비 예수금 저장
+	 -->
+<insert id="setDues_P" >
+insert into dues_P
+(      code_pers
+      ,dues_gubun
+      ,dues_h_seq
+      ,pers_mem_order
+      ,code_bran
+      ,center_money
+      ,bran_money
+      ,sub_dues
+      ,receipt_year
+      ,receipt_dt
+      ,auth_flag
+      ,regi_date
+      ,register
+)
+      values
+      (
+       #code_pers#
+      ,#dues_gubun#
+      ,#dues_h_seq#
+      ,#pers_mem_order#
+      ,#code_bran#
+      ,#center_money#
+      ,#bran_money#
+      ,#sub_dues#
+      ,#receipt_year#
+      ,#receipt_dt#
+      ,#auth_flag#
+      ,getdate()
+      ,#register#
+      )
+</insert>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.09
+	 * 작   업 : setDues_h_tbl	회비 저장후 회원별회비의 등록일을 처리한다. (미확을 확인으로 바꾼다.)
+	 -->
+<update id="setDues_h_tbl">
+update dues_h_tbl 
+     set regi_dt = CONVERT(varchar, getdate(),112)
+ where code_pers = #code_pers#
+    and dues_gubun = #dues_gubun#
+    and dues_h_seq = #dues_h_seq#
+</update>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.09
+	 * 작   업 : getDues_p	평생회비 예수금 수정을 위한 조회 (1차 이후 1년 지난것)
+	 -->
+<select id="getDues_p" resultClass="java.util.HashMap">
+select a.code_pers
+       , a.dues_gubun
+       , a.dues_h_seq
+       , a.pers_mem_order
+       , a.code_bran
+       , a.center_money
+       , a.bran_money
+       , a.sub_dues
+       , a.receipt_year
+       , a.receipt_dt
+       , a.auth_flag
+       , a.regi_date
+       , a.register
+       , b.code_bran bran2
+  from dues_p a, person_M_Tbl b
+ where a.code_pers = b.code_pers
+   and auth_flag = 'N'
+   and receipt_year = #receipt_year#
+   and dues_gubun = '2'
+   and pers_mem_order > 1
+   and b.mem_gubun = 1   
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.09
+	 * 작   업 : updateDues_p	평생회비 예수금 수정  (1차 이후 1년 지난것)
+	 -->
+<update id="updateDues_p">
+update dues_p
+     set receipt_dt = #receipt_dt#
+        , auth_flag = 'Y'
+        , regi_date = getdate()
+        , code_bran = #code_bran#
+ where auth_flag = 'N'
+    and receipt_year = #receipt_year#
+    and code_pers = #code_pers#
+    and dues_gubun = #dues_gubun#
+    and dues_h_seq = #dues_h_seq#
+    and pers_mem_order = #pers_mem_order#
+</update>
+
+</sqlMap>
+

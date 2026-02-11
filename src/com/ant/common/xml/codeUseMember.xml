@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="member">
+
+ <!-- 통계 관리 > 회원 현황 > 운영형태별 현황 > 운영 형태별 + 숫자 통계 + 회원구분(전체, 회원) -->
+    <select id="codeUseMember" resultClass="java.util.HashMap">
+					select GUBUN, SUM(col1) VAR1, SUM(col2) VAR2, SUM(col3) VAR3, SUM(col4) VAR4, 
+			       			SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4) SUM
+					from(
+						select GUBUN, 
+					       case when code_use = '1' then sum(pers_count) end col1,
+					       case when code_use = '2' then sum(pers_count) end col2,
+					       case when code_use = '3' then sum(pers_count) end col3,
+					       case when code_use = '4' then sum(pers_count) end col4
+			  			from (
+							 select 'A' GUBUN, a.code_use, b.detcodename, count(code_use) pers_count
+							    from pers_company a left join com_code b on b.groupcode = '001' and a.code_use = b.detcode,
+							         Person_M_TBL c     
+								where isnull(a.trust_name,'') != ''
+								<dynamic prepend="and">
+							  		 	<isNotEmpty property="enddate">
+							  		 		pers_in_dt <![CDATA[<=]]> #enddate#
+							  		 	</isNotEmpty>
+							  		</dynamic>
+							  		<dynamic prepend="and">
+							  		 	<isNotEmpty property="startdate">
+							  		 		(isnull(pers_out_dt,'') = '' or (pers_out_dt <![CDATA[>=]]> #startdate#))
+							  		 	</isNotEmpty>
+						  		 	</dynamic>
+								      and ISNULL(b.detcodename,'') != ''
+								      and a.code_pers = c.code_pers
+								      and c.mem_gubun = 1
+								   group by a.code_use, b.detcodename
+			        union all
+						     select 'B' GUBUN, a.code_use, b.detcodename, count(code_use) pers_count
+						    	from pers_company a left join com_code b on b.groupcode = '001' and a.code_use = b.detcode,
+						        	 Person_M_TBL c
+						  		where isnull(a.trust_name,'') != ''
+							    <dynamic prepend="and">
+							  		 	<isNotEmpty property="enddate">
+							  		 		pers_in_dt <![CDATA[<=]]> #enddate#
+							  		 	</isNotEmpty>
+							  		</dynamic>
+							  		<dynamic prepend="and">
+							  		 	<isNotEmpty property="startdate">
+							  		 		(isnull(pers_out_dt,'') = '' or (pers_out_dt <![CDATA[>=]]> #startdate#))
+							  		 	</isNotEmpty>
+						  		 	</dynamic>
+							     and ISNULL(b.detcodename,'') != ''
+							     and a.code_pers = c.code_pers
+							     and c.code_member not in ('','0')
+							     and c.mem_gubun = 1
+						 	  group by a.code_use, b.detcodename
+						       ) aa
+						  group by GUBUN, code_use
+						  ) bb
+					group by GUBUN
+			
+						     
+	</select> 
+</sqlMap>    

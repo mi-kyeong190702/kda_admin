@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans>  
+	
+	<!-- Action Mapping Definitions -->
+  	<action-mappings>
+  	
+  	    <!-- Diet DB연결 테스트 -->
+		<action path="/diet" type="com.ant.diet.action.DietAction" parameter="method" scope="request">
+			<forward name="dietlist" path=".layout_dietlist"/>
+		</action>
+			
+    </action-mappings>	
+
+</struts-config>

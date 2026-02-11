@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="memberInsert">
+	
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.16
+	 * 작   업 : getChkLicNo	라이센스 중복 검사
+	 -->
+<select id="getChkLicNo" resultClass="java.util.HashMap">
+select count(lic_no) count
+  from Person_M_TBL
+ where lic_no = #lic_no# and mem_gubun = 1
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.16
+	 * 작   업 : getMemberCodePers	회원번호 얻기
+	 -->
+<select id="getMemberCodePers" resultClass="java.util.HashMap">
+select isnull(max(code_pers)+1, CONVERT(VARCHAR(4), YEAR(GETDATE()))+'00001') as code_pers
+  from Person_M_TBL
+ where SUBSTRING(regi_dt, 1, 4) = CONVERT(VARCHAR(4), YEAR(GETDATE()))
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.15
+	 * 작   업 : getMemberCodePers	아이디테이블 등록
+	 -->
+<insert id="setMemberInsertIdTbl" >
+ insert into id_tbl
+ ( code_pers , id , passwd , point , use_yn , up_date 
+ )
+ values
+ ( #code_pers#
+ , #id#
+ , PWDENCRYPT(#passwd#)
+ , 0
+ , 'N'
+ , GETDATE()
+ )
+</insert>
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.15
+	 * 작   업 : setMemberInsertBasic	회원 기본정보 등록
+	 -->
+<insert id="setMemberInsertBasic" >
+insert into Person_M_TBL
+( code_pers
+, code_member
+, pers_name
+<!-- [JUMIN_DEL] 아래 pers_no 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- , pers_no  -->
+, lic_no
+, lic_print_dt
+, code_add_gubun
+, code_post
+, pers_add
+, pers_add_detail
+, pers_tel
+, pers_hp
+, email
+, code_email_comp
+, code_sex
+, code_religion
+, code_marry
+, code_bran
+, code_big
+, code_sect
+, code_scholar
+, code_univer
+, code_school
+, code_call
+, code_place
+, pers_career
+, certifi_view
+, code_sub
+, regi_dt
+, Up_date
+, kda_level
+, recommender
+, recm_division
+, recm_hp
+, pers_state
+, register
+, agree_dt
+, pers_birth
+, mem_gubun
+)values
+( #code_pers#
+, #code_member#
+, #pers_name#
+<!-- [JUMIN_DEL] 아래 0 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- ,0 -->
+, #lic_no#
+, #lic_print_dt#
+, #code_add_gubun#
+, #code_post#
+, #pers_add#
+, #pers_add_detail#
+, #pers_tel#
+, #pers_hp#
+, #email#
+, #code_email_comp#
+, #code_sex#
+, #code_religion#
+, #code_marry#
+, #code_bran#
+, #code_big#
+, #code_sect#
+, #code_scholar#
+, #code_univer#
+, #code_school#
+, #code_call#
+, #code_place#
+, #pers_career#
+, #certifi_view#
+, #code_sub#
+, CONVERT(varchar, GETDATE() ,112)
+, GETDATE()
+, #kda_level#
+, #recommender#
+, #recm_division#
+, #recm_hp#
+, #pers_state#
+, #register#
+, #agree_dt#
+, #pers_birth#
+, 1
+)
+</insert>
+
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.25
+	 * 작   업 : setPerson_M_history	회원히스톨정보 등록
+	 -->
+<insert id="setPerson_M_history" >
+insert into Person_M_history
+( code_pers
+, code_member
+, pers_name
+<!-- [JUMIN_DEL] 아래 pers_no 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- , pers_no -->
+, lic_no
+, lic_print_dt
+, code_add_gubun
+, code_post
+, pers_add
+, pers_add_detail
+, pers_tel
+, pers_hp
+, email
+, code_email_comp
+, code_sex
+, code_religion
+, code_marry
+, code_bran
+, code_big
+, code_sect
+, code_scholar
+, code_univer
+, code_school
+, code_call
+, code_place
+, pers_career
+, certifi_view
+, code_sub
+, regi_dt
+, Up_date
+, kda_level
+, recommender
+, recm_division
+, recm_hp
+, pers_state
+, register
+, up_dt
+, up_dt_seq
+, pers_birth
+, mem_gubun
+)values
+( #code_pers#
+, #code_member#
+, #pers_name#
+<!-- [JUMIN_DEL] 아래 0 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- ,0 -->
+, #lic_no#
+, #lic_print_dt#
+, #code_add_gubun#
+, #code_post#
+, #pers_add#
+, #pers_add_detail#
+, #pers_tel#
+, #pers_hp#
+, #email#
+, #code_email_comp#
+, #code_sex#
+, #code_religion#
+, #code_marry#
+, #code_bran#
+, #code_big#
+, #code_sect#
+, #code_scholar#
+, #code_univer#
+, #code_school#
+, #code_call#
+, #code_place#
+, #pers_career#
+, #certifi_view#
+, #code_sub#
+, CONVERT(varchar, GETDATE() ,112)
+, GETDATE()
+, #kda_level#
+, #recommender#
+, #recm_division#
+, #recm_hp#
+, #pers_state#
+, #register#
+, CONVERT(varchar, GETDATE() ,112)
+, '1'
+, #pers_birth#
+, 1
+)
+</insert>
+
+
+	<!-- 
+	 * 작업명 : Home>회원>회원등록
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.10.15
+	 * 작   업 : setMemberInsertCom	회원 근무처정보 등록
+	 -->
+<insert id="setMemberInsertCom" >
+insert into pers_company
+( code_pers
+, comp_seq
+, company_name
+, code_post
+, company_add
+, company_add_detail
+, company_tel
+, company_fax
+, code_part
+, code_great
+, code_small
+, pers_in_dt
+, pers_out_dt
+, code_use
+, job_dept
+, job_level_code
+, job_line_code
+, lic_pay
+, year_pay
+, company_sick_bad
+, company_meal
+, join_con
+, join_cook
+, primary_flag
+, pers_multy
+, company_count_mom
+, company_count_lunch
+, company_count_dinner
+, company_count_midnig
+, trust_code
+, trust_name
+, trust_addr
+, trust_tel
+, secu_no
+, regi_date
+, register )
+values
+( #code_pers#
+, #comp_seq#
+, #company_name#
+, #code_post#
+, #company_add#
+, #company_add_detail#
+, #company_tel#
+, #company_fax#
+, #code_part#
+, #code_great#
+, #code_small#
+, #pers_in_dt#
+, #pers_out_dt#
+, #code_use#
+, #job_dept#
+, #job_level_code#
+, #job_line_code#
+, #lic_pay#
+, #year_pay#
+, #company_sick_bad#
+, #company_meal#
+, #join_con#
+, #join_cook#
+, #primary_flag#
+, #pers_multy#
+, #company_count_mom#
+, #company_count_lunch#
+, #company_count_dinner#
+, #company_count_midnig#
+, #trust_code#
+, #trust_name#
+, #trust_addr#
+, #trust_tel#
+, #secu_no#
+, GETDATE()
+, #register#
+)
+</insert>
+
+<select id="getIdCnt" resultClass="java.util.HashMap">
+SELECT COUNT(*) cnt
+  FROM id_tbl 
+ WHERE use_yn='Y' 
+   AND id=#id#
+</select>
+</sqlMap>
+

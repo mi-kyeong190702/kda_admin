@@ -1,0 +1,36 @@
+table td{border:0;font-family:'돋움',dotum;font-size:12px}
+caption{display:none}
+img{border:0;}
+input label img{vertical-align:middle;}
+ol, ul, li {list-style : none ;}
+
+/*home*/
+.home{float:right;widht:300px;margin-top:20px;}
+.home li{float:left;padding-left:3px;}
+.home li a:hover{color:blue;}
+.NPage{color:blue;}
+
+
+/*문서발송대장*/
+.dTabmenu_01{float:left;clear:both;}
+
+.dtable_01{width:1100px;padding:0;margin:0;padding-top:10px;}
+.dtable_01 td{border-right:1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background:#fff;color:#4f6b72;;padding:6px;}
+.dtable_01 td.nobg{border-top:1px solid #C1DAD7;border-left: 1px solid #C1DAD7;background:#F5FAFA;width:20%;}
+.dtable_01 td.nobg1{border-top:1px solid #C1DAD7;} 
+.dtable_01 td.nobg2{border-right:none;width:40%;}
+.dtable_01 td.alt{border-left: 1px solid #C1DAD7;background:#F5FAFA;}
+
+.dtable_02{width:1100px;padding:0;margin:0;padding-top:20px;text-align:center;}
+.dtable_02 td{border-right:1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background:#fff;color:#4f6b72;;padding:6px;}
+.dtable_02 td.nobg{border-top:1px solid #C1DAD7;border-left: 1px solid #C1DAD7;background:#F5FAFA;}
+.dtable_02 td.nobg1{border-top:1px solid #C1DAD7;background:#F5FAFA;}
+.dtable_02 td.alt1{border-left: 1px solid #C1DAD7;background:#Fff;}
+
+.btnIcon_1{position:relative;top:0px;left:983px;padding-top:10px;}
+.btnIcon_1 li{float:left;padding-left:5px;}
+
+
+p.btnSave{float:right;clear:both;padding-top:10px;}
+
+

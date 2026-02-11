@@ -1,0 +1,597 @@
+<!DOCTYPE tiles-definitions PUBLIC
+     "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+     "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions>
+
+
+  <!-- ========== LAYOUTS ========== -->
+	<definition name=".layout_main"    	 path= "/jsp/layout/main_layout.jsp">
+ 	<put      name="title"               value="대한영양사협회"/>
+    <put      name="top"             	 value="/jsp/layout/top.jsp"/>
+    <put      name="left"           	 value=""/>
+    <put      name="main"            	 value=""/>
+    <put      name="footer"         	 value="/jsp/layout/copytight.jsp"/>
+  </definition> 
+  
+  <!-- Base Layout -->
+   <definition name=".layout_main1"    	 path= "/jsp/layout/main_layout.jsp">
+ 	<put      name="title"               value="대한영양사협회"/>
+    <put      name="top"             	 value="/jsp/layout/top.jsp"/>
+    <put      name="left"           	 value="/jsp/layout/left_member_05_05.jsp"/>
+    <put      name="main"            	 value=""/>
+    <put      name="footer"         	 value="/jsp/layout/copytight.jsp"/>
+  </definition>
+
+  <definition name=".test"	             extends=".layout_main">
+    <put      name="left"           	 value="/jsp/layout/left_member_05_05.jsp"/>
+  </definition>  
+  
+  <!-- member Depth.2 main 운형형태 -->
+  <definition name=".layout_codeUseMember"	            extends=".layout_main">
+  	 <put       name="left"                value="/jsp/layout/left_memberState.jsp"/>
+  	 <put       name="main"        		   value="/jsp/codeUseMember/codeUseMemberList.jsp" />
+  </definition>
+  <!-- document Depth.2 leftMenu 추가 -->
+  <definition name=".layout_documentForm"	            extends=".layout_main">
+ 	 <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+  </definition>
+  
+  <!-- document(발송) Depth.2 main -->
+  <definition name=".layout_documentSearchList"	        extends=".layout_main">
+   	 <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentsend.jsp" />
+  </definition>
+  
+  <!-- document(발송) Depth.2 insert_ok 추가 --> 
+  <definition name=".layout_documentinsert_ok"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentsend.jsp" />
+  </definition>
+  
+  <!-- document(접수) Depth.2 main -->
+  <definition name=".layout_documentaccpSearchList"	     extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentaccp.jsp" />
+  </definition>
+  
+  <!-- document(접수) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_documentaccpinsert_ok"	     extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentaccp.jsp" />
+  </definition>
+  
+  <!-- document(내부결재) Depth.2 main -->
+  <definition name=".layout_documentinsideSearchList"	 extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentinside.jsp" />
+  </definition>  
+  
+  <!-- document(내부결재) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_documentinsideinsert_ok"	 extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/documentinside.jsp" />
+  </definition>
+  
+   <!-- document(증서발급현황) Depth.2 main -->
+  <definition name=".layout_documentreportList"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/docprintreport.jsp" />
+  </definition>  
+  
+  <!-- document(DM 기타 발송자) Depth.2 main -->
+  <definition name=".layout_dmsendList"	   extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/dmsend.jsp" />
+  </definition>  
+  
+  <!-- document(DM 기타 발송자) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_dmsendinsert_ok"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/dmsend.jsp" />
+  </definition>
+  
+   <!-- document(DM 방송대장) Depth.2 main -->
+  <definition name=".layout_dmsendreportList"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftdocument.jsp"/>
+     <put       name="main"        		   value="/jsp/document/dmsendreport.jsp" />
+  </definition>  
+  
+  <!-- conference(회의실) Depth.2 leftMenu 추가 -->
+  <definition name=".layout_conferenceForm"	            extends=".layout_main">
+ 	 <put       name="left"                value="/jsp/layout/leftconference.jsp"/>
+  </definition>
+  
+  <!-- conference(회의실 일자별) Depth.2 main -->
+  <definition name=".layout_conferenceList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftconference.jsp"/>
+     <put       name="main"        		   value="/jsp/conference/conference.jsp" />
+  </definition>  
+  
+  <!-- conference(회의실 일자별 등록) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_conferenceinsert_ok"	     extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftconference.jsp"/>
+     <put       name="main"        		   value="/jsp/conference/conference.jsp" />
+  </definition>
+  
+  <!-- conference(회의실 회의실별) Depth.2 main -->
+  <definition name=".layout_conferencemeetList"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftconference.jsp"/>
+     <put       name="main"        		   value="/jsp/conference/conferencemeet.jsp" />
+  </definition>  
+  
+  <!-- conference(회의실 회의실별 등록) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_conferencemeetinsert_ok"	extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftconference.jsp"/>
+     <put       name="main"        		   value="/jsp/conference/conferencemeet.jsp" />
+  </definition>
+  
+  <!--<definition name=".layout_main1"	     extends=".layout_main">
+    <put      name="left"           	 value="/jsp/layout/left_member_05_05.jsp"/>
+    <put      name="main"        	     value="/memberState.do?method=data"/>
+  </definition>-->
+
+  <!-- setupdue(회비 환경설정) Depth.2 leftMenu 추가 -->
+  <definition name=".layout_setupduesForm"	            extends=".layout_main">
+ 	 <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+  </definition>
+  
+  <!-- setupdue(회비 환경설정) Depth.2 main -->
+  <definition name=".layout_setupduesList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupdues.jsp" />
+  </definition>  
+  
+  <!-- setupdue(회비 환경설정) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupduesinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupdues.jsp" />
+  </definition>
+  
+  <!-- setupsubdues(예수금 환경설정) Depth.2 main -->
+  <definition name=".layout_setupsubduesList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupsubdues.jsp" />
+  </definition>  
+  
+  <!-- setupsubdues(예수금 환경설정) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupsubduesinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupsubdues.jsp" />
+  </definition> 
+  
+  <!-- comcode(공통코드 환경설정) Depth.2 main -->
+  <definition name=".layout_setupcomcodeList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/comcode.jsp" />
+  </definition> 
+  
+  <!-- comcode(공통코드 환경설정) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupcomcodeinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/comcode.jsp" />
+  </definition>  
+  
+   <!-- setupedu(교육 및 시험명 환경설정) Depth.2 main -->
+  <definition name=".layout_setupeduList"	                extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupedu.jsp" />
+  </definition> 
+  
+  <!-- setupedu(교육 및 시험명 환경설정) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupeduinsert_ok"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupedu.jsp" />
+  </definition>  
+  
+  <!-- setupcertifi(자격증 종류) Depth.2 main -->
+  <definition name=".layout_setupcertifiList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupcertifi.jsp" />
+  </definition> 
+  
+  <!-- setupcertifi(자격증 종류) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupcertifiinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupcertifi.jsp" />
+  </definition>  
+  
+   <!-- setupsub(산하단체명) Depth.2 main -->
+  <definition name=".layout_setupsubList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupsub.jsp" />
+  </definition> 
+  
+  <!-- setupsub(산하단체명) Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupsubinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupsub.jsp" />
+  </definition>  
+  
+  <!-- setupuser(사용자등록) Depth.2 main -->
+  <definition name=".layout_setupuserList"	            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupuser.jsp" />
+  </definition> 
+  
+  <!-- setupuser(사용자등록)  Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupuserinsert_ok"	        extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupuser.jsp" />
+  </definition>  
+
+  <!-- setupbooks(기관지 등록) Depth.2 main -->
+  <definition name=".layout_setupbooksList"             extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupbooks.jsp" />
+  </definition> 
+  
+  <!-- setupbooks(기관지 등록)  Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setupbooksinsert_ok"	    extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setupbooks.jsp" />
+  </definition> 
+  
+   <!-- setuptarget(목표 인원) Depth.2 main -->
+  <definition name=".layout_setuptargetList"            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setuptarget.jsp" />
+  </definition> 
+  
+  <!-- setuptarget(목표 인원)  Depth2 insert_ok 추가 --> 
+  <definition name=".layout_setuptargetinsert_ok"	    extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftsetup.jsp"/>
+     <put       name="main"        		   value="/jsp/setup/setuptarget.jsp" />
+  </definition> 
+  
+  <!-- actul(영양사 실태신고) Depth.2 left Form -->
+  <definition name=".layout_actulForm"	                extends=".layout_main">
+ 	 <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+  </definition>
+  
+   <!-- actul(영양사 실태신고) Depth.2 main -->
+  <definition name=".layout_actulsearchList"            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actulmana.jsp" />
+  </definition> 
+  
+   <!-- actul(영양사 실태현황) Depth.2 main -->
+  <definition name=".layout_actulformList"              extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actullist.jsp" />
+  </definition> 
+  
+   <!-- actul(영양사 신고현황) Depth.2 main -->
+  <definition name=".layout_actulmanageList"              extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actulmanageList.jsp" />
+  </definition>
+  
+   <!-- actul(영양사 신고현황) Depth.2 main -->
+  <definition name=".layout_actulstatusList"              extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actulstatusList.jsp" />
+  </definition>
+   
+   <!-- actul(영양사 보수교육 미대상자) Depth.3 main -->
+  <definition name=".layout_actulrecipientList"              extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actulrecipientList.jsp" />
+  </definition> 
+  
+   <!-- actul(영양사 면허정보 등록자) Depth.4 main -->
+  <definition name=".layout_actullicenseList"              extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/actullicenseList.jsp" />
+  </definition> 
+  
+  <!-- actul(영양사 실태신고) Depth.2 main -->
+  <definition name=".layout_edusearchList"            extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftactul2.jsp"/>
+     <put       name="main"        		   value="/jsp/actul/edumana.jsp" />
+  </definition> 
+   
+   
+<!-- 회원 메뉴 및 화면 연결 Begin : 김성훈 *********************************************************************** -->
+	<!-- 김성훈 2012.09.17 : Home>회원(depth.2)  left 메뉴 출력						-->
+	<definition name=".layout_member"		extends=".layout_main">
+    <put        name="left"           	 	value="/jsp/layout/left_member.jsp"/>
+    <put        name="main"           	 	value="/jsp/member/search/memberSearchList.jsp"/>
+    </definition>
+    
+	<!-- 김성훈 2012.10.10  : Home>회원(Depth.1)>회원 등록(Depth.2)				-->
+	<definition name=".layout_memberInsert"  extends=".layout_member"	>	<put name="main"	value="/jsp/member/insert/memberInsertList.jsp"/>	</definition>
+	<!-- 김성훈 2012.09.17 : Home>회원(Depth.1)>조건 검색(Depth.2)				-->
+	<definition name=".layout_memberSearch"  extends=".layout_member">	<put name="main"	value="/jsp/member/search/memberSearchList.jsp"/>	</definition>
+	<!-- 김성훈 2012.09.26 : Home>회원(Depth.1)>회비 처리(Depth.2)				-->
+	<definition name=".layout_memberDues"  extends=".layout_member"	>	<put name="main"	value="/jsp/member/dues/memberDuesList.jsp"/>			</definition>
+	<!-- 김성훈 2012.   .    : Home>회원(Depth.1)>예수금 현황 메뉴(Depth.2)		-->
+	<definition name=".layout_memberDeposit"  extends=".layout_member">	<put name="main"	value="/jsp/member/deposit/memberDepositList.jsp"/>	</definition>
+	<!-- 김성훈 2012.   .    : Home>회원(Depth.1)>기부/기금 현황 메뉴(Depth.2)	-->
+	<definition name=".layout_memberFund"  extends=".layout_member"	>	<put name="main"	value="/jsp/member/fund/memberFundList.jsp"/>	</definition>
+   	
+    <!--
+	 * 작업명 : Home>회원>현황>Depth.3
+	 * -->
+	 <!--  ...  -->
+	 <!-- 김성훈 2012.09.10 : 메뉴. 2 근무처 분류별 현황조회 화면 -->
+    <definition name=".layout_companyState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/companyStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.15 : 현황 - 지부별회원 분과별  -->
+    <definition name=".layout_bigState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/bigStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.15 : 현황 - 지부별회원 소분류별  -->
+    <definition name=".layout_smallState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/smallStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.15 : 현황 - 지부별회원 회원종류별  -->
+    <definition name=".layout_memGubunState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/memGubunStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 위탁업체 업체별  -->
+    <definition name=".layout_trustComState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/trustComStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 직급별 인원수집계 -->
+    <definition name=".layout_jLevelState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/jLevelStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 직렬별 인원수집계 -->
+    <definition name=".layout_jLineState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/jLineStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 자격증 소지별 인원수집계 -->
+    <definition name=".layout_certifiState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/certifiStateList.jsp"/>
+    </definition> 
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 최종학위별 인원수집계 -->
+    <definition name=".layout_univerState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/univerStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 공동조리별 인원수집계 -->
+    <definition name=".layout_cookState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/cookStateList.jsp"/>
+    </definition>
+    <!-- 박상모 2012.10.09 : 현황 - 고용형태별 공동관리별 인원수집계 -->
+    <definition name=".layout_conState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/conStateList.jsp"/>
+    </definition>
+    
+    <!-- 이정기 2012.11.12 : 메뉴. 운영형태별 -->
+    <definition name=".layout_codeUseMember"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/codeUseMemberList.jsp"/>
+    </definition>
+    <!-- 윤석희 2012.11.12 : 메뉴. 위탁업체 개인별 -->
+    <definition name=".layout_subCodePerson"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/subCodePersonList.jsp"/>
+    </definition>
+    
+    
+    <!-- 김성훈 2012.09.13 : 메뉴.12 산하단체 소속별 현황조회 화면 -->
+    <definition name=".layout_subCodeState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/subCodeStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.13 피 급식자별 화면 -->
+    <definition name=".layout_mealState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/mealStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.14 영양사 연봉별 화면 -->
+    <definition name=".layout_yearPayState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/yearPayStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.15 급식 종사자별 화면 -->
+    <definition name=".layout_mealEmployState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/mealEmployStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.16 영양사 면허수당별 화면 -->
+    <definition name=".layout_licPayState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/licPayStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.17 1식 재료비별 화면 -->
+    <definition name=".layout_companyMealState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/companyMealStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.18 겸직별 화면 -->
+    <definition name=".layout_multyState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/multyStateList.jsp"/>
+    </definition>
+	<!-- 김성훈 2012.. : 메뉴.19 급식인원별:급식인원별 화면 -->
+    <definition name=".layout_mealNumberState"  extends=".layout_member">
+    	<put name="main"	value="/jsp/member/state/mealNumberStateList.jsp"/>
+    </definition>
+
+<!-- 회원 메뉴 및 화면 연결 End *********************************************************************** -->  
+  <!-- 윤석희 2012 :메뉴 교육및 시험등록-->
+  	<definition name=".layout_main3"	     extends=".layout_main">
+    <put      name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/EduTestReg.jsp"/>
+    </definition>
+  <!-- 윤석희 2012 :메뉴 교육별 응시현황-->
+	<definition name=".layout_main3.1"	     extends=".layout_main">
+   	<put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/EduTakeStatus.jsp"/>
+  </definition> 
+  <!-- 윤석희 2012 :메뉴 응시결과처리-->
+  	<definition name=".layout_main3.2"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/ExamResult.jsp"/>
+  </definition> 
+  <!-- 윤석희 2012 :메뉴 자율학습등록-->
+   <definition name=".layout_main3.3"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/SelfAccessRegi.jsp"/>
+  </definition>  
+  <!-- 윤석희 2012 :메뉴 자율학습신청자-->
+  <definition name=".layout_main3.4"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/SelfAccessApplicant.jsp"/>
+  </definition>
+   <!-- 윤석희 2012 :메뉴 자율학습결과처리-->
+  <definition name=".layout_main3.5"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/SelfAccessResult.jsp"/>
+  </definition>
+  <!-- 윤석희 2012 :메뉴 자율학습결과처리-->
+  <definition name=".layout_main3.6"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/SelfAccessResult.jsp"/>
+  </definition>
+  <!-- 윤석희 2012 :메뉴 강사관리등록-->
+   <definition name=".layout_lectureList"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/LecturerRegi.jsp"/>
+  </definition>  
+  <!-- 윤석희 2012 :메뉴 강사관리검색-->
+  <definition name=".layout_main3.8"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/LecturerSearch.jsp"/>
+  </definition>  
+  <!-- 윤석희 2012 :메뉴 강사관리출강정보-->
+  <definition name=".layout_main3.9"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/LectureInfo.jsp"/>
+  </definition> 
+  <!-- 윤석희 2012 :메뉴 문항관리등록-->
+  <definition name=".layout_main3.10"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/QuestionRegi.jsp"/>
+  </definition>     
+  <!-- 윤석희 2012 :메뉴 문항관리수정-->
+  <definition name=".layout_main3.11"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/QuestionSearch.jsp"/>
+  </definition>  
+  
+    
+  <!-- 윤석희 2012 :메뉴 자격증심사-->
+ <definition name=".layout_main4.2"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseInspection.jsp"/>
+  </definition> 
+          
+  
+   <!-- 윤석희 2012 :메뉴 협력업체 개인별 현황--> 
+   
+   <definition name=".layout_main4.5"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/trustCompany/trustCom_pers.jsp"/>
+  </definition>
+  
+  <!-- education search 추가 --> 
+  <definition name=".layout_educationSearchList"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+     <put       name="main"        		   value="/jsp/education/EduTakeStatus.jsp" />
+  </definition>
+  
+  <!-- education insert 추가 --> 
+  <definition name=".layout_educationinsert_ok"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+     <put       name="main"        		   value="/jsp/education/EduTakeStatus.jsp" />
+  </definition>
+  
+  <!-- edutest search 추가 --> 
+  <definition name=".layout_edutestSerchList"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+     <put       name="main"        		   value="/jsp/education/EduTestReg.jsp" />
+	 
+  </definition>
+  
+  <!-- edutest save 추가 --> 
+  <definition name=".layout_edutestinsert_ok"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+     <put       name="main"        		   value="/jsp/education/EduTestReg.jsp" />
+  </definition>
+  
+ <!-- 윤석희 2012 :메뉴 응시결과처리-->
+  	<definition name=".layout_main3.2"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+    <put      name="main"        		 value="/jsp/education/ExamResult.jsp"/>
+  </definition>
+  
+   <!-- eduresult save 추가 --> 
+  <definition name=".layout_examresultSave"	         extends=".layout_main">
+     <put       name="left"                value="/jsp/layout/leftedu.jsp"/>
+     <put       name="main"        		   value="/jsp/education/ExamResult.jsp" />
+  </definition> 
+  
+    
+  <!-- 교육및 자격증 화면 연결 End *********************************************************************** -->
+  
+  <!-- 윤석희 2012 :메뉴 시험별응시현황-->
+  	<definition name=".layout_licenseSerchList"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/TestTakeCondition.jsp"/>
+  </definition>
+  <!-- 윤석희 2012 :결과등록-->
+  	<definition name=".layout_resultSendList"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/ResultRegistration.jsp"/>
+  </definition>
+  <!-- 윤석희 2012 :메뉴 자격증결과등록-->
+<!--  
+ 윤석희 2012 :메뉴 자격증시험별응시현황
+  <definition name=".layout_main4"	     extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/TestTakeCondition.jsp"/>
+  </definition>
+-->
+<!-- 자격증 결과등록 저장 -->
+<definition name=".layout_licenseResultSave"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/ResultRegistration.jsp"/>
+  </definition>
+  
+  <!-- 자격증심사 -->
+<definition name=".layout_main4.2"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseInspection.jsp"/>
+  </definition>
+  
+    <!-- 자격증심사 출력리스트-->
+<definition name=".layout_inspectionSandList"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseInspection.jsp"/>
+  </definition>
+    <!-- 자격증심사저장-->
+<definition name=".layout_inspectionSave"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseInspection.jsp"/>
+  </definition>
+  
+  <!-- 윤석희 2012 :메뉴 자격증발급-->
+  <definition name=".layout_issueSand"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseIssue.jsp"/>
+  </definition> 
+  
+   <!-- 윤석희 2012 :메뉴 자격증발급 출력-->
+  <definition name=".layout_issueSandList"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseIssue.jsp"/>
+  </definition>
+    
+	 <!-- 윤석희 2012 :메뉴 자격증 갱신-->
+  <definition name=".layout_renewalSand"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseRenewal.jsp"/>
+  </definition>
+  
+  <!-- 윤석희 2012 :메뉴 자격증 갱신-->
+  <definition name=".layout_renewalSandList"	 extends=".layout_main">
+   <put       name="left"                value="/jsp/layout/leftlicen.jsp"/>
+    <put      name="main"        		 value="/jsp/license/LicenseRenewal.jsp"/>
+  </definition>
+	
+  <!-- Diet DB연결 테스트 -->
+  <definition name=".layout_dietlist" extends=".layout_main">
+     <put name="main" value="/jsp/diet/dietlist.jsp" />
+  </definition>  
+  
+	
+	
+</tiles-definitions>
+
+
+

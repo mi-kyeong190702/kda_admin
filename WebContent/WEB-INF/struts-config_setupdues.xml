@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans>  
+	
+	<global-forwards>		
+		<forward name="ajaxout"                     path="/jsp/common/ajaxout.jsp" />	 	
+	</global-forwards>
+	
+
+	<!-- Action Mapping Definitions -->
+	
+  	<action-mappings>
+  	
+  	    <!-- 환경설정 Depth.2 leftMenu -->
+	    <action path="/setupduesinsert_ok"		    forward=".layout_setupduesinsert_ok"/>
+  		<action path="/setupduesForm"		        forward=".layout_setupduesForm"/>
+		  				
+		<action path="/setupdues"   type="com.ant.setup.action.setupduesAction" parameter="method" scope="request">
+			<forward name="setupduesList"               path=".layout_setupduesList"/>
+			<forward name="insertdues_ok"               path=".layout_setupduesinsert_ok" />
+			<forward name="updatedues_ok"               path=".layout_setupduesinsert_ok" />
+			<forward name="setupsubduesList"            path=".layout_setupsubduesList"/>
+			<forward name="insertsub_ok"                path=".layout_setupsubduesinsert_ok" />
+			<forward name="updatesub_ok"                path=".layout_setupsubduesinsert_ok" />
+			<forward name="comcodeList"                 path=".layout_setupcomcodeList"/>
+			<forward name="insertcomcode_ok"            path=".layout_setupcomcodeinsert_ok" />
+			<forward name="updatecomcode_ok"            path=".layout_setupcomcodeinsert_ok" />
+			<forward name="setupeduList"                path=".layout_setupeduList"/>
+			<forward name="insertedu_ok"                path=".layout_setupeduinsert_ok" />
+			<forward name="updateedu_ok"                path=".layout_setupeduinsert_ok" />
+			<forward name="setupcertifiList"            path=".layout_setupcertifiList"/>
+			<forward name="insertcertifi_ok"            path=".layout_setupcertifiinsert_ok" />
+			<forward name="updatecertifi_ok"            path=".layout_setupcertifiinsert_ok" />
+			<forward name="setupsubList"                path=".layout_setupsubList"/>
+			<forward name="insertsubsub_ok"             path=".layout_setupsubinsert_ok" />
+			<forward name="updatesubsub_ok"             path=".layout_setupsubinsert_ok" />
+			<forward name="setupuserList"               path=".layout_setupuserList"/>
+			<forward name="insertuser_ok"               path=".layout_setupuserinsert_ok" />
+			<forward name="updateuser_ok"               path=".layout_setupuserinsert_ok" />
+			<forward name="updateuser1_ok"              path=".layout_setupuserinsert_ok" />
+			<forward name="setupbooksList"              path=".layout_setupbooksList"/>
+			<forward name="insertbooks_ok"              path=".layout_setupbooksinsert_ok" />
+			<forward name="updatebooks_ok"              path=".layout_setupbooksinsert_ok" />
+			<forward name="setuptargetList"             path=".layout_setuptargetList"/>
+			<forward name="inserttarget_ok"             path=".layout_setuptargetinsert_ok" />
+			<forward name="updatetarget_ok"             path=".layout_setuptargetinsert_ok" />
+		</action>
+			
+    </action-mappings>	
+    
+
+</struts-config>

@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="lecture">
+	 
+	  <!-- 강사 검색  count --> 	
+	 <select id="lecturecnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY lt_code ) no
+				  FROM lecturer_tbl
+				  WHERE isnull (lt_code,'') != ''
+		 				<dynamic prepend="and">
+							<isNotEmpty property="lt_name">
+								lt_name like '%'+#lt_name#+'%'
+							</isNotEmpty>
+						</dynamic>
+<!-- 						JUMIN_DEL						 -->
+<!-- 						<dynamic prepend="and"> -->
+<!-- 							<isNotEmpty property="lt_pers_no"> -->
+<!-- 								[dbo].[GetPersNodecord](lt_pers_no,'1') like #lt_pers_no#+'%' -->
+<!-- 							</isNotEmpty> -->
+<!-- 						</dynamic> -->
+						<dynamic prepend="and">
+							<isNotEmpty property="lt_pers_birth">
+								lt_pers_birth like #lt_pers_birth#+'%'
+							</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+							 	<isNotEmpty property="lt_kind">
+							  		lt_kind = #lt_kind# 
+							  	</isNotEmpty>
+						</dynamic>
+			     ) OUT
+			  WHERE 1=1
+	 </select>
+	 
+	 <!-- 강사 검색 --> 	
+	 <select id="lecture"    resultClass="java.util.HashMap">
+		 SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY lt_code desc) no 
+						,isnull(lt_code,'') lt_code
+						,isnull(lt_name,'') lt_name
+<!-- 						JUMIN_DEL									     	 -->
+<!-- 				     	,case when #check# = '1'  -->
+<!-- 						 		  then [dbo].[GetPersNoDecord](lt_pers_no , '1') -->
+<!-- 				   			  when #check# = '2'  -->
+<!-- 								  then [dbo].[GetPersNoDecord](lt_pers_no , '2')   -->
+<!-- 							  when #check# = '3' -->
+<!-- 					    		  then [dbo].[GetPersNoDecord](lt_pers_no , '3') end lt_pers_no 						  -->
+						,isnull(lt_pers_birth,'') lt_pers_birth
+						,isnull(lt_major,'') lt_major
+						,isnull(lt_image,'') lt_image
+				        ,isnull(lt_post,'') lt_post
+				        ,isnull(lt_add,'') lt_add
+				        ,isnull(lt_hp,'') lt_hp
+				        ,isnull(lt_email,'') lt_email
+				        ,isnull(lt_comp_name,'') lt_comp_name
+				        ,isnull(lt_duty,'') lt_duty
+				        ,isnull(lt_comp_add,'') lt_comp_add 
+			  	        ,isnull(lt_comp_post,'') lt_comp_post
+			  	        ,isnull(lt_comp_tel,'') lt_comp_tel			  	        
+<!-- 			  	        ,  case when lt_kind = '100000000' then '급식'       -->
+<!-- 			  	                when lt_kind = '010000000' then '임상'       -->
+<!-- 			  	                when lt_kind = '001000000' then '산업보건'   -->
+<!-- 			  	                when lt_kind = '000100000' then '학교'     -->
+<!-- 			  	                when lt_kind = '000010000' then '학술대회'  -->
+<!-- 			  	                when lt_kind = '000001000' then '위생교육'  -->
+<!-- 			  	                when lt_kind = '000000100' then '기타'     -->
+<!-- 			  	                when lt_kind = '000000010' then '노인'     -->
+<!-- 			  	                when lt_kind = '000000001' then '스포츠'     -->
+<!-- 			  	                else  ''        end lt_kind	 -->
+		  	              , replace(ltrim(
+		  	                (case when substring(lt_kind,1,1) ='1' then ' 급식' else '' end) +     
+		  	                (case when substring(lt_kind,2,1) ='1' then ' 임상' else '' end) +     
+		  	                (case when substring(lt_kind,3,1) ='1' then ' 산업보건' else '' end) +     
+		  	                (case when substring(lt_kind,4,1) ='1' then ' 학교' else '' end) +     
+		  	                (case when substring(lt_kind,5,1) ='1' then ' 학술대회' else '' end) +     
+		  	                (case when substring(lt_kind,6,1) ='1' then ' 위생교육' else '' end) +     
+		  	                (case when substring(lt_kind,7,1) ='1' then ' 기타' else '' end) +     
+		  	                (case when substring(lt_kind,8,1) ='1' then ' 노인' else '' end) +     
+		  	                (case when substring(lt_kind,9,1) ='1' then ' 스포츠' else '' end)),' ',',') lt_kind     
+	  	                 , case when lt_area = '10000000000000000' then '서울'      
+			  	                when lt_area = '01000000000000000' then '부산'      
+			  	                when lt_area = '00100000000000000' then '인천'  
+			  	                when lt_area = '00010000000000000' then '경기' 
+			  	                when lt_area = '00001000000000000' then '강원' 
+			  	                when lt_area = '00000100000000000' then '충북' 
+			  	                when lt_area = '00000010000000000' then '충남'      
+			  	                when lt_area = '00000001000000000' then '전북'  
+			  	                when lt_area = '00000000100000000' then '광주' 
+			  	                when lt_area = '00000000010000000' then '전남' 
+			  	                when lt_area = '00000000001000000' then '대구'  
+			  	                when lt_area = '00000000000100000' then '대전'      
+			  	                when lt_area = '00000000000010000' then '경북'  
+			  	                when lt_area = '00000000000001000' then '경남' 
+			  	                when lt_area = '00000000000000100' then '울산' 
+			  	                when lt_area = '00000000000000010' then '제주'   
+			  	                when lt_area = '00000000000000001' then '기타'  
+			  	                else  ''        end lt_area				  	       
+			  	        ,isnull(lt_univer1,'') lt_univer1
+			  	        ,isnull(lt_univer2,'') lt_univer2
+			  	        ,isnull(lt_univer3,'') lt_univer3
+			  	        ,isnull(lt_univer4,'') lt_univer4
+			  	        ,isnull(lt_univer5,'') lt_univer5
+			  	        ,isnull(lt_carrier1,'') lt_carrier1
+			  	        ,isnull(lt_carrier2,'') lt_carrier2
+			  	        ,isnull(lt_carrier3,'') lt_carrier3
+			  	        ,isnull(lt_carrier4,'') lt_carrier4
+			  	        ,isnull(lt_carrier5,'') lt_carrier5
+			  	        ,isnull(lt_carrier6,'') lt_carrier6
+			  	        ,isnull(lt_carrier7,'') lt_carrier7
+			  	        ,isnull(lt_carrier8,'') lt_carrier8
+			  	        ,isnull(lt_carrier9,'') lt_carrier9
+			  	        ,isnull(lt_carrier10,'') lt_carrier10
+			  	        ,isnull(lt_remark,'') lt_remark
+			  	        ,isnull(lt_bankname,'') lt_bankname
+			  	        ,isnull(lt_bankaccount,'') lt_bankaccount
+			  	        ,isnull(lt_bankReceiptName,'') lt_bankReceiptName	
+			  	        ,isnull(up_date,'') up_date
+			  	        ,isnull(updater,'') updater		
+			  	        
+      	        		, isnull(lt_major_chk,'') lt_major_chk
+					    , isnull(lt_major2,'') lt_major2
+					    , isnull(lt_major_chk2,'') lt_major_chk2
+					    , isnull(lt_major3,'') lt_major3
+					    , isnull(lt_major_chk3,'') lt_major_chk3
+					    , isnull(lt_major4,'') lt_major4
+					    , isnull(lt_major_chk4,'') lt_major_chk4
+					    , isnull(lt_major5,'') lt_major5
+					    , isnull(lt_major_chk5,'') lt_major_chk5
+					    
+					    ,
+					    REPLACE(REPLACE(
+					    case when isnull(lt_major,'') ='' then '' else '_'+lt_major+'_' end + 
+					    case when isnull(lt_major2,'') ='' then '' else '_'+lt_major2+'_' end + 
+					    case when isnull(lt_major3,'') ='' then '' else '_'+lt_major3+'_' end + 
+					    case when isnull(lt_major4,'') ='' then '' else '_'+lt_major4+'_' end + 
+					    case when isnull(lt_major5,'') ='' then '' else '_'+lt_major5+'_' end,
+					    '__' , ', '), '_' , '') lt_major_all  
+					    
+					    ,
+					    case when isnull(lt_major_chk,'') ='' then '0' else lt_major_chk end + 
+					    case when isnull(lt_major_chk2,'') ='' then '0' else lt_major_chk2 end + 
+					    case when isnull(lt_major_chk3,'') ='' then '0' else lt_major_chk3 end + 
+					    case when isnull(lt_major_chk4,'') ='' then '0' else lt_major_chk4 end + 
+					    case when isnull(lt_major_chk5,'') ='' then '0' else lt_major_chk5 end
+					    lt_major_chk_all  
+				
+						, isnull(lt_univer_year1,'') lt_univer_year1
+						, isnull(lt_univer_mon1,'') lt_univer_mon1
+						, isnull(lt_univer_year2,'') lt_univer_year2
+						, isnull(lt_univer_mon2,'') lt_univer_mon2
+						, isnull(lt_univer_year3,'') lt_univer_year3
+						, isnull(lt_univer_mon3,'') lt_univer_mon3
+						, isnull(lt_univer_year4,'') lt_univer_year4
+						, isnull(lt_univer_mon4,'') lt_univer_mon4
+						, isnull(lt_univer_year5,'') lt_univer_year5
+						, isnull(lt_univer_mon5,'') lt_univer_mon5
+				
+						, isnull(lt_carrier_year1,'') lt_carrier_year1
+						, isnull(lt_carrier_mon1,'') lt_carrier_mon1
+						, isnull(lt_carrier_year2,'') lt_carrier_year2
+						, isnull(lt_carrier_mon2,'') lt_carrier_mon2
+						, isnull(lt_carrier_year3,'') lt_carrier_year3
+						, isnull(lt_carrier_mon3,'') lt_carrier_mon3
+						, isnull(lt_carrier_year4,'') lt_carrier_year4
+						, isnull(lt_carrier_mon4,'') lt_carrier_mon4
+						, isnull(lt_carrier_year5,'') lt_carrier_year5
+						, isnull(lt_carrier_mon5,'') lt_carrier_mon5
+						, isnull(lt_carrier_year6,'') lt_carrier_year6
+						, isnull(lt_carrier_mon6,'') lt_carrier_mon6
+						, isnull(lt_carrier_year7,'') lt_carrier_year7
+						, isnull(lt_carrier_mon7,'') lt_carrier_mon7
+						, isnull(lt_carrier_year8,'') lt_carrier_year8
+						, isnull(lt_carrier_mon8,'') lt_carrier_mon8
+						, isnull(lt_carrier_year9,'') lt_carrier_year9
+						, isnull(lt_carrier_mon9,'') lt_carrier_mon9
+						, isnull(lt_carrier_year10,'') lt_carrier_year10
+						, isnull(lt_carrier_mon10,'') lt_carrier_mon10
+			  	        	  	        	        
+				  FROM lecturer_tbl
+				      WHERE isnull (lt_code,'') != ''
+			 				<dynamic prepend="and">
+								<isNotEmpty property="lt_name">
+									lt_name like '%'+#lt_name#+'%'
+								</isNotEmpty>
+							</dynamic>						
+<!-- 						JUMIN_DEL						 -->
+<!-- 						<dynamic prepend="and"> -->
+<!-- 							<isNotEmpty property="lt_pers_no"> -->
+<!-- 								[dbo].[GetPersNodecord](lt_pers_no,'1') like #lt_pers_no#+'%' -->
+<!-- 							</isNotEmpty> -->
+<!-- 						</dynamic> -->
+						<dynamic prepend="and">
+							<isNotEmpty property="lt_pers_birth">
+								lt_pers_birth like #lt_pers_birth#+'%'
+							</isNotEmpty>
+						</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="lt_kind">
+							  		lt_kind = #lt_kind# 
+							  	</isNotEmpty>
+							</dynamic>							
+							<dynamic prepend="and">
+							 	<isNotEmpty property="lt_code">
+							  		lt_code = #lt_code# 
+							  	</isNotEmpty>
+							</dynamic>							
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select>	
+	
+	<insert id="insertlecture" parameterClass="java.util.HashMap">
+		  INSERT into lecturer_tbl (lt_code, lt_name,
+<!-- 		  			JUMIN_DEL -->
+<!-- 		  			lt_pers_no, -->
+		  			lt_pers_birth,
+		  			lt_major, lt_image, lt_post, lt_add, lt_hp, lt_email, lt_comp_name, lt_duty, lt_comp_add, lt_comp_post, lt_comp_tel, lt_kind, lt_area, lt_univer1, lt_univer2, lt_univer3, lt_univer4, lt_univer5, lt_carrier1, lt_carrier2, lt_carrier3, lt_carrier4, lt_carrier5, lt_carrier6, lt_carrier7, lt_carrier8, lt_carrier9, lt_carrier10, lt_remark, lt_bankname, lt_bankaccount, lt_bankReceiptName, up_date, updater,
+				    lt_major_chk, lt_major2, lt_major_chk2, lt_major3, lt_major_chk3, lt_major4, lt_major_chk4, lt_major5, lt_major_chk5,
+					lt_univer_year1, lt_univer_mon1, lt_univer_year2, lt_univer_mon2, lt_univer_year3, lt_univer_mon3, lt_univer_year4, lt_univer_mon4, lt_univer_year5, lt_univer_mon5,
+					lt_carrier_year1, lt_carrier_mon1, lt_carrier_year2, lt_carrier_mon2, lt_carrier_year3, lt_carrier_mon3, lt_carrier_year4, lt_carrier_mon4, lt_carrier_year5, lt_carrier_mon5,
+					lt_carrier_year6, lt_carrier_mon6, lt_carrier_year7, lt_carrier_mon7, lt_carrier_year8, lt_carrier_mon8, lt_carrier_year9, lt_carrier_mon9, lt_carrier_year10, lt_carrier_mon10
+		  			)
+				values ( 
+				          (select 'T' + SUBSTRING(CONVERT(varchar,getdate(),112),1,4) + right('0000'+convert(varchar,isnull((MAX(convert(int,substring(lt_code,6,4)))+1),1)),4)
+							   from lecturer_tbl
+							  where SUBSTRING(lt_code,2,4) = SUBSTRING(CONVERT(varchar,getdate(),112),1,4)) 
+				        , #lt_name#
+<!-- 				        JUMIN_DEL -->
+<!-- 				        ,[dbo].[GetPersNoencord](#lt_pers_no#) 				        -->
+				        , #lt_pers_birth#  
+				        , #lt_major#  
+				        , #lt_image#  
+				        , #lt_post# 
+						, #lt_add#
+				        , #lt_hp#
+						, #lt_email#				        
+						, #lt_comp_name#
+				        , #lt_duty#
+				        , #lt_comp_add#  
+				        , #lt_comp_post# 
+						, #lt_comp_tel#
+				        , #lt_kind#				        
+				        , #lt_area#
+				        , #lt_univer1#
+				        , #lt_univer2#  
+				        , #lt_univer3# 
+						, #lt_univer4#
+				        , #lt_univer5#
+						, #lt_carrier1#				        
+						, #lt_carrier2#
+				        , #lt_carrier3#
+				        , #lt_carrier4#  
+				        , #lt_carrier5# 
+						, #lt_carrier6#				        
+						, #lt_carrier7#
+				        , #lt_carrier8#
+				        , #lt_carrier9#  
+				        , #lt_carrier10# 				      
+				        , #lt_remark#				        
+						, #lt_bankname#
+				        , #lt_bankaccount#
+				        , #lt_bankReceiptName#
+				        , GETDATE() 
+				        , #updater#
+				        
+					    , #lt_major_chk#
+					    , #lt_major2#
+					    , #lt_major_chk2#
+					    , #lt_major3#
+					    , #lt_major_chk3#
+					    , #lt_major4#
+					    , #lt_major_chk4#
+					    , #lt_major5#
+					    , #lt_major_chk5#
+				
+						, #lt_univer_year1#
+						, #lt_univer_mon1#
+						, #lt_univer_year2#
+						, #lt_univer_mon2#
+						, #lt_univer_year3#
+						, #lt_univer_mon3#
+						, #lt_univer_year4#
+						, #lt_univer_mon4#
+						, #lt_univer_year5#
+						, #lt_univer_mon5#
+				
+						, #lt_carrier_year1#
+						, #lt_carrier_mon1#
+						, #lt_carrier_year2#
+						, #lt_carrier_mon2#
+						, #lt_carrier_year3#
+						, #lt_carrier_mon3#
+						, #lt_carrier_year4#
+						, #lt_carrier_mon4#
+						, #lt_carrier_year5#
+						, #lt_carrier_mon5#
+						, #lt_carrier_year6#
+						, #lt_carrier_mon6#
+						, #lt_carrier_year7#
+						, #lt_carrier_mon7#
+						, #lt_carrier_year8#
+						, #lt_carrier_mon8#
+						, #lt_carrier_year9#
+						, #lt_carrier_mon9#
+						, #lt_carrier_year10#
+						, #lt_carrier_mon10#
+					   )	
+	</insert>
+	
+	<update id="update_lecture" parameterClass="java.util.HashMap">
+		UPDATE lecturer_tbl
+					SET 
+					      lt_name 			 = #lt_name#
+<!-- 					      JUMIN_DEL -->
+<!-- 					    , lt_pers_no 	     = [dbo].[GetPersNoencord](#lt_pers_no#)					 -->
+				        , lt_pers_birth  		 = #lt_pers_birth#
+				        , lt_major  		 = #lt_major#
+				        , lt_image  		 = #lt_image#
+				        , lt_post 			 = #lt_post#  
+				        , lt_add 			 = #lt_add#
+				        <isEqual property="lt_hp_upok" compareValue="Y"> 
+						, lt_hp				 = #lt_hp#					
+						</isEqual>	
+				        <isEqual property="lt_email_upok" compareValue="Y"> 
+				        , lt_email 			 =  #lt_email#				        
+						</isEqual>	
+				        , lt_comp_name  	 = #lt_comp_name#
+						, lt_duty 			 = #lt_duty#  
+				        , lt_comp_add  		 = #lt_comp_add#
+				        , lt_comp_post 		 = #lt_comp_post#  
+				        , lt_comp_tel		 = #lt_comp_tel# 
+						, lt_kind 			 = #lt_kind#						
+				        , lt_area 			 =  #lt_area#				        
+				        , lt_univer1		 =  #lt_univer1#
+				        , lt_univer2 		 =  #lt_univer2#
+				        , lt_univer3 		 =  #lt_univer3#
+				        , lt_univer4 		 =  #lt_univer4#
+				        , lt_univer5 		 =  #lt_univer5#				        
+				        , lt_carrier1		 =  #lt_carrier1#
+			            , lt_carrier2 	     =  #lt_carrier2#
+				        , lt_carrier3  		 =  #lt_carrier3#
+				        , lt_carrier4  		 =  #lt_carrier4#
+				        , lt_carrier5  		 =  #lt_carrier5#
+				        , lt_carrier6  		 =  #lt_carrier6#
+				        , lt_carrier7        =  #lt_carrier7#
+				        , lt_carrier8        =  #lt_carrier8#
+				        , lt_carrier9        =  #lt_carrier9#
+				        , lt_carrier10       =  #lt_carrier10#				        
+				        , lt_remark          =  #lt_remark#
+				        , lt_bankname        =  #lt_bankname#
+				        , lt_bankaccount     =  #lt_bankaccount#
+				        , lt_bankReceiptName =  #lt_bankReceiptName#
+				        , up_date            =  GETDATE()
+				        , updater            =   #updater#		
+				        
+   		        	    , lt_major_chk = #lt_major_chk#
+					    , lt_major2 = #lt_major2#
+					    , lt_major_chk2 = #lt_major_chk2#
+					    , lt_major3 = #lt_major3#
+					    , lt_major_chk3 = #lt_major_chk3#
+					    , lt_major4 = #lt_major4#
+					    , lt_major_chk4 = #lt_major_chk4#
+					    , lt_major5 = #lt_major5#
+					    , lt_major_chk5 = #lt_major_chk5#
+				
+						, lt_univer_year1 = #lt_univer_year1#
+						, lt_univer_mon1 = #lt_univer_mon1#
+						, lt_univer_year2 = #lt_univer_year2#
+						, lt_univer_mon2 = #lt_univer_mon2#
+						, lt_univer_year3 = #lt_univer_year3#
+						, lt_univer_mon3 = #lt_univer_mon3#
+						, lt_univer_year4 = #lt_univer_year4#
+						, lt_univer_mon4 = #lt_univer_mon4#
+						, lt_univer_year5 = #lt_univer_year5#
+						, lt_univer_mon5 = #lt_univer_mon5#
+				
+						, lt_carrier_year1 = #lt_carrier_year1#
+						, lt_carrier_mon1 = #lt_carrier_mon1#
+						, lt_carrier_year2 = #lt_carrier_year2#
+						, lt_carrier_mon2 = #lt_carrier_mon2#
+						, lt_carrier_year3 = #lt_carrier_year3#
+						, lt_carrier_mon3 = #lt_carrier_mon3#
+						, lt_carrier_year4 = #lt_carrier_year4#
+						, lt_carrier_mon4 = #lt_carrier_mon4#
+						, lt_carrier_year5 = #lt_carrier_year5#
+						, lt_carrier_mon5 = #lt_carrier_mon5#
+						, lt_carrier_year6 = #lt_carrier_year6#
+						, lt_carrier_mon6 = #lt_carrier_mon6#
+						, lt_carrier_year7 = #lt_carrier_year7#
+						, lt_carrier_mon7 = #lt_carrier_mon7#
+						, lt_carrier_year8 = #lt_carrier_year8#
+						, lt_carrier_mon8 = #lt_carrier_mon8#
+						, lt_carrier_year9 = #lt_carrier_year9#
+						, lt_carrier_mon9 = #lt_carrier_mon9#
+						, lt_carrier_year10 = #lt_carrier_year10#
+						, lt_carrier_mon10 = #lt_carrier_mon10#
+				        		        
+					WHERE  lt_code = #lt_code#
+	</update>
+	
+	<delete id="delete_lecture" parameterClass="java.util.HashMap">
+		DELETE lecturer_tbl WHERE  lt_code = #lt_code#
+	</delete>
+	
+</sqlMap>    

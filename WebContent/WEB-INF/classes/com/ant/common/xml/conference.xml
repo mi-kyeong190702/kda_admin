@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="conference">
+	
+	 <!-- 회의실  count --> 	
+	 <select id="conferencecnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY conference_seq ) no
+				  FROM conference 
+				  WHERE ISNULL(conference_seq,'') !=''	
+		 				<dynamic prepend="and">
+					  	 	<isNotEmpty property="register1">
+					  			register = #register1#
+					  		</isNotEmpty>
+				  		</dynamic>			
+				  		<dynamic prepend="and">
+					  	 	<isNotEmpty property="conference_dt1">
+					  			conference_dt = #conference_dt1#
+					  		</isNotEmpty>
+				  		</dynamic>	
+				  		<dynamic prepend="and">
+					  	 	<isNotEmpty property="inqday1">
+					  			conference_dt <![CDATA[>=]]> #inqday1#
+					  		</isNotEmpty>
+				  		</dynamic>		
+				  		<dynamic prepend="and">
+					  		<isNotEmpty property="inqday2">
+					  			conference_dt <![CDATA[<=]]> #inqday2#
+					  	 	</isNotEmpty>
+				  		</dynamic>	
+				  		<dynamic prepend="and">
+					  		<isNotEmpty property="code_conferencename1">
+					  			code_conference = #code_conferencename1#						  			
+					  	 	</isNotEmpty>
+				  		</dynamic>					  		
+				  		<dynamic prepend="and">
+					  		<isNotEmpty property="center1">
+					  			center = #center1#
+					  	 	</isNotEmpty>
+				  		</dynamic>				
+					 ) OUT
+			  WHERE 1=1
+	 </select>
+	
+	 <!-- 회의실 일자별 검색 -->
+	 <select id="selectconference" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY conference_dt desc) no 
+						,a.conference_dt
+						,SUBSTRING(a.conference_dt,0,5)+'년 '+SUBSTRING(a.conference_dt,5,2)+'월 '+SUBSTRING(a.conference_dt,7,2)+'일' conferencedt
+						,ISNULL(b.detcodename,'') code_conferencename
+						,a.code_conference 
+				      	,a.conference_seq				     	
+						,a.use_st_hhmm
+						,SUBSTRING(a.use_st_hhmm,0,3)+'시 '+SUBSTRING(a.use_st_hhmm,3,2)+'분' st_time
+						,a.use_ed_hhmm
+						,SUBSTRING(a.use_ed_hhmm,0,3)+'시 '+SUBSTRING(a.use_ed_hhmm,3,2)+'분' ed_time
+						,  case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '08' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '08' then '' else '────────' end k08,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '09' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '09' then '' else '────────' end k09,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '10' then ''
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '10' then '' else '────────' end k10,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '11' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '11' then '' else '────────' end k11,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '12' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '12' then '' else '────────' end k12,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '13' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '13' then '' else '────────' end k13,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '14' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '14' then '' else '────────' end k14,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '15' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '15' then '' else '────────' end k15,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '16' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '16' then '' else '────────' end k16,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '17' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '17' then '' else '────────' end k17,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '18' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '18' then '' else '────────' end k18,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '19' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '19' then '' else '────────' end k19,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '20' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '20' then '' else '────────' end k20,	
+		            	   case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '21' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '21' then '' else '────────' end k21,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '22' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '22' then '' else '────────' end k22,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '23' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '23' then '' else '────────' end k23,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '24' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '24' then '' else '────────' end k24			        
+				        ,a.subject
+						,ISNULL(c.detcodename,'') detcodename
+						,a.register
+						,a.center			       
+				  FROM conference a	
+				 	 left join  com_code b
+				  		 on  b.groupcode = '032'
+				  		 and  a.code_conference = b.detcode	
+			  		 left join  com_code c
+				  		 on  c.groupcode = '031'
+				  		 and  a.center = c.detcode			  
+				 		WHERE isnull (a.conference_seq,'') != ''				 			
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="register1">
+						  			a.register = #register1#
+						  		</isNotEmpty>
+					  		</dynamic>			
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="conference_dt1">
+						  			a.conference_dt = #conference_dt1#
+						  		</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			a.conference_dt <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			a.conference_dt <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="code_conferencename1">
+						  			a.code_conference = #code_conferencename1#						  			
+						  	 	</isNotEmpty>
+					  		</dynamic>					  		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="center1">
+						  			a.center = #center1#
+						  	 	</isNotEmpty>
+					  		</dynamic>				
+							 ) OUT	   
+				  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 	
+	
+	<!-- 회의실 회의실별 검색 -->
+	 <select id="selectconferencemeet" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY code_conference) no 
+						,a.conference_dt
+						,b.detcodename code_conferencename
+						,a.code_conference 
+				      	,a.conference_seq				     	
+						,a.use_st_hhmm
+						,a.use_ed_hhmm
+						,  case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '08' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '08' then '' else '────────' end k08,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '09' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '09' then '' else '────────' end k09,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '10' then ''
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '10' then '' else '────────' end k10,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '11' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '11' then '' else '────────' end k11,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '12' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '12' then '' else '────────' end k12,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '13' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '13' then '' else '────────' end k13,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '14' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '14' then '' else '────────' end k14,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '15' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '15' then '' else '────────' end k15,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '16' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '16' then '' else '────────' end k16,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '17' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '17' then '' else '────────' end k17,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '18' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '18' then '' else '────────' end k18,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '19' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '19' then '' else '────────' end k19,
+					       case when LEFT(use_st_hhmm,2) <![CDATA[>]]> '20' then '' 
+					            when LEFT(use_ed_hhmm,2) <![CDATA[<]]> '20' then '' else '────────' end k20			        
+				        ,a.subject
+						,c.detcodename detcodename
+						,a.center		       
+				  FROM conference a	
+				     left join  com_code b
+				  		 on  b.groupcode = '032'
+				  		 and  a.code_conference = b.detcode	
+			  		 left join  com_code c
+				  		 on  c.groupcode = '031'
+				  		 and  a.center = c.detcode					  
+				 		 WHERE isnull (a.conference_seq,'') != ''
+				 				<dynamic prepend="and">
+							  		 	<isNotEmpty property="conference_dt1">
+							  		 		a.conference_dt <![CDATA[=]]> #conference_dt1#
+							  		 	</isNotEmpty>
+							  	</dynamic>
+							 ) OUT	   
+				  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#					 						     
+	</select> 	
+		
+	<insert id="insertconference"   parameterClass="java.util.HashMap">
+		INSERT into conference (conference_dt, code_conference, conference_seq, use_st_hhmm, use_ed_hhmm, subject, center, register, regi_date, updater, up_date)
+				values ( #conference_dt1#
+						, #code_conferencename1#
+				        , (SELECT RIGHT('00'+convert(varchar, isnull(MAX(conference_seq),0)+1),2) from conference where left(conference_dt,8) = left(#conference_dt1# ,8)) 
+				        , #use_st_hhmm1#+#use_st_hhmm2#
+						, #use_ed_hhmm1#+#use_ed_hhmm2#
+				        , #subject1#
+				        , #center1#  
+				        , #register1#
+				        , GETDATE()
+						, #updater# 
+				        , GETDATE()
+				        )	
+	</insert>
+	
+	<update id="updateconference" parameterClass="java.util.HashMap">
+		UPDATE conference
+					SET 
+					      use_st_hhmm = #use_st_hhmm1#+#use_st_hhmm2#
+						, use_ed_hhmm = #use_ed_hhmm1#+#use_ed_hhmm2#
+				        , subject     = #subject1#  
+				        , center      = #center1# 
+				        , register    = #register1#
+						, updater     = #updater#						
+				        , up_date     = GETDATE()
+					WHERE  conference_dt = #conference_dt1# and code_conference = #code_conferencename1# and  conference_seq = #conference_seq1# 	
+	</update>
+	
+	<delete id="deleteconference"   parameterClass="java.util.HashMap">
+		DELETE FROM conference
+		      WHERE conference_dt=#conference_dt1#
+		        AND code_conference=#code_conferencename1#
+		        AND conference_seq=#conference_seq1#
+	</delete>				
+</sqlMap>    

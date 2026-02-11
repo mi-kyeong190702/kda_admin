@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="common">
+	
+
+	<!-- 
+	 * 작업명 : 공통코드
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.18
+	  * 작   업 : getComCodeList	공통코드 조회
+	 -->
+<select id="getComCodeList" resultClass="java.util.HashMap">
+select a.groupcode
+       , a.groupname
+       , ISNULL(a.codelen,'') codelen
+       , ISNULL(b.detcode,'') detcode
+       , ISNULL(b.detcodename,'') detcodename
+       , ISNULL(b.tempcd1,'') tempcd1
+       , ISNULL(b.tempcd2,'') tempcd2
+       , ISNULL(b.tempcd3,'') tempcd3
+       , ISNULL(b.use_yn,'') use_yn
+      
+  from com_group a left outer join com_code b
+    on a.groupcode = b.groupcode
+   where b.use_yn = 'Y'
+ order by a.groupcode asc
+        , b.cdseq   asc
+        , b.detcode   asc
+</select>
+
+	<!-- 
+	 * 작업명 : 공통코드(산하단체)
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.18
+	  * 작   업 : getSubCodeList	공통코드 조회(산하단체)
+	 -->
+<select id="getSubCodeList" resultClass="java.util.HashMap">
+SELECT code_sub
+      ,sub_name
+      ,sub_tel
+      ,sub_fax
+      ,sub_master
+      ,sub_email
+      ,code_email_comp
+      ,sub_account
+      ,sub_bank
+      ,sub_bank_ints
+      ,use_yn
+  FROM sub_tbl
+ where use_yn='Y'
+</select>
+	<!-- 
+	 * 작업명 : 공통코드(자격증종류)
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.18
+	  * 작   업 : getCertifiCodeList	공통코드 조회(자격증종류)
+	 -->
+<select id="getCertifiCodeList" resultClass="java.util.HashMap">
+SELECT code_certifi
+      ,certifi_name
+      ,renewal
+      ,finish_marks
+      ,center_marks
+      ,service_marks
+      ,use_yn
+  FROM certifi
+ where use_yn='Y'
+</select>
+
+<insert id="iExcelLog" parameterClass="java.util.Map">
+	 INSERT INTO excel_log
+			          ( creat_date
+			          , prog_name
+			          , create_user
+			          , sheet_name)
+            VALUES
+			          ( GETDATE()
+			          , #prog_name#
+			          , #create_user#
+			          , #sheet_name# )
+</insert>
+</sqlMap>
+

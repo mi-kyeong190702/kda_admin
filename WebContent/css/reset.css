@@ -1,0 +1,8 @@
+body{font-size:0.75em;font-family:"µ¸¿ò", Dotum, "±¼¸²",Gulim,sans-serif;color:#5A5A5A;}
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { 
+	padding : 0 ;
+	margin : 0 ;}
+ol, ul, li {list-style : none ;}
+h1, h2, h3, h4, h5, h6 {font-weight : normal;font-size:100%;}
+form, fieldset, img {border : 0 ;}
+address, caption, em {font-weight : normal ; font-style : normal ;}

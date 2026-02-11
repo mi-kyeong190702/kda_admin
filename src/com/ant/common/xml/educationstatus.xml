@@ -1,0 +1,2698 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<!DOCTYPE sqlMap
+ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+ "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="education">
+
+
+<!-- * 3.3.0
+	 * 작업명 : Home>교육>교육별응시현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.30
+	 * 작  업 : getEduDmSeq DM리스트 dm_print_yymm_seq맥스값 얻기
+	 * -->
+
+<select id="getEduDmSeq" resultClass="java.util.HashMap">
+select isnull(MAX(dm_print_yymm_seq ), 0) dm_print_yymm_seq
+  from dm_list
+ where 1=1
+   and code_book_kind = #code_book_kind#
+   and dm_pers_code   = #dm_pers_code#
+   and dm_print_yymm  = substring( CONVERT(varchar, getdate(),112), 3,4)
+</select>
+
+<!-- * 3.3.1
+	 * 작업명 : Home>교육>교육별응시현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.30
+	 * 작  업 : getEduDMForCnt	DM리스트 저장할 개수 조회
+	 * -->
+<select id="getEduDMForCnt" resultClass="java.util.HashMap">
+select COUNT( sout.ncount ) ncount
+  from(select row_number() over( order by (a.oper_name) ) ncount
+         from operater a, edu_test f
+        where a.code_kind    = f.code_kind
+          and a.code_certifi = f.code_certifi
+          and a.code_seq     = f.code_seq
+          and a.code_bran    = f.code_bran
+          and a.bran_seq     = f.bran_seq
+
+          and (ISNULL(a.person_yn, '') != '' or ISNULL(a.oper_hp, '') != '')
+          and ISNULL(a.oper_comp_add1_2, '') != ''
+          and ISNULL(a.code_post, '') != ''
+
+<dynamic prepend="and"><isNotEmpty property="detcode1"			> f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #detcode1# </isNotEmpty></dynamic>	/*교육및시험명*/
+<dynamic prepend="and"><isNotEmpty property="code_kind1"		> a.code_kind		= #code_kind1#		</isNotEmpty></dynamic>	/* 교육종류		*/
+<dynamic prepend="and"><isNotEmpty property="yyyy1"				> f.yyyy			= #yyyy1#			</isNotEmpty></dynamic>	/* 교육년도		*/
+<dynamic prepend="and"><isNotEmpty property="code_bran1"		> f.code_bran		= #code_bran1#		</isNotEmpty></dynamic>	/* 교육주최		*/
+<dynamic prepend="and"><isNotEmpty property="code_operation1"	> a.code_operation	= #code_operation1#	</isNotEmpty></dynamic>	/* 대상자		*/
+<dynamic prepend="and"><isNotEmpty property="code_pay_flag1"	> a.code_pay_flag	= #code_pay_flag1#	</isNotEmpty></dynamic> /* 결제방법		*/
+<dynamic prepend="and"><isNotEmpty property="code_certifi1"		> a.code_certifi	= #code_certifi1#	</isNotEmpty></dynamic> /* 자격증구분	*/
+<dynamic prepend="and"><isNotEmpty property="oper_state1"		> a.oper_state		= #oper_state1#		</isNotEmpty></dynamic> /* 진행상태		*/
+<dynamic prepend="and"><isNotEmpty property="oper_name1"		> a.oper_name		like '%'+#oper_name1#+'%'		</isNotEmpty></dynamic>	/* 이름 */
+<!-- JUMIN_DEL -->
+<!-- <dynamic prepend="and"><isNotEmpty property="oper_no1"			> [dbo].[GetPersNodecord](a.oper_no,'1') like #oper_no1#+'%'	</isNotEmpty></dynamic>/* 주민번호	*/ -->
+<dynamic prepend="and"><isNotEmpty property="oper_birth1"			> a.oper_birth like #oper_birth1#+'%'	</isNotEmpty></dynamic>/* 생년월일	*/
+<dynamic prepend="and"><isNotEmpty property="oper_lic_no1"		> a.oper_lic_no		like '%'+#oper_lic_no1#+'%'		</isNotEmpty></dynamic>	/* 면허번호		*/
+<dynamic prepend="and"><isNotEmpty property="oper_hp1"			> a.oper_hp			like '%'+#oper_hp1#+'%'			</isNotEmpty></dynamic>	/* 핸드폰번호	*/
+<dynamic prepend="and"><isNotEmpty property="oper_comp_name11"	> a.oper_comp_name1	like '%'+#oper_comp_name11#+'%'	</isNotEmpty></dynamic>	/* 근무처명		*/
+	<dynamic prepend="and">
+		<isNotEmpty property="sel">
+			a.oper_state NOT IN ('08','09')
+		</isNotEmpty>
+	</dynamic>
+      )sout
+</select>
+
+<!-- * 2.2.0
+	 * 작업명 : Home>회원>회비처리
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.27
+	 * 작  업 :  getSearchDmForSeq	DM리스트 목표 dm_print_yymm_seq맥스값 얻기
+	 * -->
+<select id="getEduDmForSeq" resultClass="java.util.HashMap">
+ SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1') dm_print_yymm_seq 
+	from dm_list 
+   where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+     and code_book_kind = #code_book_kind#
+</select>
+
+
+<!-- * 3.3.2
+	 * 작업명 : Home>교육>교육별응시현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.30
+	 * 작  업 : getEduDMForList DM리스트 목표 조회
+	 * -->
+<select id="getEduDMForList" resultClass="java.util.HashMap">
+select code_pers
+     , pers_name
+     , code_member
+     , lic_no
+     , code_post
+     , pers_add
+     , pers_hp
+     , isnull((case when code_email = '' then ''
+                    when code_email = '01' then email
+                    else rtrim(email) + '@' + q.detcodename end),'') email
+     , code_bran
+     , print_call
+     , code_place
+     , rece_yn
+     , oper_comp_name1      
+  from(select (case when ISNULL(person_yn, '') != ''
+                    then person_yn
+               else RIGHT(oper_hp, 9) end ) code_pers
+            , a.oper_name		pers_name
+            , ''				code_member
+            , a.oper_lic_no	lic_no
+            , a.code_post		code_post
+            , oper_comp_add1_2	pers_add
+            , a.oper_hp			pers_hp
+            , a.oper_email      email
+            , a.code_email_comp code_email
+            , a.code_bran		code_bran
+            , ''				print_call
+            , ''				code_place
+            , '2'				rece_yn
+            , isnull(a.oper_comp_name1,'') oper_comp_name1
+         from operater a, edu_test f
+        where a.code_kind    = f.code_kind
+          and a.code_certifi = f.code_certifi
+          and a.code_seq     = f.code_seq
+          and a.code_bran    = f.code_bran
+          and a.bran_seq     = f.bran_seq
+ 
+          and (ISNULL(a.person_yn, '') != '' or ISNULL(a.oper_hp, '') != '')
+          and ISNULL(a.oper_comp_add1_2, '') != ''
+          and ISNULL(a.code_post, '') != ''
+
+<dynamic prepend="and"><isNotEmpty property="detcode1"			> f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #detcode1# </isNotEmpty></dynamic>	/*교육및시험명*/
+<dynamic prepend="and"><isNotEmpty property="code_kind1"		> a.code_kind		= #code_kind1#		</isNotEmpty></dynamic>	/* 교육종류		*/
+<dynamic prepend="and"><isNotEmpty property="yyyy1"				> f.yyyy			= #yyyy1#			</isNotEmpty></dynamic>	/* 교육년도		*/
+<dynamic prepend="and"><isNotEmpty property="code_bran1"		> f.code_bran		= #code_bran1#		</isNotEmpty></dynamic>	/* 교육주최		*/
+<dynamic prepend="and"><isNotEmpty property="code_operation1"	> a.code_operation	= #code_operation1#	</isNotEmpty></dynamic>	/* 대상자		*/
+<dynamic prepend="and"><isNotEmpty property="code_pay_flag1"	> a.code_pay_flag	= #code_pay_flag1#	</isNotEmpty></dynamic> /* 결제방법		*/
+<dynamic prepend="and"><isNotEmpty property="code_certifi1"		> a.code_certifi	= #code_certifi1#	</isNotEmpty></dynamic> /* 자격증구분	*/
+<dynamic prepend="and"><isNotEmpty property="oper_state1"		> a.oper_state		= #oper_state1#		</isNotEmpty></dynamic> /* 진행상태		*/
+<dynamic prepend="and"><isNotEmpty property="oper_name1"		> a.oper_name		like '%'+#oper_name1#+'%'		</isNotEmpty></dynamic>	/* 이름 */
+<!-- JUMIN_DEL -->
+<!-- <dynamic prepend="and"><isNotEmpty property="oper_no1"			> [dbo].[GetPersNodecord](a.oper_no,'1') like #oper_no1#+'%'	</isNotEmpty></dynamic>/* 주민번호	*/ -->
+<dynamic prepend="and"><isNotEmpty property="oper_birth1"			> a.oper_birth like #oper_birth1#+'%'	</isNotEmpty></dynamic>/* 생년월일	*/
+<dynamic prepend="and"><isNotEmpty property="oper_lic_no1"		> a.oper_lic_no		like '%'+#oper_lic_no1#+'%'		</isNotEmpty></dynamic>	/* 면허번호		*/
+<dynamic prepend="and"><isNotEmpty property="oper_hp1"			> a.oper_hp			like '%'+#oper_hp1#+'%'			</isNotEmpty></dynamic>	/* 핸드폰번호	*/
+<dynamic prepend="and"><isNotEmpty property="oper_comp_name11"	> a.oper_comp_name1	like '%'+#oper_comp_name11#+'%'	</isNotEmpty></dynamic>	/* 근무처명		*/
+/*  선택 검색용 */
+<dynamic prepend="and"><isNotEmpty property="code_seq"			> a.code_seq		= #code_seq#		</isNotEmpty></dynamic>	/* 순번			*/
+<dynamic prepend="and"><isNotEmpty property="bran_seq"			> a.bran_seq		= #bran_seq#		</isNotEmpty></dynamic>	/* 지부순번		*/
+<dynamic prepend="and"><isNotEmpty property="receipt_no"		> a.receipt_no		= #receipt_no#		</isNotEmpty></dynamic>	/* 접수번호		*/
+
+	<dynamic prepend="and">
+		<isNotEmpty property="sel">
+			a.oper_state NOT IN ('08','09')
+		</isNotEmpty>
+	</dynamic>
+
+
+      )sout left join com_code q on q.groupcode = '025' and q.detcode = code_email
+</select>
+
+<!-- * 3.3.3
+	 * 작업명 : Home>교육>교육별응시현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2013.11.30
+	 * 작  업 : setEduDMList		DM리스트 저장
+	 * -->
+<insert id="setEduDMList" >
+insert into dm_list(
+       code_book_kind
+     , dm_pers_code
+     , dm_print_yymm
+     , dm_print_yymm_seq
+     , code_member
+     , pers_name
+     , lic_no
+     , code_post
+     , pers_add
+     , pers_hp
+     , email
+     , code_bran
+     , print_call
+     , code_place
+     , rece_yn
+     , dm_name
+     , dm_creater
+     , company_name)
+values
+ (     #code_book_kind#
+     , #dm_pers_code#
+     , substring( CONVERT(varchar, getdate(),112), 3,4)
+ 	 , #dm_print_yymm_seq#
+     , #code_member#
+     , #pers_name#
+     , #lic_no#
+     , #code_post#
+     , #pers_add#
+     , #pers_hp#
+     , #email#
+     , #code_bran#
+     , ' 님 귀하'
+     , #code_place#
+     , '2'
+     , #dm_name#
+     , #dm_creater#
+     , #oper_comp_name1#
+ )
+</insert>
+
+
+
+
+    
+	<!--응시현황 조건 맞는내용출력  -->
+	<select id="educationsend1" resultClass="java.util.HashMap">
+    	SELECT a.code_kind
+      ,a.code_certifi
+      ,m.certifi_name
+      ,a.code_seq
+      ,a.code_bran
+      ,a.bran_seq
+      ,a.yyyy
+      ,a.season
+      ,a.operation_cnt
+      ,a.operation
+      ,case when b.code_kind = '1' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + b.edutest_name + '-' + k.detcodename  
+<!--             when b.code_kind = '2' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '-'+convert(varchar,b.edu_marks)+'평점' else '('+isnull(a.bran_txt,'')+')'+'-'+convert(varchar,b.edu_marks)+'평점' end) -->
+            when b.code_kind = '2' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '-'+convert(varchar,isnull(a.edu_marks,0))+'평점' else '('+isnull(a.bran_txt,'')+')'+'-'+convert(varchar,isnull(a.edu_marks,0))+'평점' end)
+            when b.code_kind = '3' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '' else '('+isnull(a.bran_txt,'')+')' end) 
+            when b.code_kind = '4' or b.code_kind = '8' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,a.operation_cnt)+'차'
+            when b.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + b.edutest_name + '-' + k.detcodename  
+            when b.code_kind = '6' then '제'+CONVERT(varchar,a.operation_cnt)+'회 ' + b.edutest_name 
+            when b.code_kind = '7' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '' else '('+isnull(a.bran_txt,'')+')' end) 
+            else b.edutest_name + '-' + isnull(a.bran_txt,'') + '-(' + k.detcodename + ')' end  edutest_name
+	  ,a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq++convert(varchar,isnull(a.operation_cnt,'0'))+convert(varchar,isnull(a.season,'0')) detcode
+  FROM edu_test a
+	     left join com_code k
+           on k.groupcode = '034'
+          and k.detcode = a.code_bran
+         left join certifi m
+                on m.code_certifi=a.code_certifi
+	  , edu_test_name b
+  where b.use_yn = 'Y'
+		   and b.conform = 'Y'
+		   and a.code_kind = b.code_kind
+		   and a.code_certifi = b.code_certifi
+		   and a.code_seq = b.code_seq
+		   and a.use_yn = 'Y'
+	/* 교육년도  */
+	<dynamic prepend="and">
+		<isNotEmpty property="yyyy1">
+			a.yyyy = #yyyy1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육주최  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_bran1">
+			a.code_bran = #code_bran1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육종류  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">
+			a.code_kind = #code_kind1#
+		</isNotEmpty>
+	</dynamic>
+  order by 11 desc
+    </select>
+	
+	
+	<!--교육및시험등록 2개의 조건에 맞는 교육및시험명 조회 -->
+	<select id="educationsend2" resultClass="java.util.HashMap">
+		 SELECT a.code_kind
+		      , a.code_certifi
+		      , a.code_seq, a.edutest_name 
+			  , convert(varchar,a.code_kind)+convert(varchar,a.code_certifi)+convert(varchar,a.code_seq) detcode
+			  , ISNULL(a.outside_yn,'') outside_yn
+			  , ISNULL(b.detcodename,'없음') outside_nm
+<!-- 			  , a.finish_time -->
+<!-- 			  , a.finish_point -->
+			  , a.conform
+<!-- 			  , a.finish_date -->
+<!-- 			  , a.edu_marks -->
+			  , a.print_kind
+			  , c.detcodename print_nm
+			  , point_manage
+		   FROM edu_test_name a
+		   LEFT JOIN com_code b 
+		          ON b.groupcode='033'
+		         AND b.detcode=a.outside_yn
+		   LEFT JOIN com_code c 
+		          ON c.groupcode='029'
+		         AND c.detcode=a.print_kind 
+		  WHERE a.use_yn = 'Y'
+		    and a.conform = 'Y'
+		    
+			/* 교육및시험구분  */
+			<dynamic prepend="and">
+				<isNotEmpty property="code_certifi1">
+					a.code_certifi = #code_certifi1#
+				</isNotEmpty>
+			</dynamic>
+			/* 교육및시험종류  */
+			<dynamic prepend="and">
+				<isNotEmpty property="code_kind1">
+					a.code_kind = #code_kind1#
+				</isNotEmpty>
+			</dynamic>
+		  order by code_seq desc
+	
+	</select>
+	
+	<!--3가지 응시결과처리 조건 맞는내용출력  -->
+	<select id="selectexam1" resultClass="java.util.HashMap">
+    	SELECT a.code_kind
+      ,a.code_certifi
+      ,m.certifi_name
+      ,a.code_seq
+      ,a.code_bran
+      ,a.bran_seq
+      ,a.yyyy
+      ,a.season
+      ,a.operation_cnt
+      ,a.operation
+      ,b.print_kind
+      ,case when b.code_kind = '1' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + b.edutest_name + '-' + k.detcodename  
+<!--             when b.code_kind = '2' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '-'+convert(varchar,b.edu_marks)+'평점' else '('+isnull(a.bran_txt,'')+')'+'-'+convert(varchar,b.edu_marks)+'평점' end) -->
+            when b.code_kind = '2' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '-'+convert(varchar,isnull(a.edu_marks,0))+'평점' else '('+isnull(a.bran_txt,'')+')'+'-'+convert(varchar,isnull(a.edu_marks,0))+'평점' end)
+            when b.code_kind = '3' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '' else '('+isnull(a.bran_txt,'')+')' end) 
+            when b.code_kind = '4' or b.code_kind = '8' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,a.operation_cnt)+'차'
+            when b.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + b.edutest_name + '-' + k.detcodename  
+            when b.code_kind = '6' then '제'+CONVERT(varchar,a.operation_cnt)+'회 ' + b.edutest_name 
+            when b.code_kind = '7' then convert(varchar,a.yyyy)+'년도 '+ b.edutest_name + '-' + k.detcodename + (case when isnull(a.bran_txt,'') = '' then '' else '('+isnull(a.bran_txt,'')+')' end) 
+            else b.edutest_name + '-' + isnull(a.bran_txt,'') + '-(' + k.detcodename + ')' end  edutest_name
+	  ,a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq+convert(varchar,isnull(a.operation_cnt,'0'))+convert(varchar,isnull(a.season,'0')) detcode
+  FROM edu_test a
+	     left join com_code k
+           on k.groupcode = '034'
+          and k.detcode = a.code_bran
+         left join certifi m on m.code_certifi=a.code_certifi
+  , edu_test_name b
+  where b.use_yn = 'Y'
+		   and b.conform = 'Y'
+		   and a.code_kind = b.code_kind
+		   and a.code_certifi = b.code_certifi
+		   and a.code_seq = b.code_seq
+		   and a.use_yn = 'Y' 	<!-- 20160202 응시결과처리 조회조건과 같게 수정  -->
+	/* 교육년도  */
+	<dynamic prepend="and">
+		<isNotEmpty property="yyyy1">
+			a.yyyy = #yyyy1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육주최  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_bran1">
+			a.code_bran = #code_bran1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육종류  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">
+			a.code_kind = #code_kind1#
+		</isNotEmpty>
+	</dynamic>
+  order by 12 desc
+    </select>
+	
+    <!-- 부서코드  display-->
+    <select id="certifisearch" resultClass="java.util.HashMap">
+        SELECT groupcode
+        , detcode
+        , detcodename
+        FROM com_code
+        where use_yn='Y'
+          and groupcode in ('014','016','022','023','029','033','034','035','036','001','004','054','055')
+        ORDER BY cdseq, detcode
+    </select>
+    
+    <!-- 자격증 구분 코드  display-->
+    <select id="certifisearch1" resultClass="java.util.HashMap">
+        SELECT
+        code_certifi
+        , certifi_name
+        FROM certifi
+        where use_yn='Y'
+        ORDER BY code_certifi
+    </select>
+	
+	<!-- 평점관리 구분 코드  display-->
+    <select id="pointserch" resultClass="java.util.HashMap">
+        SELECT
+        code_certifi
+        , point_manage
+        FROM edu_test_name
+        ORDER BY code_certifi
+    </select>
+	
+	<!-- 사용여부 구분 코드  display-->
+    <select id="useyn" resultClass="java.util.HashMap">
+        SELECT
+        code_certifi
+        , point_manage
+        FROM edu_test_name
+        ORDER BY code_certifi
+    </select>
+	
+	<!-- 수료증관련 구분 코드  display-->
+    <select id="printserch" resultClass="java.util.HashMap">
+        SELECT
+        code_certifi
+        , print_kind
+        FROM edu_test_name
+        ORDER BY code_certifi
+    </select>
+
+    <!-- 교육별응시현황  count -->
+    <select id="educationsendcnt" resultClass="java.util.HashMap">
+        SELECT count(*) cnt
+        FROM (
+        select f.yyyy, f.code_bran, f.code_kind 
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + bc.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + bc.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + bc.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + bc.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + bc.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + bc.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + bc.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + bc.detcodename + ')' end  edutest_name
+              ,a.code_operation, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate,
+               a.code_pay_flag, a.code_certifi, 
+       a.receipt_dt,  p.member person_yn,
+       a.oper_name, a.oper_lic_no,
+<!--        JUMIN_DEL -->
+<!--        [dbo].[GetPersNoDecord](a.oper_no , '2') oper_no, -->
+       a.oper_comp_name1 , a.oper_hp, a.oper_email,
+       case when a.code_email_comp = '01' then a.oper_email else rtrim(a.oper_email) + '@' + i.detcodename end operemail,
+       j.detcodename payflag, a.oper_account, k.detcodename operstate, a.oper_state, b.detcodename, e.start_dt, e.end_dt
+	   , d.result_end_dt, f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) detcode
+	   
+from operater a 
+     left join (select  w.code_pers, cq.detcodename + '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq on cq.groupcode = '006' and cq.detcode = w.code_member
+                       left join com_code cw on cw.groupcode = '021' and cw.detcode = w.pers_state) p on p.code_pers = a.person_yn
+     left join (select  x.code_kind, x.code_certifi, x.code_seq, x.code_bran, 
+                        x.bran_seq, x.receipt_no, 
+                        replace(replace(ISNULL(x.신청서,' ')+','+ISNULL(x.사진,' ')+','
+                                       +ISNULL(x.영양사면허증사본,' ')+','+ISNULL(x.경력증명서,' ')+','
+                                       +ISNULL(x.학위증명서,' ')+','+ISNULL(x.최종학위성적증명서,' ')+','
+                                       +ISNULL(x.기존자격증사본,' ')+','+ISNULL(x.발급회비,' ')
+                                       ,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind, ab.code_certifi, ab.code_seq, ab.code_bran, 
+                                              ab.bran_seq, ab.receipt_no, bb.detcodename
+                                         from oper_add_file ab, com_code bb
+                                        where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서]
+                              ,[최종학위성적증명서],[기존자격증사본],[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no
+<!-- 	JUMIN_DEL -->
+	left join (select z.code_pers,
+<!-- 					[dbo].[GetPersNodecord](z.pers_no,'1') pers_no, -->
+                       x.code_certifi, max(x.result_end_dt) result_end_dt
+                  from Person_M_TBL z, result_print x
+                 where z.code_pers = x.code_pers
+                 group by z.code_pers,
+<!--                  	z.pers_no, -->
+                 	x.code_certifi
+                ) d 
+               on d.code_certifi = a.code_certifi
+<!--               and d.pers_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+              and d.code_pers = a.person_yn
+     left join delay_release e
+               on e.code_kind = a.code_kind 
+              and e.code_certifi = a.code_certifi
+              and e.code_seq = a.code_seq
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code j
+               on j.groupcode = '014'
+              and j.detcode = a.code_pay_flag
+     left join com_code k
+               on k.groupcode = '022'
+              and k.detcode = a.oper_state
+     left join com_code bc
+          on bc.groupcode = '034'
+         and bc.detcode = a.code_bran
+   , edu_test f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+ 	where a.code_kind = f.code_kind
+   			  and a.code_certifi = f.code_certifi
+			  and a.code_seq = f.code_seq
+			  and a.code_bran = f.code_bran
+			  and a.bran_seq = f.bran_seq             
+	 /*교육및시험명*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="detcode1">			 
+	  				f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #detcode1#
+	  			</isNotEmpty>
+	 </dynamic>
+
+	 
+	 <dynamic prepend="and">
+				<isNotEmpty property="edutest_name1">			 
+	  				f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #edutest_name1#
+	  			</isNotEmpty>
+	 </dynamic>
+
+		/* 교육종류  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">
+			a.code_kind = #code_kind1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육년도  */
+	<dynamic prepend="and">
+		<isNotEmpty property="yyyy1">
+			f.yyyy = #yyyy1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육주최  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_bran1">
+			f.code_bran = #code_bran1#
+		</isNotEmpty>
+	</dynamic>
+		/* 대상자  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_operation1">
+			a.code_operation = #code_operation1#
+		</isNotEmpty>
+	</dynamic>
+	/* 결제방법  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_pay_flag1">
+			a.code_pay_flag = #code_pay_flag1#
+		</isNotEmpty>
+	</dynamic> 	
+	/* 진행상태  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_state1">
+			a.oper_state = #oper_state1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 이름 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_name1">
+			a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	</dynamic>
+<!-- 	JUMIN_DEL -->
+<!-- 	/* 주민번호 동일 조건  */ -->
+<!-- 	<dynamic prepend="and"> -->
+<!-- 		<isNotEmpty property="oper_no1"> -->
+<!-- 			[dbo].[GetPersNodecord](a.oper_no,'1') like #oper_no1#+'%' -->
+<!-- 		</isNotEmpty> -->
+<!-- 	</dynamic> -->
+	/* 생년월일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_birth1">
+			a.oper_birth like #oper_birth1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 면허번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_lic_no1">
+			a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 핸드폰번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_hp1">
+			a.oper_hp like '%'+#oper_hp1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 근무처명 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_comp_name11">
+			a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유효일자 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="result_end_dt1">
+			d.result_end_dt like '%'+#result_end_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유예시작일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="start_dt1">
+			e.start_dt like '%'+#start_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유예종료일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="end_dt1">
+			e.end_dt like '%'+#end_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty property="sel">
+			a.oper_state NOT IN ('08','09')
+		</isNotEmpty>
+	</dynamic>
+        ) OUT
+        WHERE 1=1
+    </select>
+	
+	<!-- 교육별응시현황 엑셀 다운용 select -->
+    <select id="examresultExcel" resultClass="java.util.HashMap">
+ 	select  ' ' upYN
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + cb.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + cb.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + cb.detcodename + ')' end  edutest_name
+		, isnull(a.oper_name,'') oper_name
+		, (select id from id_tbl where code_pers = isnull(p.code_pers, '')) oper_id
+		, isnull(a.oper_lic_no,'') oper_lic_no
+<!-- 		,case when #check# = '1'  -->
+<!-- 							  then [dbo].[GetPersNoDecord](a.oper_no , '1') -->
+<!-- 					      when #check# = '2'  -->
+<!-- 							  then [dbo].[GetPersNoDecord](a.oper_no , '2')   -->
+<!-- 						  when #check# = '3' -->
+<!-- 						      then [dbo].[GetPersNoDecord](a.oper_no , '3') -->
+<!-- 						  else [dbo].[GetPersNoDecord](a.oper_no , '3') end oper_no   /*주민등록번호 */ -->
+		, a.oper_birth
+		, isnull(a.oper_hp,'') oper_hp
+		, case when a.code_kind=4 then replace(isnull(a.oper_email,'@선택하세요'),'@선택하세요','') when isnull(a.code_email_comp,'01') = '01' then isnull(a.oper_email,' ') else isnull(rtrim(isnull(a.oper_email,'')) + '@' + i.detcodename,' ') end operemail
+		, isnull(f.yyyy,'') yyyy
+		, ISNULL(j.result_end_dt,' ') result_end_dt
+		, ISNULL(h.start_dt,' ') start_dt
+		, ISNULL(h.end_dt,' ') end_dt
+		, ISNULL(a.receipt_dt,' ') receipt_dt
+    
+		, ISNULL(cb.detcodename,'') code_bran
+		, ISNULL(cc.detcodename,'') code_kind
+		, ISNULL(cd.certifi_name,'') code_certifi
+		, ISNULL(ca.detcodename,'') code_operation
+		, ISNULL(ce.detcodename,' ') oper_state /*응시자진행상태*/
+		, ISNULL(n.detcodename,' ') code_pay_flag
+		, isnull(p.code_pers, '') person_yn1
+		, ISNULL(p.member,' ') member
+		, isnull(a.person_yn, '') person_yn
+        , isnull(k.detcodename,' ') result_state  /*결과 진행상태*/
+		, isnull(c.result_no, '') result_no  /*발급번호*/ 
+		, f.code_seq
+		, a.bran_seq
+		, ISNULL(a.receipt_no,'') receipt_no   /*접수번호*/
+		, ISNULL(a.oper_comp_name1,' ') oper_comp_name1 
+	    , ISNULL(b.detcodename,' ') detcodename
+		, isnull(g.point_manage,' ') point_manage
+		, f.code_kind
+			 +f.code_certifi
+			 +f.code_seq
+			 +f.code_bran
+			 +f.bran_seq
+			 +convert(varchar,isnull(f.operation_cnt,'0'))
+			 +convert(varchar,isnull(f.season,'0'))  detcode
+		, ISNULL(a.code_post,'') code_post
+		, ISNULL(a.oper_comp_add1_1,'') comp_add1_1
+		, ISNULL(a.oper_comp_add1_2,'') comp_add1_2
+		, ISNULL(a.company_tel,'') company_tel
+		, case when g.code_kind = '4' or g.code_kind = '8' then ISNULL(mm.detcodename,'')
+		       else ISNULL(m.detcodename,'') end code_great
+		, ISNULL(l.detcodename,'') code_use
+		, ISNULL(a.trust_name,'') trust_name
+		, ISNULL(a.oper_comp_name2,' ') comp_name2 
+		, ISNULL(a.oper_comp_add2_1,'') comp_add2_1
+		, ISNULL(a.oper_comp_add2_2,'') comp_add2_2
+		, ISNULL(a.oper_comp_name3,' ') comp_name3 
+		, ISNULL(a.oper_comp_add3_1,'') comp_add3_1
+		, ISNULL(a.oper_comp_add3_2,'') comp_add3_2
+		, ISNULL(a.oper_comp_name4,' ') comp_name4 
+		, ISNULL(a.oper_comp_add4_1,'') comp_add4_1
+		, ISNULL(a.oper_comp_add4_2,'') comp_add4_2
+		, ISNULL(a.oper_comp_name5,' ') comp_name5 
+		, ISNULL(a.oper_comp_add5_1,'') comp_add5_1
+		, ISNULL(a.oper_comp_add5_2,'') comp_add5_2
+		, isnull(a.notice,' ') notice
+		
+from operater a 
+     left join (select  w.code_pers
+					 , cq.detcodename 
+					+ '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq 
+							 on cq.groupcode = '006' 
+							and cq.detcode = w.code_member
+                       left join com_code cw 
+							 on cw.groupcode = '021' 
+							and cw.detcode = w.pers_state) p 
+							on p.code_pers = a.person_yn
+     left join com_code ca
+               on ca.groupcode = '035'
+              and ca.detcode = a.code_operation
+     left join certifi cd
+               on cd.code_certifi = a.code_certifi
+     left join com_code ce
+               on ce.groupcode = '022'
+              and ce.detcode = a.oper_state
+     left join (select  x.code_kind
+					  , x.code_certifi
+					  , x.code_seq
+					  , x.code_bran
+					  , x.bran_seq
+					  , x.receipt_no
+					  , replace(replace(ISNULL(x.신청서,' ')+','
+									   +ISNULL(x.사진,' ')+','
+                                       +ISNULL(x.영양사면허증사본,' ')+','
+                                       +ISNULL(x.경력증명서,' ')+','
+                                       +ISNULL(x.학위증명서,' ')+','
+                                       +ISNULL(x.최종학위성적증명서,' ')+','
+                                       +ISNULL(x.기존자격증사본,' ')+','
+                                       +ISNULL(x.발급회비,' ')
+                                       ,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind
+											, ab.code_certifi
+											, ab.code_seq
+											, ab.code_bran
+											, ab.bran_seq
+											, ab.receipt_no
+											, bb.detcodename
+                                         from oper_add_file ab
+                                            , com_code bb
+                                        where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서]
+                              ,[사진]
+                              ,[영양사면허증사본]
+                              ,[경력증명서]
+                              ,[학위증명서]
+                              ,[최종학위성적증명서]
+                              ,[기존자격증사본]
+                              ,[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no
+	left join (select z.code_pers
+<!-- 				JUMIN_DEL -->
+<!-- 					  , [dbo].[GetPersNodecord](z.pers_no,'1') pers_no -->
+					  , x.code_certifi
+					  , max(x.result_end_dt) result_end_dt
+                  from Person_M_TBL z
+                      , result_print x
+                 where z.code_pers = x.code_pers
+                 group by z.code_pers
+<!--                       , z.pers_no -->
+                      , x.code_certifi
+                ) d 
+               on d.code_certifi = a.code_certifi
+<!--                JUMIN_DEL -->
+<!--               and d.pers_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+              and d.code_pers = a.person_yn
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code k
+               on k.groupcode = '023'
+              and k.detcode = c.result_state
+     left join com_code l
+               on l.groupcode = '001'
+              and l.detcode = a.code_use
+     left join com_code m
+               on m.groupcode = '004'
+              and m.detcode = a.code_great
+     left join com_code mm
+               on mm.groupcode = '043'
+              and mm.detcode = a.code_great
+     left join com_code n
+               on n.groupcode = '014'
+              and n.detcode = a.code_pay_flag
+     left join result_print j
+               on j.result_no = c.result_no
+               and j.code_certifi = c.code_certifi
+     left join delay_release h
+               on h.code_pers = j.code_pers                    
+   , edu_test f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+     left join com_code cb
+               on cb.groupcode = '034'
+              and cb.detcode = f.code_bran
+     left join com_code cc
+               on cc.groupcode = '016'
+              and cc.detcode = f.code_kind
+where a.code_kind = f.code_kind
+   			  and a.code_certifi = f.code_certifi
+			  and a.code_seq = f.code_seq
+			  and a.code_bran = f.code_bran
+			  and a.bran_seq = f.bran_seq            
+	 /*교육및시험명*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="detcode1">			 
+	  				f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #detcode1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 
+	 <dynamic prepend="and">
+				<isNotEmpty property="edutest_name1">			 
+	  				f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #edutest_name1#
+	  			</isNotEmpty>
+	 </dynamic>
+
+		/* 교육종류  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">
+			a.code_kind = #code_kind1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육년도  */
+	<dynamic prepend="and">
+		<isNotEmpty property="yyyy1">
+			f.yyyy = #yyyy1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육주최  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_bran1">
+			f.code_bran = #code_bran1#
+		</isNotEmpty>
+	</dynamic>
+		/* 대상자  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_operation1">
+			a.code_operation = #code_operation1#
+		</isNotEmpty>
+	</dynamic>
+	/* 결제방법  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_pay_flag1">
+			a.code_pay_flag = #code_pay_flag1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 자격증구분  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_certifi1">
+			a.code_certifi = #code_certifi1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 진행상태  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_state1">
+			a.oper_state = #oper_state1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 이름 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_name1">
+			a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	</dynamic>
+<!-- 	/* 주민번호 동일 조건  */ -->
+<!-- 	<dynamic prepend="and"> -->
+<!-- 		<isNotEmpty property="oper_no1"> -->
+<!-- 			[dbo].[GetPersNodecord](a.oper_no,'1') like #oper_no1#+'%' -->
+<!-- 		</isNotEmpty> -->
+<!-- 	</dynamic> -->
+	/* 생년월일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_birth1">
+			a.oper_birth like #oper_birth1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 면허번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_lic_no1">
+			a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 핸드폰번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_hp1">
+			a.oper_hp like '%'+#oper_hp1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 근무처명 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_comp_name11">
+			a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유효일자 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="result_end_dt1">
+			d.result_end_dt like '%'+#result_end_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유예시작일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="start_dt1">
+			e.start_dt like '%'+#start_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 유예종료일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="end_dt1">
+			e.end_dt like '%'+#end_dt1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty property="sel">
+			a.oper_state NOT IN ('08','09')
+		</isNotEmpty>
+	</dynamic>
+  order by receipt_no 
+ </select>
+
+	
+    
+	<!--교육별 응시현황 insert --> 
+	<insert id="inserteducation" parameterClass="java.util.HashMap">
+		INSERT INTO operater
+	    (code_kind, code_certifi, code_seq, code_bran, bran_seq, receipt_no, oper_name
+<!-- 			JUMIN_DEL -->
+<!-- 	    	, oper_no -->
+	    	, oper_birth
+	    	, oper_lic_no, oper_hp
+		   ,oper_email, code_email_comp, code_operation
+		   , oper_comp_name1, oper_comp_add1_1, oper_comp_add1_2
+		   , oper_comp_name2, oper_comp_add2_1, oper_comp_add2_2
+		   , oper_comp_name3, oper_comp_add3_1, oper_comp_add3_2
+		   , oper_comp_name4, oper_comp_add4_1, oper_comp_add4_2
+		   , oper_comp_name5, oper_comp_add5_1, oper_comp_add5_2
+		   ,receipt_dt,code_pay_flag, person_yn, oper_state, register, regi_date, code_use
+		   , trust_name, code_great, company_tel, notice, code_post)
+	VALUES (#code_kind1#
+	    ,#code_certifi1#
+	    ,#code_seq1#
+	    ,#code_bran1#
+	    ,#bran_seq1#
+	    ,(select right('0000'+convert(varchar,convert(int,isnull(MAX(receipt_no),0))+1),4) 
+		   from operater where code_kind = #code_kind1# and code_certifi =#code_certifi1# and code_seq =#code_seq1# and code_bran =#code_bran1#
+		   and bran_seq = #bran_seq1#)
+	    ,#oper_name1#
+<!-- 	    JUMIN_DEL -->
+<!-- 	    ,[dbo].[GetPersNoencord](#oper_no1#) -->
+		,#oper_birth1#
+	    ,isnull(#oper_lic_no1#,'')
+	    ,isnull(#oper_hp1#,'')
+	    ,isnull(#oper_email1#,'')
+	    ,'01'
+	    ,isnull(#code_operation1#,'')
+	    ,isnull(#oper_comp_name11#,'')
+	    ,isnull(#comp_add111#,'')
+	    ,isnull(#oper_comp_add1_21#,'')
+	    ,isnull(#comp_name21#,'')
+	    ,isnull(#comp_add211#,'')
+	    ,isnull(#comp_add221#,'')
+	    ,isnull(#comp_name31#,'')
+	    ,isnull(#comp_add311#,'')
+	    ,isnull(#comp_add321#,'')
+	    ,isnull(#comp_name41#,'')
+	    ,isnull(#comp_add411#,'')
+	    ,isnull(#comp_add421#,'')
+	    ,isnull(#comp_name51#,'')
+	    ,isnull(#comp_add511#,'')
+	    ,isnull(#comp_add521#,'')
+	    ,isnull(#receipt_dt1#,'')  
+	    ,isnull(#code_pay_flag1#,'')
+	    ,isnull(#person_yn1#,'')
+	    ,isnull(#oper_state1#,'')
+	    ,isnull(#register1#,'')
+	    ,getdate()
+	    ,isnull(#code_use1#,'')
+	    ,isnull(#trust_name1#,'')
+	    ,isnull(#code_great1#,'')
+	    ,isnull(#company_tel1#,'')
+	    ,isnull(#notice1#,'')
+	    ,isnull(#code_post1#,'')
+	   )	
+	</insert> 
+
+	<!--교육별 응시현황 insert --> 
+	<insert id="inserteducation11" parameterClass="java.util.HashMap">
+		INSERT INTO operater
+	    (code_kind, code_certifi, code_seq, code_bran, bran_seq, receipt_no, oper_name
+			<!-- [JUMIN_DEL] 아래 oper_no 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 	    	,oper_no -->
+	    	,oper_birth
+	    	, oper_lic_no, oper_hp
+		   ,oper_email, code_operation, oper_comp_name1, oper_comp_add1_2
+		   ,receipt_dt,code_pay_flag, bank_name, oper_account, person_yn, oper_state, register, regi_date, code_use, trust_name, code_great, company_tel)
+	VALUES (#code_kind1#
+	    ,#code_certifi1#
+	    ,#code_seq1#
+	    ,#code_bran1#
+	    ,#bran_seq1#
+	    ,(select right('0000'+convert(varchar,convert(int,isnull(MAX(receipt_no),0))+1),4) 
+		   from operater where code_kind = #code_kind1# and code_certifi =#code_certifi1# and code_seq =#code_seq1# and code_bran =#code_bran1#
+		   and bran_seq = #bran_seq1#)
+	    ,#oper_name1#
+		<!-- [JUMIN_DEL] 아래 0 컬럼 제거해야 함, 작업편의성을 고려하여 당장 삭제하지 않고 남겨둠. -->
+<!-- 	    ,[dbo].[GetPersNoencord](#oper_no1#) -->
+<!-- 		,0 -->
+	    ,#oper_birth1#
+	    ,#oper_lic_no1#
+	    ,#oper_hp1#
+	    ,#oper_email1#
+	    ,#code_operation1#
+	    ,#oper_comp_name11#
+	    ,#oper_comp_add1_21#
+	    ,convert(varchar,getdate(),112)
+	    ,#code_pay_flag1#
+	    ,#bank_name1#
+	    ,#oper_account1#
+	    ,#person_yn1#
+	    ,#oper_state1#
+	    ,#register1#
+	    ,getdate()
+	    , #code_use1#
+	    , #trust_name1#
+	    , #code_great1#
+	    , #company_tel1#
+	   )	
+	</insert>
+
+	<!-- 교육별응시현황 update -->
+	<update id="updateeducation" parameterClass="java.util.HashMap">
+		update operater
+		set 
+		  oper_name 		= #oper_name1#
+<!-- 		  JUMIN_DEL -->
+<!-- 		, oper_no 			= [dbo].[GetPersNoencord](#oper_no1#) -->
+		, oper_birth 		= #oper_birth1#
+		, oper_lic_no 		= #oper_lic_no1#
+		, oper_hp 			= #oper_hp1#
+
+	    , oper_email        = isnull(#oper_email1#,'')
+		, code_email_comp   = '01' 
+		, code_operation 	= isnull(#code_operation1#,'')
+		, oper_comp_name1	= isnull(#oper_comp_name11#,'')
+		, oper_comp_add1_1  = isnull(#comp_add111#,'')
+		, oper_comp_add1_2  = isnull(#oper_comp_add1_21#,'')
+		, oper_comp_name2   = isnull(#comp_name21#,'')
+		, oper_comp_add2_1  = isnull(#comp_add211#,'')
+		, oper_comp_add2_2  = isnull(#comp_add221#,'')
+		, oper_comp_name3   = isnull(#comp_name31#,'')
+		, oper_comp_add3_1  = isnull(#comp_add311#,'')
+		, oper_comp_add3_2  = isnull(#comp_add321#,'')
+		, oper_comp_name4   = isnull(#comp_name41#,'')
+		, oper_comp_add4_1  = isnull(#comp_add411#,'')
+		, oper_comp_add4_2  = isnull(#comp_add421#,'')
+		, oper_comp_name5   = isnull(#comp_name51#,'')
+		, oper_comp_add5_1  = isnull(#comp_add511#,'')
+		, oper_comp_add5_2  = isnull(#comp_add521#,'') 
+	    , receipt_dt        = isnull(#receipt_dt1#,'') 
+		, code_pay_flag		= isnull(#code_pay_flag1#,'')
+		, person_yn         = isnull(#person_yn1#,'')
+		, oper_state		= isnull(#oper_state1#,'')
+		, register			= isnull(#register1#,'')
+		, regi_date			= getdate()
+		, code_use          = isnull(#code_use1#,'')
+		, trust_name        = isnull(#trust_name1#,'')
+		, code_great        = isnull(#code_great1#,'')
+		, company_tel       = isnull(#company_tel1#,'')
+		, notice            = isnull(#notice1#,'') 
+		, code_post         = isnull(#code_post1#,'')
+		where code_kind = #code_kind1# and code_certifi = #code_certifi1# and code_seq =#code_seq1# 
+				and code_bran = #code_bran1# and bran_seq = #bran_seq1# and receipt_no= #receipt_no1#
+	</update>
+    
+	
+	
+    <!-- 교육별응시현황 출력 -->
+	<select id="selecteducation" resultClass="java.util.HashMap">
+    	
+	select sout.*
+	  from (
+        select f.yyyy
+			 , f.code_bran
+			 , f.code_kind
+			 , f.code_seq
+		      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+<!-- 		            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+		            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+		            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+		            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+		            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+		            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+		            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+		           else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + l.detcodename + ')' end  edutest_name
+			  , a.code_operation
+			  , case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate
+			  , a.code_pay_flag
+			  , a.code_certifi
+			  , ww.certifi_name
+			  , a.bran_seq
+			  , a.receipt_dt
+			  , isnull(p.member,'') person_yn
+			  
+			  , isnull(p.code_pers, '') person_yn1
+			  
+			  , a.oper_name
+			   
+			  , a.oper_lic_no
+<!-- 			  JUMIN_DEL -->
+<!-- 			  , [dbo].[GetPersNoDecord](a.oper_no , '2') oper_no -->
+<!-- 			  , [dbo].[GetPersNoDecord](a.oper_no , '1') oper_no1  -->
+			  , a.oper_birth
+			  , a.oper_comp_name1 
+			  , a.oper_hp
+			  , a.oper_email
+			  , a.receipt_no
+			  , case when isnull(a.code_email_comp,'01') = '01' then isnull(a.oper_email,' ') else isnull(rtrim(a.oper_email) + '@' + i.detcodename,' ') end operemail
+			  , j.detcodename payflag
+			  , isnull(a.oper_account,'') oper_account
+			  , k.detcodename operstate
+			  , a.oper_state
+			  , b.detcodename
+			  , e.start_dt
+			  , e.end_dt
+	   		  , d.result_end_dt
+			  , f.code_kind
+			  		+f.code_certifi
+					+f.code_seq
+					+f.code_bran
+					+f.bran_seq
+					+convert(varchar,isnull(f.operation_cnt,'0'))
+					+convert(varchar,isnull(f.season,'0')) detcode
+			  ,a.confirm_dt 
+	   		  ,ROW_NUMBER()OVER(ORDER BY a.code_kind
+			  		,a.code_certifi
+					,a.code_seq
+					,a.code_bran
+					,a.bran_seq
+					,a.oper_name             
+					, a.oper_lic_no ) ncount
+from operater a 
+	 left join certifi ww
+	        on ww.code_certifi=a.code_certifi
+     left join (select  w.code_pers
+	 				, cq.detcodename + '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq on cq.groupcode = '006' and cq.detcode = w.code_member
+                       left join com_code cw on cw.groupcode = '021' and cw.detcode = w.pers_state  ) p on p.code_pers = a.person_yn
+     left join (select  x.code_kind
+	 				  , x.code_certifi
+					  , x.code_seq
+					  , x.code_bran
+					  , x.bran_seq
+					  , x.receipt_no
+					  , replace(replace(ISNULL(x.신청서,' ')
+					  					+','
+										+ISNULL(x.사진,' ')
+										+','
+                                        +ISNULL(x.영양사면허증사본,' ')
+										+','
+										+ISNULL(x.경력증명서,' ')
+										+','
+                                        +ISNULL(x.학위증명서,' ')
+										+','
+										+ISNULL(x.최종학위성적증명서,' ')
+										+','
+                                        +ISNULL(x.기존자격증사본,' ')
+										+','
+										+ISNULL(x.발급회비,' ')
+										,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind
+									   , ab.code_certifi
+									   , ab.code_seq
+									   , ab.code_bran
+									   , ab.bran_seq
+									   , ab.receipt_no
+									   , bb.detcodename
+                                         from oper_add_file ab, com_code bb
+                                        where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서]
+                              ,[최종학위성적증명서],[기존자격증사본],[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no
+	left join (select z.code_pers,
+<!-- 	JUMIN_DEL -->
+<!-- 						[dbo].[GetPersNodecord](z.pers_no,'1') pers_no, -->
+                       x.code_certifi, max(x.result_end_dt) result_end_dt
+                  from Person_M_TBL z, result_print x
+                 where z.code_pers = x.code_pers
+                 group by z.code_pers,
+<!--                  	z.pers_no, -->
+                 	x.code_certifi
+                ) d 
+               on d.code_certifi = a.code_certifi
+<!--               and d.pers_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+              and d.code_pers = a.person_yn
+     left join delay_release e
+               on e.code_kind = a.code_kind 
+              and e.code_certifi = a.code_certifi
+              and e.code_seq = a.code_seq
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code j
+               on j.groupcode = '014'
+              and j.detcode = a.code_pay_flag
+     left join com_code k
+               on k.groupcode = '022'
+              and k.detcode = a.oper_state
+   , edu_test f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+     left join com_code l
+          on l.groupcode = '034'
+         and l.detcode = f.code_bran
+ where a.code_kind = f.code_kind
+   and a.code_certifi = f.code_certifi
+   and a.code_seq = f.code_seq
+   and a.code_bran = f.code_bran
+   and a.bran_seq = f.bran_seq             
+	 /*교육및시험명*/
+	 <dynamic prepend="and">
+		<isNotEmpty property="detcode1">			 
+			f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) = #detcode1#
+	  	</isNotEmpty>
+	 </dynamic>
+		/* 교육종류  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">
+			a.code_kind = #code_kind1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육년도  */
+	<dynamic prepend="and">
+		<isNotEmpty property="yyyy1">
+			f.yyyy = #yyyy1#
+		</isNotEmpty>
+	</dynamic>
+	/* 교육주최  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_bran1">
+			f.code_bran = #code_bran1#
+		</isNotEmpty>
+	</dynamic>
+		/* 대상자  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_operation1">
+			a.code_operation = #code_operation1#
+		</isNotEmpty>
+	</dynamic>
+	/* 결제방법  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_pay_flag1">
+			a.code_pay_flag = #code_pay_flag1#
+		</isNotEmpty>
+	</dynamic> 	
+	/* 진행상태  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_state1">
+			a.oper_state = #oper_state1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 이름 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_name1">
+			a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	</dynamic>
+<!-- 	JUMIN_DEL -->
+<!-- 	/* 주민번호 동일 조건  */ -->
+<!-- 	<dynamic prepend="and"> -->
+<!-- 		<isNotEmpty property="oper_no1"> -->
+<!-- 			[dbo].[GetPersNodecord](a.oper_no,'1') like #oper_no1#+'%' -->
+<!-- 		</isNotEmpty> -->
+<!-- 	</dynamic> -->
+	/* 생년월일 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_birth1">
+			a.oper_birth like #oper_birth1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 면허번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_lic_no1">
+			a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 핸드폰번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_hp1">
+			a.oper_hp like '%'+#oper_hp1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 근무처명 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_comp_name11">
+			a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty property="sel">
+			a.oper_state NOT IN ('08','09')
+		</isNotEmpty>
+	</dynamic>
+	)sout
+	where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+<!-- 	order by oper_name -->
+	</select>	
+	
+	
+	<!--교육및 시험등록 select-->
+	<select id="selectedutest" resultClass="java.util.HashMap">
+	select sout2.* from (
+	select sout.*, ROW_NUMBER()OVER(ORDER BY yyyy desc, code_kind, code_bran, edutestname) ncount
+	  from (	select f.yyyy
+	  	, f.code_bran
+		, f.code_certifi
+		, f.code_kind
+		, f.code_seq
+		, f.bran_seq
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + k.detcodename + ')' end  edutestname,
+       j.detcodename codekindname
+	   , k.detcodename branname
+	   , f.season
+	   , isnull(f.bran_txt,'') bran_txt
+	   , f.operation_cnt
+	   , f.operation
+	   , f.start_dt
+	   , f.end_dt
+	   , f.oper_start_dt
+	   , f.oper_end_dt
+	   , isnull(f.oper_start_tm, '') oper_start_tm
+	   , isnull(f.oper_end_tm, '') oper_end_tm
+	   , f.receipt_pers_cnt
+	   , f.operation_place
+	   , f.account_end_dt
+	   , f.use_yn
+	   , f.account_way
+	   , f.remark
+	   , g.outside_yn
+<!-- 	   , g.finish_time -->
+<!-- 	   , g.finish_date -->
+<!-- 	   , g.finish_point -->
+	   , g.point_manage
+<!-- 	   , g.edu_marks -->
+	   , g.print_kind
+	   , g.conform
+	   , convert(varchar,f.code_kind)
+	     +convert(varchar,f.code_certifi)
+	     +convert(varchar,f.code_seq) as detcode
+	   , ROW_NUMBER()OVER(ORDER BY f.code_kind,f.code_certifi,f.code_seq) ncount_org
+
+		, f.finish_date
+		, f.finish_time
+		, f.finish_point
+		, f.edu_marks
+		, f.new_cost
+		, f.new_cost_nomem
+		, f.re_cost
+		, f.mr_cost
+		, f.bank_name
+		, f.bank_acc
+		, f.bank_acc_owner
+		, f.service_marks
+		, f.code_target
+		, f.bran_cardjoin_tp
+	from edu_test f
+	     left join edu_test_name g
+	               on g.code_kind = f.code_kind
+	              and g.code_certifi = f.code_certifi
+	              and g.code_seq = f.code_seq
+	     left join com_code j
+	               on j.groupcode = '016'
+	              and j.detcode = f.code_kind
+	     left join com_code k
+	               on k.groupcode = '034'
+	              and k.detcode = f.code_bran
+	where g.use_yn='Y'
+	  and g.conform='Y'
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">			 
+			f.code_kind = #code_kind1#
+		</isNotEmpty>
+	 </dynamic>
+	 <dynamic prepend="and">
+		<isNotEmpty property="code_certifi1">			 
+			f.code_certifi = #code_certifi1#
+		</isNotEmpty>
+	 </dynamic>
+	 /*교육및시험명*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="detcode1">			 
+	  				convert(varchar,f.code_kind)+convert(varchar,f.code_certifi)+convert(varchar,f.code_seq) = #detcode1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 /*교육년도에 따른 조회조건*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="yyyy1">			 
+	  				f.yyyy =#yyyy1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 /*지부*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="code_bran1">			 
+	  				f.code_bran =#code_bran1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 /*학기*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="season1">			 
+	  				f.season =#season1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 )sout
+	 )sout2
+      where sout2.ncount > #nstart# and sout2.ncount <![CDATA[<=]]> #nend#
+<!--       order by 1 desc,4,2,7 -->
+	  
+	</select>
+	
+	<!-- 교육및시험등록  count -->
+    <select id="edutestsendcnt1" resultClass="java.util.HashMap">
+        SELECT count(*) cnt
+        FROM (
+		select f.yyyy
+		, f.code_bran
+		, f.code_certifi
+		, f.code_kind
+		, f.code_seq
+		, f.bran_seq
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + k.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + k.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + k.detcodename + ')' end  edutestname
+	    , j.detcodename codekindname
+		, k.detcodename branname
+		, f.season
+		, isnull(f.bran_txt,'') bran_txt
+		, f.operation_cnt
+		, f.operation
+		, f.start_dt
+		, f.end_dt
+		, f.oper_start_dt
+		, f.oper_end_dt
+		, isnull(f.oper_start_tm, '') oper_start_tm
+	    , isnull(f.oper_end_tm, '') oper_end_tm
+		, f.receipt_pers_cnt
+		, f.operation_place
+		, f.account_end_dt
+		, f.use_yn
+		, f.account_way
+		, f.remark
+		, g.outside_yn
+<!-- 		, g.finish_time -->
+<!-- 		, g.finish_date -->
+<!-- 		, g.finish_point -->
+		, g.point_manage
+<!-- 		, g.edu_marks -->
+		, g.print_kind
+		, g.conform
+		, convert(varchar,f.code_kind)
+		  +convert(varchar,f.code_certifi)
+		  +convert(varchar,f.code_seq) as detcode
+	    , ROW_NUMBER()OVER(ORDER BY f.code_kind,f.code_certifi,f.code_seq) ncount
+	from edu_test f
+	     left join edu_test_name g
+	               on g.code_kind = f.code_kind
+	              and g.code_certifi = f.code_certifi
+	              and g.code_seq = f.code_seq
+	     left join com_code j
+	               on j.groupcode = '016'
+	              and j.detcode = f.code_kind
+	     left join com_code k
+	               on k.groupcode = '034'
+	              and k.detcode = f.code_bran
+	where g.use_yn='Y'
+	  and g.conform='Y'
+	<dynamic prepend="and">
+		<isNotEmpty property="code_kind1">			 
+			f.code_kind = #code_kind1#
+		</isNotEmpty>
+	 </dynamic>
+	 <dynamic prepend="and">
+		<isNotEmpty property="code_certifi1">			 
+			f.code_certifi = #code_certifi1#
+		</isNotEmpty>
+	 </dynamic>
+	 /*교육및시험명*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="detcode1">			 
+	  				convert(varchar,f.code_kind)+convert(varchar,f.code_certifi)+convert(varchar,f.code_seq) = #detcode1#
+	  			</isNotEmpty>
+	 </dynamic>	
+	 /*교육년도에 따른 조회조건*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="yyyy1">			 
+	  				f.yyyy =#yyyy1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 /*지부*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="code_bran1">			 
+	  				f.code_bran =#code_bran1#
+	  			</isNotEmpty>
+	 </dynamic>
+	 /*학기*/
+	 <dynamic prepend="and">
+				<isNotEmpty property="season1">			 
+	  				f.season =#season1#
+	  			</isNotEmpty>
+	 </dynamic>	 
+        ) OUT
+        WHERE 1=1
+    </select>	
+
+<!--교육및시험등록  insert --> 
+	<insert id="insertedutest" parameterClass="java.util.HashMap">
+		INSERT INTO edu_test
+           (code_kind
+		   ,code_certifi
+		   ,code_seq
+		   ,code_bran
+		   ,bran_seq
+		   ,yyyy
+		   ,season
+		   ,bran_txt
+		   ,operation_cnt
+		   ,operation 
+		   ,start_dt
+		   ,end_dt
+		   ,oper_start_dt
+		   ,oper_end_dt
+		   ,oper_start_tm
+	   	   ,oper_end_tm
+		   ,receipt_pers_cnt
+           ,operation_place
+		   ,account_end_dt
+		   ,account_way
+		   ,remark
+		   ,use_yn
+		   ,register
+		   ,regi_date
+
+			,finish_date 
+			,finish_time 
+			,finish_point 
+			,edu_marks 
+			,new_cost 
+			,new_cost_nomem 
+			,re_cost 
+			,mr_cost 
+			,bank_name 
+			,bank_acc 
+			,bank_acc_owner 
+			,service_marks 
+			,code_target 
+			,bran_cardjoin_tp 
+		   )
+     VALUES
+	 		(#code_kind1#
+           ,#code_certifi1#
+           ,#code_seq1#
+           ,#code_bran1#
+           ,(select right('00'+convert(varchar,convert(int,isnull(MAX(bran_seq),0))+1),3) 
+		          from edu_test where code_kind = #code_kind1# and code_certifi =#code_certifi1# and code_seq =#code_seq1# and code_bran =#code_bran1#)
+           ,#yyyy1#
+           ,#season1#
+		   ,#bran_txt1#
+           ,#operation_cnt1#
+           ,#operation1#
+           ,#start_dt1#
+           ,#end_dt1#
+           ,#oper_start_dt1#
+           ,#oper_end_dt1#
+		   ,#oper_start_tm1#
+           ,#oper_end_tm1#
+           ,#receipt_pers_cnt1#
+           ,#operation_place1#
+           ,#account_end_dt1#
+           ,#account_way1#
+           ,#remark1#
+           ,#use_yn1#
+           ,#g_name#
+           ,getdate()
+           
+		,#finish_date1#
+		,#finish_time1#
+		,#finish_point1#
+		,#edu_marks1#
+		,#new_cost1#
+		,#new_cost_nomem1#
+		,#re_cost1#
+		,#mr_cost1#
+		,#bank_name1#
+		,#bank_acc1#
+		,#bank_acc_owner1#
+		,#service_marks1#
+		,#code_target1#
+		,#bran_cardjoin_tp1#
+           )
+	</insert>
+
+<!-- 교육및 시험등록 update -->
+	<update id="updateedutest" parameterClass="java.util.HashMap">
+		
+UPDATE edu_test
+   SET 
+      yyyy 			= #yyyy1#
+      ,season 			= #season1#
+	  ,bran_txt			= #bran_txt1#
+      ,operation_cnt 	= #operation_cnt1#
+      ,operation 		= #operation1#
+      ,start_dt 		= #start_dt1#
+      ,end_dt 			= #end_dt1#
+      ,oper_start_dt 	= #oper_start_dt1#
+      ,oper_end_dt 		= #oper_end_dt1#
+	  ,oper_start_tm 	= #oper_start_tm1#
+      ,oper_end_tm 		= #oper_end_tm1#
+      ,receipt_pers_cnt = #receipt_pers_cnt1#
+      ,operation_place  = #operation_place1#
+      ,account_end_dt 	= #account_end_dt1#
+      ,account_way 		= #account_way1#
+      ,remark 			= #remark1#
+      ,use_yn 			= #use_yn1#
+      ,updater 			= #g_name#
+      ,up_date 			= getdate()
+
+	,finish_date = #finish_date1#
+	,finish_time = #finish_time1#
+	,finish_point = #finish_point1#
+	,edu_marks = #edu_marks1#
+	,new_cost = #new_cost1#
+	,new_cost_nomem = #new_cost_nomem1#
+	,re_cost = #re_cost1#
+	,mr_cost = #mr_cost1#
+	,bank_name = #bank_name1#
+	,bank_acc = #bank_acc1#
+	,bank_acc_owner = #bank_acc_owner1#
+	,service_marks = #service_marks1#
+	,code_target = #code_target1#
+	,bran_cardjoin_tp = #bran_cardjoin_tp1#
+		
+		where code_kind 	= #code_kind1# 
+		  and code_certifi  = #code_certifi1# 
+		  and code_seq 		= #code_seq1# 
+	      and code_bran 	= #code_bran1# 
+		  and bran_seq 		= #bran_seq1#  
+	</update>
+
+<!-- 교육및 시험등록 delete -->
+	<delete id="deleteedutest" parameterClass="java.util.HashMap">
+		
+DELETE edu_test
+		where code_kind 	= #code_kind1# 
+		  and code_certifi  = #code_certifi1# 
+		  and code_seq 		= #code_seq1# 
+	      and code_bran 	= #code_bran1# 
+		  and bran_seq 		= #bran_seq1#  
+	</delete>
+
+<!-- 응시결과처리  count -->
+    <select id="examsendcnt" resultClass="java.util.HashMap">
+    SELECT count(*) cnt
+        FROM (	
+		select f.yyyy, f.code_bran, f.code_kind, f.code_seq,
+       case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + l.detcodename + ')' end  edutest_name
+               ,a.code_operation, a.code_certifi, a.bran_seq,
+       p.member person_yn,
+       a.oper_name, a.oper_lic_no,
+<!--        [dbo].[GetPersNoDecord](a.oper_no , '2') oper_no, [dbo].[GetPersNoDecord](a.oper_no , '1') oper_no1, -->
+       a.oper_comp_name1 , a.oper_hp, a.receipt_no,
+       case when a.code_email_comp = '01' then a.oper_email else rtrim(a.oper_email) + '@' + i.detcodename end operemail,
+       b.detcodename, c.result_point, c.attend_cnt, c.time_cnt, isnull(c.result_no, '') result_no , c.result_state, k.detcodename resultstate,
+       f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) as detcode
+	   ,ROW_NUMBER()OVER(ORDER BY a.code_kind,a.code_certifi,a.code_seq,a.code_bran,a.bran_seq,a.receipt_no ) ncount
+	
+from operater a 
+     left join (select  w.code_pers, cq.detcodename + '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq on cq.groupcode = '006' and cq.detcode = w.code_member
+                       left join com_code cw on cw.groupcode = '021' and cw.detcode = w.pers_state  ) p on p.code_pers = a.person_yn
+     left join (select  x.code_kind, x.code_certifi, x.code_seq, x.code_bran, 
+                        x.bran_seq, x.receipt_no, 
+                        replace(replace(ISNULL(x.신청서,' ')+','+ISNULL(x.사진,' ')+','
+                                       +ISNULL(x.영양사면허증사본,' ')+','+ISNULL(x.경력증명서,' ')+','
+                                       +ISNULL(x.학위증명서,' ')+','+ISNULL(x.최종학위성적증명서,' ')+','
+                                       +ISNULL(x.기존자격증사본,' ')+','+ISNULL(x.발급회비,' ')
+                                       ,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind, ab.code_certifi, ab.code_seq, ab.code_bran, 
+                                              ab.bran_seq, ab.receipt_no, bb.detcodename
+                                         from oper_add_file ab, com_code bb
+                                        where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서]
+                              ,[최종학위성적증명서],[기존자격증사본],[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no
+	left join (select z.code_pers,
+<!-- 	JUMIN_DEL -->
+<!-- 					[dbo].[GetPersNodecord](z.pers_no,'1') pers_no, -->
+                       x.code_certifi, max(x.result_end_dt) result_end_dt
+                  from Person_M_TBL z, result_print x
+                 where z.code_pers = x.code_pers
+                 group by z.code_pers,
+<!--                  z.pers_no, -->
+                 x.code_certifi
+                ) d 
+               on d.code_certifi = a.code_certifi
+<!--                JUMIN_DEL -->
+<!--               and d.pers_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+				and d.code_pers = a.person_yn
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code k
+               on k.groupcode = '023'
+              and k.detcode = c.result_state
+   , (select * from edu_test where code_kind+code_certifi+code_seq+code_bran+bran_seq+convert(varchar,isnull(operation_cnt,'0'))+convert(varchar,isnull(season,'0')) = #detcode1# and code_kind NOT IN ('5') ) f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+     left join com_code l
+          on l.groupcode = '034'
+         and l.detcode = f.code_bran
+ where a.code_kind = f.code_kind
+   and a.code_certifi = f.code_certifi
+   and a.code_seq = f.code_seq
+   and a.code_bran = f.code_bran
+   and a.bran_seq = f.bran_seq
+   and a.oper_state = '11'   
+	 <dynamic prepend="and">
+	 	<isNotEmpty property="cert">
+	 		isnull(c.result_no, '')!=''
+	 		and f.code_kind NOT IN ('4') 
+	 	</isNotEmpty>
+	 </dynamic>   
+		/* 대상자  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_operation1">
+			a.code_operation = #code_operation1#
+		</isNotEmpty>
+	</dynamic> 	
+	/* 진행상태  */
+	<dynamic prepend="and">
+		<isNotEmpty property="result_state1">
+			c.result_state = #result_state1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 이름 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_name1">
+			a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 면허번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_lic_no1">
+			a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+	</dynamic>
+<!-- 	/* 핸드폰번호 동일 조건  */ -->
+<!-- 	<dynamic prepend="and"> -->
+<!-- 		<isNotEmpty property="oper_hp1"> -->
+<!-- 			a.oper_hp like '%'+#oper_hp1#+'%' -->
+<!-- 		</isNotEmpty> -->
+<!-- 	</dynamic> -->
+	/* 근무처명 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_comp_name11">
+			a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	</dynamic>
+	 ) OUT
+        WHERE 1=1
+    </select>
+
+<!-- 응시결과처리를 위한 합격관리룰 가져오기  select -->
+    <select id="selectexampoint" resultClass="java.util.HashMap">
+		select
+<!-- 			   isnull(f.edu_marks,0) edu_marks, -->
+<!-- 		       isnull(f.service_marks,0) service_marks, -->
+<!-- 		       isnull(f.finish_time,0) finish_time, -->
+<!-- 		       isnull(f.finish_date,0) finish_date,  -->
+<!-- 		       isnull(f.finish_point,0) finish_point, -->
+		       isnull(f.point_manage,0) point_manage,
+		       isnull(g.oper_end_dt,0) oper_end_dt,
+		       
+				isnull(g.finish_date,0) finish_date,
+				isnull(g.finish_time,0) finish_time,
+				isnull(g.finish_point,0) finish_point,
+				isnull(g.edu_marks,0) edu_marks,
+				isnull(g.service_marks,0) service_marks
+from edu_test_name f,edu_test g 
+ where f.code_kind+f.code_certifi+f.code_seq = substring(#detcode1#,1,6)
+   and g.code_kind+g.code_certifi+g.code_seq+g.code_bran+g.bran_seq = substring(#detcode1#,1,11)
+   and f.code_kind=g.code_kind
+   and f.code_certifi=g.code_certifi
+   and f.code_seq=g.code_seq
+		</select>
+      
+      <select id="selCertifi11" resultClass="java.util.HashMap">
+      	SELECT code_certifi
+		     , MAX(result_start_dt) result_start_dt
+		     , MAX(result_end_dt) result_end_dt
+		FROM (SELECT a.code_certifi 
+			       , d.certifi_name
+		  	       , a.result_start_dt
+				   , a.result_end_dt
+		        FROM result_print a
+					 left join certifi d
+						    on d.code_certifi=a.code_certifi
+			   WHERE a.code_pers=#code_pers#	
+			GROUP BY a.result_start_dt,a.result_end_dt, a.print_state,a.code_certifi,d.certifi_name) a
+		 where #oper_end_dt# between result_start_dt and result_end_dt
+		    GROUP BY code_certifi
+      </select>
+<!-- 응시결과처리  select -->
+    <select id="selectexam2" resultClass="java.util.HashMap">
+    	select sout.*
+	  from (
+		select f.yyyy
+			, f.code_bran
+			, f.code_kind
+			, f.code_seq
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + l.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + l.detcodename + ')' end  edutest_name
+			, a.code_operation
+			, a.code_certifi
+			, a.bran_seq
+			, p.member person_yn
+			, a.oper_state
+			, a.oper_name
+			, a.oper_lic_no
+<!-- 			JUMIN_DEL -->
+<!-- 			, [dbo].[GetPersNoDecord](a.oper_no , '2') oper_no -->
+<!-- 			, [dbo].[GetPersNoDecord](a.oper_no , '1') oper_no1  -->
+			, a.oper_birth
+			, a.oper_comp_name1 
+			, isnull(a.oper_comp_add1_2,'') pers_addr1
+			, a.oper_hp
+			, a.receipt_no
+			, g.point_manage
+			, case when isnull(a.code_email_comp,'01') = '01' then isnull(a.oper_email,' ') else isnull(rtrim(a.oper_email) + '@' + i.detcodename,' ') end operemail
+			, b.detcodename
+			, c.result_point
+			, c.attend_cnt
+			, c.time_cnt
+			, isnull(c.result_no, '') result_no
+			, c.result_state
+			, k.detcodename resultstate
+			, f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))
+						+convert(varchar,isnull(f.season,'0')) as detcode
+	   		,ROW_NUMBER()OVER(ORDER BY a.code_kind,a.code_certifi,a.code_seq,a.code_bran,a.bran_seq,a.oper_state,a.oper_name ) ncount
+			, ISNULL(a.person_yn,'') code_pers
+from operater a 
+     left join (select  w.code_pers, cq.detcodename + '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq on cq.groupcode = '006' and cq.detcode = w.code_member
+                       left join com_code cw on cw.groupcode = '021' and cw.detcode = w.pers_state  ) p on p.code_pers = a.person_yn
+     left join (select  x.code_kind, x.code_certifi, x.code_seq, x.code_bran, 
+                        x.bran_seq, x.receipt_no, 
+                        replace(replace(ISNULL(x.신청서,' ')+','+ISNULL(x.사진,' ')+','
+                                       +ISNULL(x.영양사면허증사본,' ')+','+ISNULL(x.경력증명서,' ')+','
+                                       +ISNULL(x.학위증명서,' ')+','+ISNULL(x.최종학위성적증명서,' ')+','
+                                       +ISNULL(x.기존자격증사본,' ')+','+ISNULL(x.발급회비,' ')
+                                       ,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind
+									   		, ab.code_certifi
+											, ab.code_seq
+											, ab.code_bran
+											,  ab.bran_seq
+											, ab.receipt_no
+											, bb.detcodename
+                                       from oper_add_file ab
+									   		, com_code bb
+                                       where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서]
+                              ,[최종학위성적증명서],[기존자격증사본],[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no
+	left join (select z.code_pers
+<!-- 					JUMIN_DEL -->
+<!-- 					, [dbo].[GetPersNodecord](z.pers_no,'1') pers_no -->
+					, x.code_certifi
+					, max(x.result_end_dt) result_end_dt
+               from Person_M_TBL z
+			   		, result_print x
+                 where z.code_pers = x.code_pers
+                 group by z.code_pers,
+<!--                  	z.pers_no, -->
+                 	x.code_certifi
+                ) d 
+               on d.code_certifi = a.code_certifi
+<!--                JUMIN_DEL -->
+<!--               and d.pers_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+				and d.code_pers = a.person_yn
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code k
+               on k.groupcode = '023'
+              and k.detcode = c.result_state
+   , (select * from edu_test where code_kind+code_certifi+code_seq+code_bran+bran_seq+convert(varchar,isnull(operation_cnt,'0'))+convert(varchar,isnull(season,'0')) = #detcode1# and code_kind NOT IN ('5') ) f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+     left join com_code l
+          on l.groupcode = '034'
+         and l.detcode = f.code_bran
+ where a.code_kind = f.code_kind
+   and a.code_certifi = f.code_certifi
+   and a.code_seq = f.code_seq
+   and a.code_bran = f.code_bran
+   and a.bran_seq = f.bran_seq
+   and a.oper_state = '11'   
+	 <dynamic prepend="and">
+	 	<isNotEmpty property="cert">
+	 		isnull(c.result_no, '')!='' 
+	 		and f.code_kind NOT IN ('4')	 		
+	 	</isNotEmpty>
+	 </dynamic>   
+		/* 대상자  */
+	<dynamic prepend="and">
+		<isNotEmpty property="code_operation1">
+			a.code_operation = #code_operation1#
+		</isNotEmpty>
+	</dynamic>	
+	/* 진행상태  */
+	<dynamic prepend="and">
+		<isNotEmpty property="result_state1">
+			c.result_state = #result_state1#
+		</isNotEmpty>
+	</dynamic> 
+	/* 이름 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_name1">
+			a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	</dynamic>
+	/* 면허번호 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_lic_no1">
+			a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+	</dynamic>
+<!-- 	/* 핸드폰번호 동일 조건  */ -->
+<!-- 	<dynamic prepend="and"> -->
+<!-- 		<isNotEmpty property="oper_hp1"> -->
+<!-- 			a.oper_hp like '%'+#oper_hp1#+'%' -->
+<!-- 		</isNotEmpty> -->
+<!-- 	</dynamic> -->
+	/* 근무처명 동일 조건  */
+	<dynamic prepend="and">
+		<isNotEmpty property="oper_comp_name11">
+			a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	</dynamic>
+   )sout
+      where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+      /* order by 5,10,11 */
+		</select>
+
+ <!-- 응시결과처리 엑셀 다운용 select -->
+    <select id="selectexamExcel" resultClass="java.util.HashMap">
+    	select sout.*
+		from (
+ 	select  ' ' upYN
+      ,case when g.code_kind = '1' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + cb.detcodename  
+<!--             when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,g.edu_marks)+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,g.edu_marks)+'평점' end) -->
+            when g.code_kind = '2' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '-'+convert(varchar,isnull(f.edu_marks,0))+'평점' else '('+isnull(f.bran_txt,'')+')'+'-'+convert(varchar,isnull(f.edu_marks,0))+'평점' end)
+            when g.code_kind = '3' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            when g.code_kind = '4' or g.code_kind = '8' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + '-' + CONVERT(varchar,f.operation_cnt)+'차'
+            when g.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + cb.detcodename  
+            when g.code_kind = '6' then '제'+CONVERT(varchar,f.operation_cnt)+'회 ' + g.edutest_name 
+            when g.code_kind = '7' then convert(varchar,f.yyyy)+'년도 '+ g.edutest_name + '-' + cb.detcodename + (case when isnull(f.bran_txt,'') = '' then '' else '('+isnull(f.bran_txt,'')+')' end) 
+            else g.edutest_name + '-' + isnull(f.bran_txt,'') + '-(' + cb.detcodename + ')' end  edutest_name
+     , isnull(a.oper_name,'') oper_name
+     , isnull(a.oper_lic_no,'') oper_lic_no
+<!--      JUMIN_DEL -->
+<!-- 	 ,case when #check# = '1' then [dbo].[GetPersNoDecord](a.oper_no , '1') -->
+<!-- 					      when #check# = '2'  -->
+<!-- 							  then [dbo].[GetPersNoDecord](a.oper_no , '2')   -->
+<!-- 						  when #check# = '3' -->
+<!-- 						      then [dbo].[GetPersNoDecord](a.oper_no , '3') -->
+<!-- 						  else [dbo].[GetPersNoDecord](a.oper_no , '3') end oper_no   /*주민등록번호 */ -->
+	, oper_birth
+     , isnull(a.oper_hp,'') oper_hp
+     , case when isnull(a.code_email_comp,'01') = '01' then isnull(a.oper_email,' ') else isnull(rtrim(a.oper_email) + '@' + i.detcodename,' ') end operemail
+     , isnull(c.result_point,' ') result_point 
+     , ISNULL(c.attend_cnt,' ') attend_cnt
+     , ISNULL(c.time_cnt,' ') time_cnt
+
+     , isnull(f.yyyy,'') yyyy
+     , isnull(cb.detcodename,'') code_bran
+     , isnull(cc.detcodename,'') code_kind
+     , isnull(cd.certifi_name,'') code_certifi
+     , isnull(ca.detcodename,'') code_operation
+     , ISNULL(ce.detcodename,' ') oper_state /*응시자진행상태*/
+     , isnull(p.member,' ') person_yn
+     , isnull(k.detcodename,' ') result_state  /*결과 진행상태*/
+     , isnull(c.result_no,' ') result_no /*발급번호*/
+     , f.code_seq
+     , a.bran_seq
+     , isnull(a.receipt_no,'')  receipt_no  /*접수번호*/
+     , ISNULL(b.detcodename,' ') detcodename, g.point_manage
+     , ISNULL(a.person_yn,'') code_pers
+     , f.code_kind+f.code_certifi+f.code_seq+f.code_bran+f.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0'))  detcode
+	 ,ROW_NUMBER()OVER(ORDER BY a.code_kind,a.code_certifi,a.code_seq,a.code_bran,a.bran_seq,a.receipt_no ) ncount
+	 , ISNULL(a.oper_comp_name1,' ') oper_comp_name1
+	 , ISNULL(a.company_tel,'') company_tel
+	 , ISNULL(a.code_post,'') code_post
+	 , ISNULL(a.oper_comp_add1_2,' ') oper_comp_add1
+	 , ISNULL(a.oper_comp_name2,' ') oper_comp_name2
+	 , ISNULL(a.oper_comp_add2_2,' ') oper_comp_add2
+	 , ISNULL(a.oper_comp_name3,' ') oper_comp_name3
+	 , ISNULL(a.oper_comp_add3_2,' ') oper_comp_add3
+	 , ISNULL(a.oper_comp_name4,' ') oper_comp_name4
+	 , ISNULL(a.oper_comp_add4_2,' ') oper_comp_add4
+	 , ISNULL(a.oper_comp_name5,' ') oper_comp_name5
+	 , ISNULL(a.oper_comp_add5_2,' ') oper_comp_add5
+	 , ISNULL(l.detcodename,'') code_use
+	 , ISNULL(a.trust_name,'') trust_name
+	 , case when g.code_kind = '4' or g.code_kind = '8' then ISNULL(mm.detcodename,'')
+		       else ISNULL(m.detcodename,'') end code_great
+from operater a 
+     left join (select  w.code_pers, cq.detcodename + '(' + cw.detcodename + ')' member
+                  from Person_M_TBL w
+                       left join com_code cq on cq.groupcode = '006' and cq.detcode = w.code_member
+                       left join com_code cw on cw.groupcode = '021' and cw.detcode = w.pers_state  ) p on p.code_pers = a.person_yn
+     left join com_code ca
+               on ca.groupcode = '035'
+              and ca.detcode = a.code_operation
+     left join certifi cd
+               on cd.code_certifi = a.code_certifi
+     left join com_code ce
+               on ce.groupcode = '022'
+              and ce.detcode = a.oper_state
+     left join (select  x.code_kind, x.code_certifi, x.code_seq, x.code_bran, 
+                        x.bran_seq, x.receipt_no, 
+                        replace(replace(ISNULL(x.신청서,' ')+','+ISNULL(x.사진,' ')+','
+                                       +ISNULL(x.영양사면허증사본,' ')+','+ISNULL(x.경력증명서,' ')+','
+                                       +ISNULL(x.학위증명서,' ')+','+ISNULL(x.최종학위성적증명서,' ')+','
+                                       +ISNULL(x.기존자격증사본,' ')+','+ISNULL(x.발급회비,' ')
+                                       ,' ,',''),', ','') detcodename
+                  from (           
+                        select * from (
+                                       select ab.code_kind, ab.code_certifi, ab.code_seq, ab.code_bran, 
+                                              ab.bran_seq, ab.receipt_no, bb.detcodename
+                                         from oper_add_file ab, com_code bb
+                                        where bb.groupcode = '037' 
+                                          and bb.detcode = ab.add_file_no     
+                                       ) z
+                        pivot (max(z.detcodename) for z.detcodename 
+                           in ([신청서],[사진],[영양사면허증사본],[경력증명서],[학위증명서]
+                              ,[최종학위성적증명서],[기존자격증사본],[발급회비])
+                              ) as pvt
+                        ) x
+               ) b 
+               on b.code_kind = a.code_kind 
+              and b.code_certifi = a.code_certifi
+              and b.code_seq = a.code_seq
+              and b.code_bran = a.code_bran
+              and b.bran_seq = a.bran_seq
+              and b.receipt_no = a.receipt_no
+     left join oper_result c 
+               on c.code_kind = a.code_kind 
+              and c.code_certifi = a.code_certifi
+              and c.code_seq = a.code_seq
+              and c.code_bran = a.code_bran
+              and c.bran_seq = a.bran_seq
+              and c.receipt_no = a.receipt_no	
+     left join com_code i
+               on i.groupcode = '025'
+              and i.detcode = a.code_email_comp
+     left join com_code k
+               on k.groupcode = '023'
+              and k.detcode = c.result_state
+     left join com_code l
+               on l.groupcode = '001'
+              and l.detcode = a.code_use
+     left join com_code m
+               on m.groupcode = '004'
+              and m.detcode = a.code_great
+     left join com_code mm
+               on mm.groupcode = '043'
+              and mm.detcode = a.code_great 
+   , (select * from edu_test where code_kind+code_certifi+code_seq+code_bran+bran_seq+convert(varchar,isnull(operation_cnt,'0'))+convert(varchar,isnull(season,'0')) = #edutest_name1# and code_kind NOT IN ('5') ) f
+     left join edu_test_name g
+               on g.code_kind = f.code_kind
+              and g.code_certifi = f.code_certifi
+              and g.code_seq = f.code_seq
+     left join com_code cb
+               on cb.groupcode = '034'
+              and cb.detcode = f.code_bran
+     left join com_code cc
+               on cc.groupcode = '016'
+              and cc.detcode = f.code_kind
+ where a.code_kind = f.code_kind
+   and a.code_certifi = f.code_certifi
+   and a.code_seq = f.code_seq
+   and a.code_bran = f.code_bran
+   and a.bran_seq = f.bran_seq
+   and a.oper_state='11'
+	 <dynamic prepend="and">
+	 	<isNotEmpty property="cert">
+	 		isnull(c.result_no, '')!=''
+	 		and f.code_kind NOT IN ('4') 	 		
+	 	</isNotEmpty>
+	 </dynamic> 
+	 
+	 
+	 <isEqual property="paramfrom" compareValue="ExamResult">
+	   
+		/* 대상자  */
+		<isNotEmpty property="code_operation1">
+			and a.code_operation = #code_operation1#
+		</isNotEmpty>
+	/* 진행상태  */
+		<isNotEmpty property="result_state1">
+			and c.result_state = #result_state1#
+		</isNotEmpty>
+	/* 이름 동일 조건  */
+		<isNotEmpty property="oper_name1">
+			and a.oper_name like '%'+#oper_name1#+'%'
+		</isNotEmpty>
+	/* 면허번호 동일 조건  */
+		<isNotEmpty property="oper_lic_no1">
+			and a.oper_lic_no like '%'+#oper_lic_no1#+'%'
+		</isNotEmpty>
+<!-- 	/* 핸드폰번호 동일 조건  */ -->
+<!-- 		<isNotEmpty property="oper_hp1"> -->
+<!-- 			and a.oper_hp like '%'+#oper_hp1#+'%' -->
+<!-- 		</isNotEmpty> -->
+	/* 근무처명 동일 조건  */
+		<isNotEmpty property="oper_comp_name11">
+			and a.oper_comp_name1 like '%'+#oper_comp_name11#+'%'
+		</isNotEmpty>
+	
+	</isEqual>
+	)sout
+      where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#
+  order by 25,22
+ </select>
+ 
+ 
+
+<!--응시결과처리  insert --> 
+	<delete id="deletexam" parameterClass="java.util.HashMap">
+		DELETE oper_result 
+		where code_kind 	= #code_kind1# 
+		  and code_certifi  = #code_certifi1# 
+		  and code_seq 		= #code_seq1# 
+		  and code_bran 	= #code_bran1# 
+		  and bran_seq 		= #bran_seq1#  
+		  and receipt_no	= #receipt_no1#
+	</delete>
+
+	<insert id="insertexam" parameterClass="java.util.HashMap">
+	INSERT INTO oper_result
+           (code_kind 
+           ,code_certifi 
+           ,code_seq 
+           ,code_bran 
+           ,bran_seq 
+           ,receipt_no
+           ,point_manage
+           ,edu_marks
+           ,service_marks
+           ,attend_cnt
+           ,time_cnt 
+           ,result_point 
+           ,result_state 
+           ,result_no
+           ,up_date
+           ,updater)
+     VALUES
+           (#code_kind1#
+           ,#code_certifi1#
+           ,#code_seq1#
+           ,#code_bran1#
+           ,#bran_seq1#
+           ,#receipt_no1#
+           ,#point_manage1#
+           ,#edu_marks1#
+           ,#service_marks1#
+           ,#attend_cnt1#
+           ,#time_cnt1#
+           ,#result_point1#
+           ,#result_state1#
+           ,#result_no1#
+           ,GETDATE()
+           ,#g_name#)
+	</insert>
+
+<!-- 응시결과처리 update -->
+	<update id="updateexame" parameterClass="java.util.HashMap">
+UPDATE oper_result
+   SET 
+      attend_cnt 		= #attend_cnt1#     
+	  ,time_cnt 		= #time_cnt1#
+      ,result_point 	= #result_point1#   
+      ,edu_marks		= #edu_marks1#
+      ,service_marks	= #service_marks1#
+	  ,result_state 	= #result_state1#
+	  ,result_no		= #result_no1#
+      ,up_date 			= getdate()      
+	  ,updater 			= #g_name#      
+where code_kind 	= #code_kind1# 
+  and code_certifi  = #code_certifi1# 
+  and code_seq 		= #code_seq1# 
+  and code_bran 	= #code_bran1# 
+  and bran_seq 		= #bran_seq1#  
+  and receipt_no	= #receipt_no1#
+	</update>
+
+<!-- 공통코드 조회 SELECT -->
+<select id="sCodeExcel" resultClass="java.util.HashMap">
+	SELECT groupcode
+     		 , detcode
+     		 , detcodename
+     FROM com_code
+   WHERE groupcode in ('001','004','014','016','022','023','025','034','035','043')
+     AND use_yn = 'Y'
+   ORDER BY groupcode, cdseq, detcode
+</select>
+
+
+	<delete id="deletinspection1" parameterClass="java.util.HashMap">
+		DELETE oper_add_file 
+			WHERE  code_kind 		=  #code_kind1#  
+			  and  code_certifi  	=  #code_certifi1#
+			  and  code_seq  		=  #code_seq1#
+			  and  code_bran  		=  #code_bran1#
+			  and  bran_seq  		=  #bran_seq1#
+			  and  receipt_no  		=  #receipt_no1#
+	</delete>
+	
+	<insert id="insertinspection1" parameterClass="java.util.HashMap">
+ 		INSERT INTO oper_add_file 
+					(code_kind
+					, code_certifi
+					, code_seq
+					, code_bran
+					, bran_seq
+					, receipt_no
+					, add_file_no
+					, chang_file_name
+					, regi_date
+					)
+		       VALUES (
+				      #code_kind1#
+				    , #code_certifi1#
+				    , #code_seq1#
+					, #code_bran1#
+					, #bran_seq1#
+					, #receipt_no1#
+					, #add_file_no#
+					, #chang_file_name#
+					, getdate())
+	</insert>
+	<select id="selectAFiles" resultClass="java.util.HashMap">
+		SELECT add_file_no 
+		     , chang_file_name
+		  FROM oper_add_file 
+		 WHERE  code_kind 	=  #code_kind1#  
+		   and  code_certifi	=  #code_certifi1#
+		   and  code_seq  	=  #code_seq1#
+		   and  code_bran  	=  #code_bran1#
+		   and  bran_seq  	=  #bran_seq1#
+		   and  receipt_no  =  #receipt_no1#
+		   <dynamic prepend="and">
+		   		<isNotEmpty property="add_file_no">			 
+	  				add_file_no =#add_file_no#
+	  			</isNotEmpty>
+	 	   </dynamic>  
+	</select>
+	<update  id="upinspection1" parameterClass="java.util.HashMap">
+		UPDATE oper_add_file 
+		   SET chang_file_name=#chang_file_name#
+		     , regi_date=GETDATE()
+		 WHERE  code_kind 	=  #code_kind1#  
+		   and  code_certifi =  #code_certifi1#
+		   and  code_seq  	=  #code_seq1#
+		   and  code_bran  	=  #code_bran1#
+		   and  bran_seq  	=  #bran_seq1#
+		   and  receipt_no  =  #receipt_no1#
+		   and  add_file_no =  #add_file_no#   
+	</update>
+	
+	<delete id="deletAFiles" parameterClass="java.util.HashMap">
+		DELETE oper_add_file 
+			WHERE  code_kind 		=  #code_kind1#  
+			  and  code_certifi  	=  #code_certifi1#
+			  and  code_seq  		=  #code_seq1#
+			  and  code_bran  	=  #code_bran1#
+			  and  bran_seq  		=  #bran_seq1#
+			  and  receipt_no  	=  #receipt_no1#
+			  and  add_file_no	=  #add_file_no#
+	</delete>
+	<select id="SelectPersonMtbl" resultClass="java.util.HashMap">
+		select a.pers_name
+<!-- 		JUMIN_DEL -->
+<!-- 		     , [dbo].[GetPersNodecord](a.pers_no,'1') pers_no -->
+				, a.pers_birth
+		     , a.lic_no
+		     , a.pers_hp
+		     , isnull((case when a.code_email_comp = '' then '' when a.code_email_comp = '01' then a.email else rtrim(a.email) + '@' + c.detcodename end),'') email
+		     , a.code_email_comp
+		     , case when isnull(b.code_post,'') = '' then isnull(a.code_post,'') else b.code_post end code_post
+		     , isnull(b.company_name,'') company_name
+		     , case when isnull(b.comp_add,'') = '' then RTRIM(a.pers_add)+' '+RTRIM(a.pers_add_detail) else b.comp_add end comp_add
+		     , isnull(a.code_pers,'') code_pers
+		     , isnull(b.code_use,'') code_use
+		     , isnull(b.trust_name,'') trust_name
+		     , isnull(b.code_great,'') code_great
+		     , case when isnull(b.company_tel,'') = '' then isnull(a.pers_tel,'') else isnull(b.company_tel,'') end company_tel
+		     , pers_state
+		     , (select id from id_tbl where code_pers = a.code_pers) id
+		     , (select detcodename from com_code where groupcode = '006' and detcode = a.code_member) code_member
+		from Person_M_tbl a
+			 left join com_code c on groupcode='025' and detcode=a.code_email_comp 
+		     left join ( select z.code_pers, max(z.company_name) company_name, max(z.code_post) code_post, 
+		                        RTRIM(max(z.company_add))+' '+RTRIM(max(z.company_add_detail)) comp_add,
+		                        max(z.company_tel) company_tel, max(z.code_great) code_great, 
+		                        max(z.code_use) code_use, max(z.trust_name) trust_name
+		                   from pers_company z
+		                  where z.primary_flag = '1'
+		                    and z.comp_seq = (select MAX(comp_seq) 
+		                                        from pers_company
+		                                       where code_pers = z.code_pers
+		                                         and primary_flag = '1')
+		                                       group by code_pers )b on b.code_pers = a.code_pers
+<!-- 	JUMIN_DEL -->
+<!-- 		where [dbo].[GetPersNodecord](a.pers_no,'1') = #oper_no1# -->
+		where
+	   		<isEmpty property="code_pers1">			 
+  				a.pers_name = #oper_name1# and a.pers_birth = #oper_birth1#
+  			</isEmpty>
+	   		<isNotEmpty property="code_pers1">			 
+  				a.code_pers = #code_pers1#
+  			</isNotEmpty>
+	</select>
+	<select id="SelectPersonMtblNew" resultClass="java.util.HashMap">
+		select a.pers_name
+<!-- 			JUMIN_DEL -->
+<!-- 		     , [dbo].[GetPersNodecord](a.pers_no,'1') pers_no -->
+		     , a.pers_birth
+		     , a.lic_no
+		     , a.pers_hp
+		     , isnull((case when a.code_email_comp = '' then '' when a.code_email_comp = '01' then a.email else rtrim(a.email) + '@' + c.detcodename end),'') email
+		     , a.code_email_comp
+		     , case when isnull(b.code_post,'') = '' then isnull(a.code_post,'') else b.code_post end code_post
+		     , isnull(b.company_name,'') company_name
+		     , case when isnull(b.comp_add,'') = '' then RTRIM(a.pers_add)+' '+RTRIM(a.pers_add_detail) else b.comp_add end comp_add
+		     , isnull(a.code_pers,'') code_pers
+		     , isnull(b.code_use,'') code_use
+		     , isnull(b.trust_name,'') trust_name
+		     , isnull(b.code_great,'') code_great
+		     , case when isnull(b.company_tel,'') = '' then isnull(a.pers_tel,'') else isnull(b.company_tel,'') end company_tel
+		     , pers_state
+		from (select * from Person_M_tbl where pers_name=#oper_name1#) a
+			 left join com_code c on groupcode='025' and detcode=a.code_email_comp 
+		     left join ( select z.code_pers, max(z.company_name) company_name, max(z.code_post) code_post, 
+		                        RTRIM(max(z.company_add))+' '+RTRIM(max(z.company_add_detail)) comp_add,
+		                        max(z.company_tel) company_tel, max(z.code_great) code_great, 
+		                        max(z.code_use) code_use, max(z.trust_name) trust_name
+		                   from pers_company z
+		                  where z.primary_flag = '1'
+		                    and z.comp_seq = (select MAX(comp_seq) 
+		                                        from pers_company
+		                                       where code_pers = z.code_pers
+		                                         and primary_flag = '1')
+		                                       group by code_pers )b on b.code_pers = a.code_pers
+<!-- 		      JUMIN_DEL -->
+<!-- 		where [dbo].[GetPersNodecord](a.pers_no,'1') = #oper_no1# -->
+		where a.pers_name = #oper_name1# and a.pers_birth = #oper_birth1#
+	</select>
+	
+	<select id="SelectOperater" resultClass="java.util.HashMap">
+            select receipt_no , oper_hp                
+              from operater 
+             where
+<!--              JUMIN_DEL -->
+<!--              [dbo].[GetPersNodecord](oper_no,'1') = #oper_no1#  -->
+ 	   			oper_name = #oper_name1# and oper_birth = #oper_birth1#
+               and code_kind+code_certifi+code_seq+code_bran+bran_seq = left(#edutest_name1#,11)
+               and oper_state NOT IN ('09') 
+	</select>
+	<select id="SelectOperater2" resultClass="java.util.HashMap">
+            select isnull(max(a.receipt_no),'') receipt_no,
+<!--             JUMIN_DEL -->
+<!--             	[dbo].[GetPersNodecord](a.oper_no,'1') oper_no, -->
+<!--             	isnull(x.edu_oper_no,'') edu_oper_no -->
+				a.oper_name , a.oper_birth ,
+				isnull(x.edu_oper_name,'') edu_oper_name, isnull(x.edu_oper_birth,'') edu_oper_birth
+              from operater a
+                   left join ( select distinct
+<!--                    					JUMIN_DEL -->
+<!--                    					[dbo].[GetPersNodecord](c.oper_no,'1') edu_oper_no -->
+									c.oper_name edu_oper_name , c.oper_birth edu_oper_birth
+								  from edu_test b, operater c
+								 where b.code_kind = c.code_kind
+								   and b.code_certifi = c.code_certifi
+								    and b.code_seq = c.code_seq
+									and b.code_bran = c.code_bran
+									and b.bran_seq = c.bran_seq
+<!-- 									JUMIN_DEL            -->
+<!-- 								   and [dbo].[GetPersNodecord](c.oper_no,'1') = #oper_no1# -->
+									and c.oper_name = #oper_name1# and c.oper_birth = #oper_birth1#
+								   and c.code_kind+c.code_certifi+c.code_seq+c.code_bran+c.bran_seq <![CDATA[<>]]> left(#edutest_name1#,11)
+								   and b.code_kind = '4'
+								   and c.oper_state in ('01','11')
+								   and b.yyyy = #yyyy1# ) x
+<!-- 								   JUMIN_DEL -->
+<!-- 								   on x.edu_oper_no = [dbo].[GetPersNodecord](a.oper_no,'1') -->
+									on x.edu_oper_name = a.oper_name and x.edu_oper_birth = a.oper_birth
+<!-- 					JUMIN_DEL -->
+<!--              where [dbo].[GetPersNodecord](a.oper_no,'1') = #oper_no1# -->
+             where a.oper_name = #oper_name1# and a.oper_birth = #oper_birth1#
+               and a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq = left(#edutest_name1#,11)
+               and a.oper_state NOT IN ('09')
+<!--                JUMIN_DEL  -->
+<!--              group by [dbo].[GetPersNodecord](a.oper_no,'1'), x.edu_oper_no -->
+             group by a.oper_name , x.edu_oper_name , a.oper_birth , x.edu_oper_birth
+	</select>
+
+	<parameterMap class="java.util.Map" id="rnc">
+		<parameter property="iDetcode"	jdbcType="VARCHAR"	javaType="java.lang.String"	mode="IN" />
+		<parameter property="procReturn"	jdbcType="NUMERIC"		javaType="java.lang.Integer"	mode="OUT" />
+	</parameterMap>
+	 <procedure id="pResultNoCreat_STR" parameterMap="rnc">
+	   {CALL ResultNoCreat_STR(?,?)}
+	 </procedure> 
+	 <procedure id="pLicenseDataCreat_STR" parameterMap="rnc">
+	   {CALL LicenseDataCreat_STR(?,?)}
+	 </procedure> 
+	 
+	<!-- 교육별응시현황 update -->
+	<update id="updateeducation11" parameterClass="java.util.HashMap">
+		update operater
+		set 
+		  oper_name 		= #oper_name1#
+<!-- 		, oper_no 			= [dbo].[GetPersNoencord](#oper_no1#) -->
+		, oper_birth 		= #oper_birth1#
+		, oper_lic_no 		= #oper_lic_no1#
+		<isEqual property="oper_hp1_upok" compareValue="Y"> 
+		, oper_hp 			= #oper_hp1#
+		</isEqual>
+		, code_operation 	= #code_operation1#
+		, oper_comp_name1	= #oper_comp_name11#
+		, code_pay_flag		= #code_pay_flag1#
+		, oper_state		= #oper_state1#
+		, register			= #register1#
+		, regi_date			= getdate()
+		, confirm_dt        = #confirm_dt#
+		where code_kind = #code_kind1# and code_certifi = #code_certifi1# and code_seq =#code_seq1# 
+				and code_bran = #code_bran1# and bran_seq = #bran_seq1# and receipt_no= #receipt_no1#
+	</update>
+	
+	<!-- 교육별응시현황 update Batch -->
+	<update id="updateeducationBatch" parameterClass="java.util.HashMap">
+		update operater
+		set 
+		oper_state		= '11'
+		,confirm_dt     =#confirm_dt#
+		where oper_state		= '01' and
+			<iterate property="receipt_infos" open="(" conjunction=" or " close=")">
+			(code_kind = #receipt_infos[].[0]# and code_certifi = #receipt_infos[].[1]# and code_seq =#receipt_infos[].[2]# 
+					and code_bran = #receipt_infos[].[3]# and bran_seq = #receipt_infos[].[4]# and receipt_no= #receipt_infos[].[5]#)
+			</iterate>		
+		
+	</update>
+	
+	<!-- 교육별응시현황 select Batch -->
+	<select id="selecteducationBatch" resultClass="java.util.HashMap">
+		select
+			oper_email, oper_hp, oper_name
+		from operater
+		where 
+			<iterate property="receipt_infos" open="(" conjunction=" or " close=")">
+			(code_kind = #receipt_infos[].[0]# and code_certifi = #receipt_infos[].[1]# and code_seq =#receipt_infos[].[2]# 
+					and code_bran = #receipt_infos[].[3]# and bran_seq = #receipt_infos[].[4]# and receipt_no= #receipt_infos[].[5]#)
+			</iterate>		
+		
+	</select>
+	
+	<!-- 교육별응시현황 update MemberBatch -->
+	<update id="updateeducationMemberBatch" parameterClass="java.util.HashMap">
+		update operater_damo
+		   set sec_oper_hp      = (select sec_pers_hp from Person_M_tbl_damo p where p.code_pers = #code_pers#)
+		     , sec_oper_email   = (select sec_email   from Person_M_tbl_damo p where p.code_pers = #code_pers#)
+			 , code_email_comp  = #code_email_comp#
+			 , code_post        = #code_post#
+			 , oper_comp_name1  = #oper_comp_name1#
+			 <!--  
+			 , oper_comp_add1_1 = #oper_comp_add1_1#
+			 , oper_comp_add1_2 = (select pers_add + ' ' + pers_add_detail from Person_M_tbl p where p.code_pers = #code_pers#) 
+			 , oper_comp_add1_2 = #oper_comp_add1_2# 
+			 , oper_comp_add1_2 = (select pers_add + ' ' + damo.[dbo].[damo_decrypt_kda_ver3_Person_M_TBL_pers_add_detail_91396BE78456F42F9E2DD4867A4FB2800A479F41]('kda_ver3','dbo.Person_M_TBL','pers_add_detail', [sec_pers_add_detail] ,'I') COLLATE Korean_Wansung_CI_AS
+			                         from Person_M_tbl_damo p
+			                        where p.code_pers = #code_pers#) -->
+		 where code_kind    = #code_kind# 
+		   and code_certifi = #code_certifi# 
+		   and code_seq     = #code_seq#
+		   and code_bran    = #code_bran# 
+		   and bran_seq     = #bran_seq# 
+		   and receipt_no   = #receipt_no#
+	</update>
+	
+	<!-- 교육별응시현황 delete -->
+	<delete id="deleteeducation11" parameterClass="java.util.HashMap">
+		delete operater
+		where code_kind = #code_kind1# and code_certifi = #code_certifi1# and code_seq =#code_seq1# 
+				and code_bran = #code_bran1# and bran_seq = #bran_seq1# and receipt_no= #receipt_no1#
+	</delete>
+	
+	<select id="selCode_pers1" resultClass="java.util.HashMap">
+		SELECT code_pers
+		  FROM Person_M_TBL
+         WHERE pers_name=#pers_name#
+<!--            AND SUBSTRING(dbo.GetPersNoDecord(pers_no,1),1,6)=SUBSTRING(#pers_no#,1,6) -->
+           AND pers_birth=#pers_birth#
+           AND lic_no=#lic_no#
+           and pers_state in ('01','07')
+           and mem_gubun = 1
+	</select>
+	
+	<select id="ChkTestListCount" resultClass="java.util.HashMap">
+		SELECT count(*) cnt 
+          FROM OPERATER A 
+               LEFT JOIN EDU_TEST B 
+                      ON A.CODE_KIND = B.CODE_KIND 
+                     AND A.CODE_CERTIFI = B.CODE_CERTIFI 
+                     AND A.CODE_SEQ = B.CODE_SEQ 
+                     AND A.CODE_BRAN = B.CODE_BRAN 
+                     AND A.BRAN_SEQ = B.BRAN_SEQ 
+               LEFT JOIN OPER_RESULT C 
+                      ON A.CODE_KIND = C.CODE_KIND 
+                     AND A.CODE_CERTIFI = C.CODE_CERTIFI 
+                     AND A.CODE_SEQ = C.CODE_SEQ 
+                     AND A.CODE_BRAN = C.CODE_BRAN 
+                     AND A.BRAN_SEQ = C.BRAN_SEQ 
+                     AND A.RECEIPT_NO = C.RECEIPT_NO 
+         WHERE A.CODE_KIND = '4'
+<!--          JUMIN_DEL -->
+<!--          	AND DBO.GETPERSNODECORD(OPER_NO,'1') =#oper_no1#  -->
+			AND A.OPER_NAME = #oper_name1# AND A.OPER_BIRTH = #oper_birth1#
+           AND A.OPER_STATE IN ('01','11' ) 
+           AND B.YYYY = #yyyy1# 
+           AND (ISNULL(C.RESULT_STATE, '') = '' OR ISNULL(C.RESULT_STATE, '') = '01') 
+	</select>
+	
+	<select id="ChkTestListCount2" resultClass="java.util.HashMap">
+		SELECT count(*) cnt 
+          FROM OPERATER A 
+               LEFT JOIN EDU_TEST B 
+                      ON A.CODE_KIND = B.CODE_KIND 
+                     AND A.CODE_CERTIFI = B.CODE_CERTIFI 
+                     AND A.CODE_SEQ = B.CODE_SEQ 
+                     AND A.CODE_BRAN = B.CODE_BRAN 
+                     AND A.BRAN_SEQ = B.BRAN_SEQ 
+               LEFT JOIN OPER_RESULT C 
+                      ON A.CODE_KIND = C.CODE_KIND 
+                     AND A.CODE_CERTIFI = C.CODE_CERTIFI 
+                     AND A.CODE_SEQ = C.CODE_SEQ 
+                     AND A.CODE_BRAN = C.CODE_BRAN 
+                     AND A.BRAN_SEQ = C.BRAN_SEQ 
+                     AND A.RECEIPT_NO = C.RECEIPT_NO 
+         WHERE A.CODE_KIND = '4' AND a.person_yn= #person_yn1#  
+           AND A.OPER_STATE IN ('01','11' ) 
+           AND B.YYYY = #yyyy1# 
+           AND (ISNULL(C.RESULT_STATE, '') = '' OR ISNULL(C.RESULT_STATE, '') = '01') 
+	</select>
+</sqlMap>

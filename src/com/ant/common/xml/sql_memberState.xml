@@ -1,0 +1,1139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- /*
+ * 프로그램명 : 쿼리 xml (회원 > 현황)
+ * 제작자 : 김성훈
+ * 제작일 : 2012.09.10
+ * 설   명 : 회원>현황 이하 쿼리 모음
+ */ -->
+ 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="memberState">
+	
+	<!-- 메뉴1, 1-1,1-2,1-3 지부별회원, 분과별,소분류별,회원종류별 은 박상모대리 진행-->
+
+	<!-- 
+	 * 작업명 : Home>회원>현황>근무처분류별 (페이징용 카운터, 조회) 메뉴. 2
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.09.10
+	 * 작   업 : getCompanyStateCount	근무처 분류별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			  getCompanyStateList		근무처 분류별 현황 리스트 조회
+	 * -->
+<select id="getCompanyStateCount" resultClass="java.util.HashMap">
+SELECT count(no) ncount
+  FROM ( 
+	    SELECT ROW_NUMBER()OVER(ORDER BY code_great ) no
+          from (
+                select code_great
+                  from (
+                        select a.code_great, b.tempcd2, b.detcodename, b.tempcd1, count(a.code_great) pers_count
+                          from pers_company a left join com_code b on b.groupcode = '004' and a.code_great = b.detcode,
+                               Person_M_TBL c     
+                         where isnull(a.company_name,'') != ''
+			               and c.pers_state in ('01')
+			               and a.primary_flag = '1'
+                           and ISNULL(b.detcodename,'') != ''
+                           and a.code_pers = c.code_pers
+                           and ISNULL(a.code_great,'') not in ('','0')
+                           and c.mem_gubun = 1
+                         group by a.code_great, b.tempcd2, b.detcodename, b.tempcd1
+                       ) aa
+                 group by code_great
+                ) bb
+          group by  code_great
+       ) OUT
+ WHERE 1=1
+</select>
+
+ <select id="getCompanyStateList" resultClass="java.util.HashMap">
+ select detcodename 
+      , SUM(isnull(col1,0)) col1
+      , SUM(isnull(col2,0)) col2
+      , SUM(isnull(col1,0))+SUM(isnull(col2,0)) totcount
+      , no ncount
+      , code_great
+  from(
+       select detcodename 
+             ,case when tempcd2 = '1' then sum(pers_count) end col1
+             ,case when tempcd2 = '2' then sum(pers_count) end col2
+             ,code_great
+             ,ROW_NUMBER()OVER(ORDER BY code_great ) no
+         from (
+               select a.code_great, b.tempcd2, b.detcodename, b.tempcd1, count(a.code_great) pers_count
+                 from pers_company a left join com_code b on b.groupcode = '004' and a.code_great = b.detcode,
+                      Person_M_TBL c     
+                where isnull(a.company_name,'') != ''
+                  and c.pers_state in ('01')
+                  and a.primary_flag = '1'
+                  and ISNULL(b.detcodename,'') != ''
+                  and a.code_pers = c.code_pers
+                  and ISNULL(a.code_great,'') not in ('','0')
+                  and c.mem_gubun = 1
+                group by a.code_great, b.tempcd2, b.detcodename, b.tempcd1
+               ) aa
+        group by code_great, detcodename, tempcd2
+      ) bb
+  group by  code_great, detcodename, code_great, no
+</select>    
+
+
+
+ <!-- 통계 관리 > 회원 현황 > 운영형태별 현황 > 운영 형태별 + 숫자 통계 + 회원구분(전체, 회원) -->
+ <!-- 이정기과장님 9월 10일쯔음 -->
+<select id="getCodeUseMemberList" resultClass="java.util.HashMap">
+select GUBUN, SUM(col1) VAR1, SUM(col2) VAR2, SUM(col3) VAR3, SUM(col4) VAR4,SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4) SUM
+  from(select GUBUN, 
+              case when code_use = '1' then sum(pers_count) end col1,
+              case when code_use = '2' then sum(pers_count) end col2,
+              case when code_use = '3' then sum(pers_count) end col3,
+              case when code_use = '4' then sum(pers_count) end col4
+         from (select 'A' GUBUN, a.code_use, b.detcodename, count(code_use) pers_count
+                 from pers_company a left join com_code b on b.groupcode = '001' and a.code_use = b.detcode,
+                      Person_M_TBL c     
+                where isnull(a.company_name,'') != ''
+			               and c.pers_state in ('01')
+			               and a.primary_flag = '1'
+                  and ISNULL(b.detcodename,'') != ''
+                  and a.code_pers = c.code_pers
+                  and c.mem_gubun = 1
+                group by a.code_use, b.detcodename
+               union all
+               select 'B' GUBUN, a.code_use, b.detcodename, count(code_use) pers_count
+                 from pers_company a left join com_code b on b.groupcode = '001' and a.code_use = b.detcode,
+                      Person_M_TBL c
+                where isnull(a.company_name,'') != ''
+ 			               and c.pers_state in ('01')
+			               and a.primary_flag = '1'
+                  and ISNULL(b.detcodename,'') != ''
+                  and a.code_pers = c.code_pers
+                  and c.code_member not in ('','0','00')
+                  and c.mem_gubun = 1
+                group by a.code_use, b.detcodename
+             ) aa
+        group by GUBUN, code_use
+ 
+      ) bb
+ group by GUBUN
+</select> 
+<!-- 메뉴. 4 위탁업체 개인별 은 윤석희씨 진행 -->
+<select id="getSubCodePersonCount" resultClass="java.util.HashMap">
+SELECT count(*) cnt
+  FROM(select a.trust_name
+            , count(a.code_pers) pers_count
+         from pers_company a, Person_M_TBL d
+        where isnull(a.trust_name,'') != ''
+          and d.pers_state in ('01')
+          and a.primary_flag = '1'
+          and a.code_pers = d.code_pers
+          and d.mem_gubun = 1
+        group by a.trust_name
+      ) OUT
+</select>
+
+ <select id="getSubCodePersonList" resultClass="java.util.HashMap">
+SELECT OUT.*
+  FROM(select ROW_NUMBER()OVER(ORDER BY a.trust_name ) no
+            , a.trust_name
+            , COUNT(a.code_pers) pers_count
+         from pers_company a, Person_M_TBL d
+        where isnull(a.trust_name,'') != ''
+          and d.pers_state in ('01')
+          and a.primary_flag = '1'
+          and a.code_pers = d.code_pers
+          and d.mem_gubun = 1
+        group by a.trust_name
+      ) OUT
+ WHERE 1=1 
+   and out.no > #nstart# and out.no <![CDATA[<=]]> #nend#
+</select>    
+
+<!-- 메뉴. 5 ~ 11 은 박상모대리 진행 -->
+
+
+
+	
+	
+	<!--
+	 * 작업명 : Home>회원>현황>산하단체소속별 (페이징용 카운터, 조회) 메뉴.12
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.05
+	 * 작  업 : getSubCodeStateCount	산하단체소속별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *		    getSubCodeStateList		산하단체소속별 현황 리스트 조회
+	 * -->
+<select id="getSubCodeStateCount" resultClass="java.util.HashMap">
+
+select count(ncount) ncount
+from(
+select code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,'0')) col1
+     , SUM(isnull(col2,'0')) col2
+     , ROW_NUMBER() over( order by  code_great, code_small) ncount
+  from(
+       select code_great, h_code_great
+            , code_small, h_code_small
+            , code_sub
+            , case when code_sub = '02' then sum(ncount) end col1
+            , case when code_sub = '04' then sum(ncount) end col2
+         from(select code_great, b.detcodename h_code_great
+                   , code_small, c.detcodename h_code_small
+                   , d.code_sub
+                   , count(d.code_pers) ncount
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                 and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and a.code_pers = d.code_pers
+                 and d.mem_gubun = 1
+               group by code_great, code_small, b.detcodename, c.detcodename, d.code_sub
+              )sout
+        group by code_great, code_small, h_code_great, h_code_small, code_sub
+       )sout
+  group by code_great, code_small, h_code_great, h_code_small
+  )sout
+</select>
+
+ <select id="getSubCodeStateList" resultClass="java.util.HashMap">
+select sout.*
+from(
+select ROW_NUMBER() over(order by code_great, code_small) ncount
+     , code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,'0')) col1
+     , SUM(isnull(col2,'0')) col2
+     , SUM(isnull(col3,'0')) col3
+     , SUM(isnull(col4,'0')) col4
+     , SUM(isnull(col1,'0'))+SUM(isnull(col2,'0'))+SUM(isnull(col3,'0'))+SUM(isnull(col4,'0')) totcount
+  from(
+       select code_great, h_code_great
+            , code_small, h_code_small
+            , code_sub
+            , case when code_sub = '01' then sum(ncount) end col1
+            , case when code_sub = '02' then sum(ncount) end col2
+            , case when code_sub = '03' then sum(ncount) end col3
+            , case when code_sub = '04' then sum(ncount) end col4
+            , SUM(ncount) z
+         from(select code_great, b.detcodename h_code_great
+                   , code_small, c.detcodename h_code_small
+                   , d.code_sub
+                   , count(d.code_pers) ncount
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                and d.pers_state in ('01')
+                 and a.primary_flag = '1'
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and a.code_pers = d.code_pers
+                 and d.mem_gubun = 1
+               group by code_great, code_small, b.detcodename, c.detcodename, d.code_sub
+              )sout
+        group by code_great, code_small, h_code_great, h_code_small, code_sub
+       )sout
+  group by code_great, code_small, h_code_great, h_code_small
+)sout
+</select>    
+
+
+
+
+	<!--
+	 * 작업명 : Home>회원>현황>피 급식자별 (페이징용 카운터, 조회) 메뉴.13
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.05
+	 * 작  업 : getMealStateCount	피 급식자별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getMealStateList	피 급식자별 현황 리스트 조회
+	 * -->
+<select id="getMealStateCount" resultClass="java.util.HashMap">
+select count(ncount) ncount
+  from(              
+       select ROW_NUMBER() over(order by code_great, code_small) ncount
+                   , code_great, h_code_great
+                   , code_small, h_code_small
+                   
+                   , sum(company_count_mom		) col1
+                   , sum(company_count_lunch	) col2
+                   , sum(company_count_dinner	) col3
+                   , sum(company_count_midnig	) col4
+                   
+                   , sum(company_count_mom		)
+                   + sum(company_count_lunch	)
+                   + sum(company_count_dinner	)
+                   + sum(company_count_midnig	) totcount
+                   
+         from(       
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , isnull(a.company_count_mom		, 0) company_count_mom
+                   , isnull(a.company_count_lunch	, 0) company_count_lunch
+                   , isnull(a.company_count_dinner	, 0) company_count_dinner
+                   , isnull(a.company_count_midnig	, 0) company_count_midnig
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+              )sout
+         group by code_great, code_small, h_code_great, h_code_small
+      )sout 
+</select>
+
+<select id="getMealStateList" resultClass="java.util.HashMap">
+select *
+  from(              
+       select ROW_NUMBER() over(order by code_great, code_small) ncount
+                   , code_great, h_code_great
+                   , code_small, h_code_small
+                   
+                   , sum(company_count_mom		) col1
+                   , sum(company_count_lunch	) col2
+                   , sum(company_count_dinner	) col3
+                   , sum(company_count_midnig	) col4
+                   
+                   , sum(company_count_mom) + sum(company_count_lunch) + sum(company_count_dinner) + sum(company_count_midnig) totcount
+                   
+         from(       
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , isnull(a.company_count_mom		, 0) company_count_mom
+                   , isnull(a.company_count_lunch	, 0) company_count_lunch
+                   , isnull(a.company_count_dinner	, 0) company_count_dinner
+                   , isnull(a.company_count_midnig	, 0) company_count_midnig
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+              )sout
+         group by code_great, code_small, h_code_great, h_code_small
+      )sout 
+
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>영양사 연봉별 (페이징용 카운터, 조회) 메뉴.14
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012..
+	 * 작   업 : getYearPayStateCount	영양사 연봉별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			  getYearPayStateList		영양사 연봉별 현황 리스트 조회
+	 * -->
+<select id="getYearPayStateCount" resultClass="java.util.HashMap">
+select COUNT(ncount) ncount
+from (select ROW_NUMBER() over(order by code_great, code_small) ncount
+  from(select code_great, h_code_great
+            , code_small, h_code_small
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.year_pay, 0) year_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+</select>
+
+ <select id="getYearPayStateList" resultClass="java.util.HashMap">
+ select *
+  from(
+select ROW_NUMBER() over(order by code_great, code_small) ncount
+     , code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,0)) col1
+     , SUM(isnull(col2,0)) col2
+     , SUM(isnull(col3,0)) col3
+     , SUM(isnull(col4,0)) col4
+     , SUM(isnull(col5,0)) col5
+     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0)) totcount
+  from(
+       select 
+              code_great, h_code_great
+            , code_small, h_code_small
+            , case when (year_pay between 1000 and 1200) then 1 end col1
+            , case when (year_pay between 1200 and 1400) then 1 end col2
+            , case when (year_pay between 1400 and 1600) then 1 end col3
+            , case when (year_pay between 1600 and 1800) then 1 end col4
+            , case when (year_pay between 1800 and 2000) then 1 end col5
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.year_pay, 0) year_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>급식 종사자별 (페이징용 카운터, 조회) 메뉴.15
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012..
+	 * 작  업 : getMealEmployStateCount	급식 종사자별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getMealEmployStateList	급식 종사자별 현황 리스트 조회
+	 * -->
+<select id="getMealEmployStateCount" resultClass="java.util.HashMap">
+</select>
+
+ <select id="getMealEmployStateList" resultClass="java.util.HashMap">
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>영양사 면허수당별 (페이징용 카운터, 조회) 메뉴.16
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.06
+	 * 작  업 : getLicPayStateCount	영양사 면허수당별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getLicPayStateList	영양사 면허수당별 현황 리스트 조회
+	 * -->
+<select id="getLicPayStateCount" resultClass="java.util.HashMap">
+select COUNT(ncount) ncount
+from (select ROW_NUMBER() over(order by code_great, code_small) ncount
+  from(select code_great, h_code_great
+            , code_small, h_code_small
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.year_pay, 0) year_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+</select>
+
+ <select id="getLicPayStateList" resultClass="java.util.HashMap">
+select *
+  from(
+select ROW_NUMBER() over(order by code_great, code_small) ncount
+     , code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,0)) col1
+     , SUM(isnull(col2,0)) col2
+     , SUM(isnull(col3,0)) col3
+     , SUM(isnull(col4,0)) col4
+     , SUM(isnull(col5,0)) col5
+     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0)) totcount
+  from(
+       select 
+              code_great, h_code_great
+            , code_small, h_code_small
+            , case when (lic_pay between 20000 and 29999) then 1 end col1
+            , case when (lic_pay between 30000 and 39999) then 1 end col2
+            , case when (lic_pay between 40000 and 49999) then 1 end col3
+            , case when (lic_pay between 50000 and 59999) then 1 end col4
+            , case when (lic_pay between 60000 and 69999) then 1 end col5
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.lic_pay, 0) lic_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>1식 재료비별 (페이징용 카운터, 조회) 메뉴.17
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.06
+	 * 작  업 : getCompanyMealStateCount	1식 재료비별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getCompanyMealStateList		1식 재료비별 현황 리스트 조회
+	 * -->
+<select id="getCompanyMealStateCount" resultClass="java.util.HashMap">
+select COUNT(ncount) ncount
+from (select ROW_NUMBER() over(order by code_great, code_small) ncount
+  from(select code_great, h_code_great
+            , code_small, h_code_small
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.year_pay, 0) year_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+</select>
+
+ <select id="getCompanyMealStateList" resultClass="java.util.HashMap">
+select *
+  from(
+select ROW_NUMBER() over(order by code_great, code_small) ncount
+     , code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,0)) col1
+     , SUM(isnull(col2,0)) col2
+     , SUM(isnull(col3,0)) col3
+     , SUM(isnull(col4,0)) col4
+     , SUM(isnull(col5,0)) col5
+     , SUM(isnull(col6,0)) col6
+     , SUM(isnull(col7,0)) col7
+     , SUM(isnull(col8,0)) col8
+     , SUM(isnull(col1,0))+SUM(isnull(col2,0))+SUM(isnull(col3,0))+SUM(isnull(col4,0))+SUM(isnull(col5,0)) totcount
+  from(
+       select 
+              code_great, h_code_great
+            , code_small, h_code_small
+            , case when (company_meal between 500 and 1499) then 1 end col1
+            , case when (company_meal between 1500 and 2499) then 1 end col2
+            , case when (company_meal between 2500 and 3499) then 1 end col3
+            , case when (company_meal between 3500 and 4499) then 1 end col4
+            , case when (company_meal between 4500 and 6499) then 1 end col5
+            , case when (company_meal between 6500 and 7500) then 1 end col6
+            , case when (company_meal between 7501 and 8500) then 1 end col7
+            , case when (company_meal between 8501 and 10000) then 1 end col8
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.company_meal, 0) company_meal
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>겸직별 (페이징용 카운터, 조회) 메뉴.18
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.06
+	 * 작  업 : getMultyStateCount	겸직별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getMultyStateList	겸직별 현황 리스트 조회
+	 * -->
+<select id="getMultyStateCount" resultClass="java.util.HashMap">
+select COUNT(ncount) ncount
+from (select ROW_NUMBER() over(order by code_great, code_small) ncount
+  from(select code_great, h_code_great
+            , code_small, h_code_small
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.year_pay, 0) year_pay
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+</select>
+
+ <select id="getMultyStateList" resultClass="java.util.HashMap">
+select *
+  from(
+select ROW_NUMBER() over(order by code_great, code_small) ncount
+     , code_great, h_code_great
+     , code_small, h_code_small
+     , SUM(isnull(col1,0)) col1
+     , SUM(isnull(col2,0)) col2
+     , SUM(isnull(col1,0))+SUM(isnull(col2,0)) totcount
+  from(
+       select 
+              code_great, h_code_great
+            , code_small, h_code_small
+            , case when (pers_multy = '1') then 1 end col1
+            , case when (pers_multy != '1') then 1 end col2
+         from(
+              select ROW_NUMBER() over(order by a.code_great, a.code_small) number
+                   , a.code_great, b.detcodename h_code_great
+                   , a.code_small, c.detcodename h_code_small
+                   , ISNULL(a.pers_multy, 0) pers_multy
+                from pers_company a  left join com_code b on b.groupcode = '004' and a.code_great = b.detcode
+                                     left join com_code c on c.groupcode = '005' and a.code_small = c.detcode
+                   , Person_M_TBL d
+               where 1=1
+                  and d.pers_state in ('01')
+		          and a.primary_flag = '1'
+                 and a.code_pers = d.code_pers
+                 and ISNULL(a.code_great,'') not in ('','0')
+                 and ISNULL(a.code_small,'') not in ('','0')
+                 and ISNULL(b.detcodename,'') != ''
+                 and ISNULL(c.detcodename,'') != ''
+                 and d.mem_gubun = 1
+             )sout
+      )sout
+ group by code_great, code_small, h_code_great, h_code_small
+ )sout
+
+</select> 
+
+	<!--
+	 * 작업명 : Home>회원>현황>급식인원별 (페이징용 카운터, 조회) 메뉴.19
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.06
+	 * 작  업 : getMealAllStateCount	급식인원별 현황 리스트 출력시 페이징 처리를 위한 전체 갯수 얻기
+	 *			getMealAllStateList		급식인원별 현황 리스트 조회
+	 * -->
+<select id="getMealNumberStateCount" resultClass="java.util.HashMap">
+select count(number) ncount
+  from(select ROW_NUMBER() over(order by detcode) number
+         from com_code
+        where groupcode = '007'
+      )sout
+</select>
+
+ <select id="getMealNumberStateList" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_bran) ncount
+     , code_bran
+     , tempcd1 h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            
+            , (case when company_count_mom		between 1 and 50 then 1 else 0 end) +
+              (case when company_count_lunch	between 1 and 50 then 1 else 0 end) +
+              (case when company_count_dinner	between 1 and 50 then 1 else 0 end) +
+              (case when company_count_midnig	between 1 and 50 then 1 else 0 end) col1
+            
+            , (case when company_count_mom		between 51 and 100 then 1 else 0 end) +
+              (case when company_count_lunch	between 51 and 100 then 1 else 0 end) +
+              (case when company_count_dinner	between 51 and 100 then 1 else 0 end) +
+              (case when company_count_midnig	between 51 and 100 then 1 else 0 end) col2
+            
+            , (case when company_count_mom		between 101 and 200 then 1 else 0 end) +
+              (case when company_count_lunch	between 101 and 200 then 1 else 0 end) +
+              (case when company_count_dinner	between 101 and 200 then 1 else 0 end) +
+              (case when company_count_midnig	between 101 and 200 then 1 else 0 end) col3
+            
+            , (case when company_count_mom		between 201 and 300 then 1 else 0 end) +
+              (case when company_count_lunch	between 201 and 300 then 1 else 0 end) +
+              (case when company_count_dinner	between 201 and 300 then 1 else 0 end) +
+              (case when company_count_midnig	between 201 and 300 then 1 else 0 end) col4
+            
+            , (case when company_count_mom		between 301 and 500 then 1 else 0 end) +
+              (case when company_count_lunch	between 301 and 500 then 1 else 0 end) +
+              (case when company_count_dinner	between 301 and 500 then 1 else 0 end) +
+              (case when company_count_midnig	between 301 and 500 then 1 else 0 end) col5
+            
+            , (case when company_count_mom		between 501 and 700 then 1 else 0 end) +
+              (case when company_count_lunch	between 501 and 700 then 1 else 0 end) +
+              (case when company_count_dinner	between 501 and 700 then 1 else 0 end) +
+              (case when company_count_midnig	between 501 and 700 then 1 else 0 end) col6
+            
+            , (case when company_count_mom		between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_lunch	between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_dinner	between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_midnig	between 701 and 1000 then 1 else 0 end) col7
+                    
+            , (case when company_count_mom		between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_lunch	between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_dinner	between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_midnig	between 1001 and 1500 then 1 else 0 end) col8
+            
+            , (case when company_count_mom		between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_lunch	between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_dinner	between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_midnig	between 1501 and 2000 then 1 else 0 end) col9
+            
+            , (case when company_count_mom		between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_lunch	between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_dinner	between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_midnig	between 2001 and 3000 then 1 else 0 end) col10
+                    
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+ group by code_bran, tempcd1
+union all
+select '99' number
+     , '99' code_bran
+     , 'TOTAL'  h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            
+            , (case when company_count_mom		between 1 and 50 then 1 else 0 end) +
+              (case when company_count_lunch	between 1 and 50 then 1 else 0 end) +
+              (case when company_count_dinner	between 1 and 50 then 1 else 0 end) +
+              (case when company_count_midnig	between 1 and 50 then 1 else 0 end) col1
+            
+            , (case when company_count_mom		between 51 and 100 then 1 else 0 end) +
+              (case when company_count_lunch	between 51 and 100 then 1 else 0 end) +
+              (case when company_count_dinner	between 51 and 100 then 1 else 0 end) +
+              (case when company_count_midnig	between 51 and 100 then 1 else 0 end) col2
+            
+            , (case when company_count_mom		between 101 and 200 then 1 else 0 end) +
+              (case when company_count_lunch	between 101 and 200 then 1 else 0 end) +
+              (case when company_count_dinner	between 101 and 200 then 1 else 0 end) +
+              (case when company_count_midnig	between 101 and 200 then 1 else 0 end) col3
+            
+            , (case when company_count_mom		between 201 and 300 then 1 else 0 end) +
+              (case when company_count_lunch	between 201 and 300 then 1 else 0 end) +
+              (case when company_count_dinner	between 201 and 300 then 1 else 0 end) +
+              (case when company_count_midnig	between 201 and 300 then 1 else 0 end) col4
+            
+            , (case when company_count_mom		between 301 and 500 then 1 else 0 end) +
+              (case when company_count_lunch	between 301 and 500 then 1 else 0 end) +
+              (case when company_count_dinner	between 301 and 500 then 1 else 0 end) +
+              (case when company_count_midnig	between 301 and 500 then 1 else 0 end) col5
+            
+            , (case when company_count_mom		between 501 and 700 then 1 else 0 end) +
+              (case when company_count_lunch	between 501 and 700 then 1 else 0 end) +
+              (case when company_count_dinner	between 501 and 700 then 1 else 0 end) +
+              (case when company_count_midnig	between 501 and 700 then 1 else 0 end) col6
+            
+            , (case when company_count_mom		between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_lunch	between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_dinner	between 701 and 1000 then 1 else 0 end) +
+              (case when company_count_midnig	between 701 and 1000 then 1 else 0 end) col7
+                    
+            , (case when company_count_mom		between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_lunch	between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_dinner	between 1001 and 1500 then 1 else 0 end) +
+              (case when company_count_midnig	between 1001 and 1500 then 1 else 0 end) col8
+            
+            , (case when company_count_mom		between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_lunch	between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_dinner	between 1501 and 2000 then 1 else 0 end) +
+              (case when company_count_midnig	between 1501 and 2000 then 1 else 0 end) col9
+            
+            , (case when company_count_mom		between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_lunch	between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_dinner	between 2001 and 3000 then 1 else 0 end) +
+              (case when company_count_midnig	between 2001 and 3000 then 1 else 0 end) col10
+                    
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+</select> 
+ <select id="getMealNumberStateList_1" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_bran) ncount
+     , code_bran
+     , tempcd1 h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_mom		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_mom		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_mom		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_mom		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_mom		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_mom		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_mom		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_mom		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_mom		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_mom		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+ group by code_bran, tempcd1
+union all
+select '99' number
+     , '99' code_bran
+     , 'TOTAL'  h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_mom		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_mom		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_mom		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_mom		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_mom		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_mom		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_mom		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_mom		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_mom		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_mom		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+</select>  
+ <select id="getMealNumberStateList_2" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_bran) ncount
+     , code_bran
+     , tempcd1 h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_lunch		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_lunch		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_lunch		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_lunch		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_lunch		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_lunch		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_lunch		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_lunch		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_lunch		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_lunch		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+ group by code_bran, tempcd1
+union all
+select '99' number
+     , '99' code_bran
+     , 'TOTAL'  h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_lunch		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_lunch		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_lunch		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_lunch		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_lunch		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_lunch		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_lunch		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_lunch		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_lunch		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_lunch		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+</select>  
+ <select id="getMealNumberStateList_3" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_bran) ncount
+     , code_bran
+     , tempcd1 h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_dinner		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_dinner		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_dinner		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_dinner		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_dinner		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_dinner		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_dinner		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_dinner		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_dinner		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_dinner		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+ group by code_bran, tempcd1
+union all
+select '99' number
+     , '99' code_bran
+     , 'TOTAL'  h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_dinner		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_dinner		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_dinner		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_dinner		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_dinner		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_dinner		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_dinner		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_dinner		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_dinner		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_dinner		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+</select>  
+ <select id="getMealNumberStateList_4" resultClass="java.util.HashMap">
+select ROW_NUMBER() over(order by code_bran) ncount
+     , code_bran
+     , tempcd1 h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_midnig		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_midnig		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_midnig		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_midnig		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_midnig		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_midnig		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_midnig		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_midnig		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_midnig		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_midnig		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+ group by code_bran, tempcd1
+union all
+select '99' number
+     , '99' code_bran
+     , 'TOTAL'  h_code_bran
+     , SUM(col1) col1
+     , SUM(col2) col2
+     , SUM(col3) col3
+     , SUM(col4) col4
+     , SUM(col5) col5
+     , SUM(col6) col6
+     , SUM(col7) col7
+     , SUM(col8) col8
+     , SUM(col9) col9
+     , SUM(col10) col10
+     
+     , SUM(col1)+SUM(col2)+SUM(col3)+SUM(col4)+SUM(col5)
+     + SUM(col6)+SUM(col7)+SUM(col8)+SUM(col9)+SUM(col10) totcount
+  from(
+       select ROW_NUMBER() over(order by a.code_bran) number
+            , a.code_bran, d.tempcd1
+            , (case when company_count_midnig		between 1 and 50 then 1 else 0 end) col1
+            , (case when company_count_midnig		between 51 and 100 then 1 else 0 end) col2
+            , (case when company_count_midnig		between 101 and 200 then 1 else 0 end) col3
+            , (case when company_count_midnig		between 201 and 300 then 1 else 0 end) col4
+            , (case when company_count_midnig		between 301 and 500 then 1 else 0 end) col5
+            , (case when company_count_midnig		between 501 and 700 then 1 else 0 end) col6
+            , (case when company_count_midnig		between 701 and 1000 then 1 else 0 end) col7
+            , (case when company_count_midnig		between 1001 and 1500 then 1 else 0 end) col8
+            , (case when company_count_midnig		between 1501 and 2000 then 1 else 0 end) col9
+            , (case when company_count_midnig		between 2001 and 3000 then 1 else 0 end) col10
+        from Person_M_TBL a left join pers_company b on b.code_pers = a.code_pers and b.primary_flag = '1'
+                            left join com_code d on d.groupcode = '007' and d.detcode = a.code_bran 
+       where ISNULL(d.tempcd1, '') != ''
+         and a.pers_state in ('01')
+         and a.mem_gubun = 1
+      )sout
+</select> 
+
+
+</sqlMap>
+

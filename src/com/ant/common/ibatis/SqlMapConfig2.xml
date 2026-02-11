@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+  <properties resource="com/ant/common/properties/db.properties" />
+    <settings cacheModelsEnabled="true" 
+	          enhancementEnabled="true" 
+	          useStatementNamespaces="false" 
+	          lazyLoadingEnabled="true" 
+	          maxRequests="512" 
+	          maxSessions="128" 
+	          maxTransactions="32" /> 
+	      
+  <transactionManager type="JDBC">
+    <dataSource type="SIMPLE">
+      <property name="JDBC.Driver"        value="${driver}"   />
+      <property name="JDBC.ConnectionURL" value="${url2}"      />
+      <property name="JDBC.Username"      value="${username2}" />
+      <property name="JDBC.Password"      value="${password2}" />
+    </dataSource>
+  </transactionManager>
+  
+  <sqlMap resource="com/ant/common/xml/diet.xml"/>
+   
+</sqlMapConfig>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>
+
+	<!-- Form Bean Definitions -->
+    <form-beans></form-beans> 
+	
+	<global-forwards>		
+		<forward name="ajaxout"                     path="/jsp/common/ajaxout.jsp" />	 	
+	</global-forwards>
+
+	<!-- Action Mapping Definitions -->
+	
+  	<action-mappings>
+  	
+  	    <!-- 이정기 20120914 : Document Depth.2 leftMenu -->
+	    <action path="/documentinsert_ok"		    forward=".layoutdocumentinsert_ok"/>
+  		<action path="/documentForm"		        forward=".layout_documentForm"/>
+		<action path="/documentaccpinsert_ok"	    forward=".layoutdocumentaccpinsert_ok"/>
+		<action path="/documentinsertinsert_ok"	    forward=".layout_documentinsideinsert_ok"/>
+  				
+		<action path="/document"   type="com.ant.document.action.documentAction" parameter="method" scope="request">
+			<forward name="documentSendList"        path=".layout_documentSearchList"/>
+			<forward name="insert_ok"               path=".layout_documentinsert_ok" />
+			<forward name="update_ok"               path=".layout_documentinsert_ok" />
+			<forward name="documentAccpList"        path=".layout_documentaccpSearchList"/>
+			<forward name="insertaccp_ok"           path=".layout_documentaccpinsert_ok" />
+			<forward name="updateaccp_ok"           path=".layout_documentaccpinsert_ok" />
+			<forward name="documentInsideList"      path=".layout_documentinsideSearchList"/>
+			<forward name="insertinside_ok"         path=".layout_documentinsideinsert_ok" />
+			<forward name="updateinside_ok"         path=".layout_documentinsideinsert_ok" />
+			<forward name="dmsendList"              path=".layout_dmsendList"/>
+			<forward name="insertdmsend_ok"         path=".layout_dmsendinsert_ok" />
+			<forward name="updatedmsend_ok"         path=".layout_dmsendinsert_ok" />
+			<forward name="dmsendreportList"        path=".layout_dmsendreportList"/>
+			<forward name="postSearchr"             path="/jsp/document/code_post.jsp"/>
+			<forward name="notePad"                 path="/jsp/common/notepadForm.jsp"/>
+			<forward name="notePadall"              path="/jsp/common/notepadForm.jsp"/>
+			<forward name="insertnotePad_ok"        path=".layout_dmsendreportList"/>
+			<forward name="sendMail"                path="/jsp/document/emailForm.jsp"/>
+			<forward name="umsData"                 path="/jsp/common/umsdataForm.jsp"/>
+			<forward name="umsDataall"              path="/jsp/common/umsdataForm.jsp"/>
+			<forward name="insertumsData_ok"        path=".layout_dmsendreportList"/>
+			<forward name="updaterece_yn_ok"        path=".layout_dmsendreportList"/>
+			<forward name="documentreportList"      path=".layout_documentreportList"/>
+			<forward name="dminsert_ok"             path="/jsp/document/msg.jsp"/>	
+			<forward name="dminsert_fail"           path="/jsp/document/msg.jsp"/>
+			<forward name="dmwriteForm"       	    path="/jsp/document/dmwriteForm.jsp"/>
+			<forward name="dmwriteLink"       	    path="/jsp/document/dmwriteLink.jsp"/>		
+		</action> 
+			
+    </action-mappings>	
+    
+
+</struts-config>

@@ -1,0 +1,76 @@
+#contents{width:1100px;float:left;margin-left:5px;}
+table td{border:0;font-family:'돋움',dotum;font-size:12px;}
+caption{display:none}
+img{border:0;}
+input label{vertical-align:middle;}
+ol, ul, li {list-style : none ;}
+
+
+/*home*/
+.home{float:right;widht:300px;margin-top:20px;}
+.home li{float:left;padding-left:3px;}
+.home li a:hover{color:blue;}
+.NPage{color:blue;}
+
+
+/*환경설정*/
+.sTabmenu_01{float:left;clear:both;}
+
+/*mTabmenu*/
+#ts_tabmenu{font-size:12px;padding: 20px 0px 0px 20px;}
+#ts_tabmenu span{font-weight:bold;}
+#ts_tabmenu ul{line-height: 1em;margin:0px;list-style-type: none;float: left;padding: 0px 0px 0px 5px;}
+#ts_tabmenu ul li{float:left;}
+#ts_tabmenu ul li a{text-decoration: none; display: block; float: left; padding: 0px 0px 0px 10px;
+         background:url(../images/tabs.gif) no-repeat left top;margin-left: -5px;z-index: 0;position: relative;color: #666666;}
+#ts_tabmenu ul li a strong{font-weight: normal;display: block;float: left;background: url(../images/tabs.gif) no-repeat right top;
+	     padding:6px 10px 7px 5px;cursor:pointer;}
+
+  /*버튼 롤오버시*/
+#ts_tabmenu ul li a:hover{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu ul li a:hover strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+
+ /*활성화된 페이지 버튼 컨트롤*/
+#ts_tabmenu ul li .overMenu{position: relative;z-index: 5;background: url(../images/tabs.gif) no-repeat left bottom;color:red;}
+#ts_tabmenu ul li .overMenu strong{background:url(../images/tabs.gif) no-repeat;position: relative;z-index: 5;background-position: right bottom;}
+
+.stable_01{width:1100px;padding:0;margin:0;padding-top:10px;}
+.stable_01 td{width:10%;border-right:1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background:#fff;color:#4f6b72;padding:6px;}
+
+.stable_01 td.nobg{border-top:1px solid #C1DAD7;border-left: 1px solid #C1DAD7;background:#F5FAFA;}
+.stable_01 td.nobg2{border-top:1px solid #C1DAD7;background:#F5FAFA;width:12%;}
+.stable_01 td.nobg1{border-top:1px solid #C1DAD7;} 
+
+.stable_01 td.alt{background: #F5FAFA;width:12%;}
+.stable_01 td.alt1{border-left: 1px solid #C1DAD7;background: #F5FAFA;width:10%;}
+
+.btnIcon_1{position:relative;top:0px;left:915px;padding:10px;}
+.btnIcon_1 li{float:left;padding-left:5px;}
+
+.btnIcon_2{position:relative;top:0px;left:930px;padding-top:20px;}
+.btnIcon_2 li{float:left;padding-left:5px;}
+
+p.btnEntry{float:right;clear:both;padding-top:10px;}
+p.btnSave{float:right;clear:both;padding-top:10px;}
+
+/*공통코드*/
+.sMenu{width:120px;position:relative;top:45px;}
+.sMenu li{background:aqua;padding:10px;}
+.sMenu li a:hover{background:#009799;}
+
+.stable_02{width:950px;padding:0;margin:0;padding-top:10px;position:relative;top:-65px;left:150px;}
+.stable_02 td{width:10%;border-right:1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background:#fff;color:#4f6b72;padding:6px;}
+
+.stable_02 td.nobg{border-top:1px solid #C1DAD7;border-left: 1px solid #C1DAD7;background:#F5FAFA;}
+.stable_02 td.nobg1{border-top:1px solid #C1DAD7;} 
+.stable_02 td.nobg2{border-top:1px solid #C1DAD7;border-right:none;} 
+
+.stable_02 td.alt{background: #F5FAFA;width:10%;}
+.stable_02 td.alt1{border-left: 1px solid #C1DAD7;background: #F5FAFA;width:10%;}
+
+.stable_03{width:950px;padding:0;margin:0;text-align:center;position:relative;top:-65px;left:150px;padding-top:10px;}
+.stable_03 td{width:15%;border-right:1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background:#fff;color:#4f6b72;padding:6px;}
+.stable_03 td.nobg{border-top:1px solid #C1DAD7;border-left: 1px solid #C1DAD7;background:#F5FAFA;}
+.stable_03 td.nobg1{border-top:1px solid #C1DAD7;background:#F5FAFA;}
+
+.stable_03 td.alt{border-left: 1px solid #C1DAD7;background:#Fff;}

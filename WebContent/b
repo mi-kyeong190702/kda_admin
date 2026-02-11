@@ -1,0 +1,161 @@
+select  xx.oper_name
+      --, case when SUBSTRING(xx.oper_no ,7,1)=1 or SUBSTRING(xx.oper_no ,7,1)=2 
+      --       then '19'+SUBSTRING(xx.oper_no ,0,3)+'년'+SUBSTRING(xx.oper_no ,3,2)+'월'+SUBSTRING(xx.oper_no ,5,2)+'일'
+      --       else '20'+SUBSTRING(xx.oper_no ,0,3)+'년'+SUBSTRING(xx.oper_no ,3,2)+'월'+SUBSTRING(xx.oper_no ,5,2)+'일' end oper_no
+     , left(oper_birth,4)+'년'+substring(oper_birth,5,2)+'월'+substring(oper_birth,7,2)+'일' oper_no
+      , xx.oper_lic_no
+      , xx.result_no
+      , SUBSTRING(xx.result_start_dt,0,5)+'년'+SUBSTRING(xx.result_start_dt,5,2)+'월'+SUBSTRING(xx.result_start_dt,7,2)+'일' result_start_dt
+      , SUBSTRING(xx.result_end_dt,0,5)+'년'+SUBSTRING(xx.result_end_dt,5,2)+'월'+SUBSTRING(xx.result_end_dt,7,2)+'일' result_end_dt 
+      , xx.add_file_2
+  from 
+(SELECT oper_name
+      --, dbo.GetPersNoDecord(oper_no,1) oper_no
+      , oper_birth
+      , oper_lic_no
+      , result_no
+      , result_start_dt
+      , result_end_dt
+      , add_file_2
+  FROM result_print a
+     , (SELECT b.oper_name
+    --, b.oper_no
+    , b.oper_birth
+    , b.oper_lic_no             
+    , b.person_yn code_pers 
+    --, b.code_certifi 
+    , r.point_manage code_certifi 
+    , f.oper_end_dt        
+    FROM operater b
+       , edu_test f
+       , oper_result r
+   WHERE b.code_kind = f.code_kind
+     AND b.code_certifi = f.code_certifi
+     AND b.code_seq = f.code_seq
+     AND b.code_bran = f.code_bran
+     AND b.bran_seq = f.bran_seq
+     AND f.code_kind IN ('2')
+  AND b.code_kind = r.code_kind
+     AND b.code_certifi = r.code_certifi
+     AND b.code_seq = r.code_seq
+     AND b.code_bran = r.code_bran
+     AND b.bran_seq = r.bran_seq
+     AND b.receipt_no = r.receipt_no
+     ) c  
+ WHERE a.code_pers=c.code_pers
+   AND a.code_certifi=c.code_certifi
+   AND a.print_state=1
+   --AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-3,convert(date,a.result_end_dt))) 
+   --                      and DATEADD(year,-2,convert(date,a.result_end_dt))   
+   AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-6,convert(date,a.result_end_dt))) 
+                         and DATEADD(year,-5,convert(date,a.result_end_dt))   
+   AND a.code_certifi=:(code_certifi)
+   :(add4)
+   :(add3)
+   :(add1)
+   :(add2)
+ group by oper_name,
+ --oper_no,
+ oper_birth,
+ oper_lic_no, result_no, result_start_dt, result_end_dt, add_file_2
+union all
+SELECT oper_name
+      --, dbo.GetPersNoDecord(oper_no,1) oper_no
+      , oper_birth
+      , oper_lic_no
+      , result_no
+      , result_start_dt
+      , result_end_dt
+      , add_file_2
+  FROM result_print a
+     , (SELECT b.oper_name
+    --, b.oper_no
+    , b.oper_birth
+    , b.oper_lic_no             
+    , b.person_yn code_pers 
+    --, b.code_certifi 
+    , r.point_manage code_certifi 
+    , f.oper_end_dt        
+    FROM operater b
+       , edu_test f
+       , oper_result r
+   WHERE b.code_kind = f.code_kind
+     AND b.code_certifi = f.code_certifi
+     AND b.code_seq = f.code_seq
+     AND b.code_bran = f.code_bran
+     AND b.bran_seq = f.bran_seq
+     AND f.code_kind IN ('2')
+  AND b.code_kind = r.code_kind
+     AND b.code_certifi = r.code_certifi
+     AND b.code_seq = r.code_seq
+     AND b.code_bran = r.code_bran
+     AND b.bran_seq = r.bran_seq
+     AND b.receipt_no = r.receipt_no
+     ) c  
+ WHERE a.code_pers=c.code_pers
+   AND a.code_certifi=c.code_certifi
+   AND a.print_state=1
+   --AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-2,convert(date,a.result_end_dt))) and DATEADD(year,-1,convert(date,a.result_end_dt)) 
+   AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-5,convert(date,a.result_end_dt))) and DATEADD(year,-4,convert(date,a.result_end_dt)) 
+   AND a.code_certifi=:(code_certifi)
+   :(add4)
+   :(add3)
+   :(add1)
+   :(add2)   
+ group by oper_name,
+ --oper_no,
+ oper_birth,
+ oper_lic_no, result_no, result_start_dt, result_end_dt, add_file_2
+union all
+SELECT oper_name
+      --, dbo.GetPersNoDecord(oper_no,1) oper_no
+      , oper_birth
+      , oper_lic_no
+      , result_no
+      , result_start_dt
+      , result_end_dt
+      , add_file_2
+  FROM result_print a
+     , (SELECT b.oper_name
+    --, b.oper_no
+    , b.oper_birth
+    , b.oper_lic_no             
+    , b.person_yn code_pers 
+    --, b.code_certifi 
+    , r.point_manage code_certifi 
+    , f.oper_end_dt        
+    FROM operater b
+       , edu_test f
+       , oper_result r
+   WHERE b.code_kind = f.code_kind
+     AND b.code_certifi = f.code_certifi
+     AND b.code_seq = f.code_seq
+     AND b.code_bran = f.code_bran
+     AND b.bran_seq = f.bran_seq
+     AND f.code_kind IN ('2')
+  AND b.code_kind = r.code_kind
+     AND b.code_certifi = r.code_certifi
+     AND b.code_seq = r.code_seq
+     AND b.code_bran = r.code_bran
+     AND b.bran_seq = r.bran_seq
+     AND b.receipt_no = r.receipt_no
+     ) c  
+ WHERE a.code_pers=c.code_pers
+   AND a.code_certifi=c.code_certifi
+   AND a.print_state=1
+   --AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-1,convert(date,a.result_end_dt))) and convert(date,a.result_end_dt)   
+   AND c.oper_end_dt between DATEADD(DAY,+1,DATEADD(year,-4,convert(date,a.result_end_dt))) and DATEADD(year,-3,convert(date,a.result_end_dt)) 
+   AND a.code_certifi= :(code_certifi)
+   :(add4)
+   :(add3)
+   :(add1)
+   :(add2)
+ group by oper_name,
+ --oper_no,
+ oper_birth,
+ oper_lic_no, result_no, result_start_dt, result_end_dt, add_file_2
+) xx
+group by oper_name,
+ --oper_no,
+ oper_birth,
+ oper_lic_no, result_no, result_start_dt, result_end_dt, add_file_2

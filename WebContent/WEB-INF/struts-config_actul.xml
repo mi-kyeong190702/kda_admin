@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+
+<struts-config>    
+	
+	<!-- Action Mapping Definitions -->
+	
+  	<action-mappings>
+  	
+  	    <!--영양사 실태신고 -->
+		<action path="/actulForm"		              forward=".layout_actulForm"/>
+		
+		<action path="/actul"   type="com.ant.actul.action.actulAction" parameter="method" scope="request">
+			<forward name="actulconfirm"              path="/jsp/actul/actulrepot.jsp"/>	
+			<forward name="success"                   path="/jsp/actul/actulwrite.jsp"/>
+			<forward name="good"                      path="/jsp/actul/actulinsert.jsp"/>
+			<forward name="fail"                      path="/jsp/actul/actulerr.jsp"/>	
+			<forward name="actulinsert"               path="/jsp/actul/actulinsert.jsp"/>	
+			<forward name="insert_ok"                 path="/jsp/actul/msg.jsp"/>	
+			<forward name="insert_fail"               path="/jsp/actul/msg.jsp"/>	
+			<forward name="update_ok"                 path="/jsp/actul/msg.jsp"/>	
+			<forward name="update_fail"               path="/jsp/actul/msg.jsp"/>
+			<forward name="actulsearchList"           path=".layout_actulsearchList"/>	
+			<forward name="actulformList"             path=".layout_actulformList"/>
+			<forward name="pers_check"                   path="/jsp/actul/persno_check.jsp"/>
+			<forward name="umsData"                   path="/jsp/actul/umsdataForm.jsp"/>
+			<forward name="umsDataall"                path="/jsp/actul/umsdataForm.jsp"/>
+			<forward name="insertumsData_ok"          path=".layout_actulsearchList"/>	
+			<forward name="upExamSendListr"           path="/jsp/actul/upExcel.jsp"/>
+			<forward name="upExamSendListr2"           path="/jsp/actul/upExcel.jsp"/>
+			<forward name="actulmanageList"           			path=".layout_actulmanageList"/>	
+			<forward name="actulstatusList"           			path=".layout_actulstatusList"/>	
+			<forward name="actulrecipientList"           path=".layout_actulrecipientList"/>	
+			<forward name="actullicenseList"             path=".layout_actullicenseList"/>
+			<forward name="excelLicence"             path="/jsp/actul/excelLicence.jsp"/>
+			<forward name="sendMail"             path="/jsp/actul/emailForm.jsp"/>
+			<forward name="sendUmsForm" 		path="/jsp/actul/sendUmsForm.jsp"/>
+			<forward name="sendAllLink" 		path="/jsp/actul/sendAllLink.jsp"/>
+			<forward name="actul_msg" 		path="/jsp/actul/actul_msg.jsp"/>
+			<forward name="uploadExcel" 		path="/jsp/actul/uploadExcel.jsp"/>
+			<forward name="personUpt" 		path="/jsp/actul/personUpt.jsp"/>
+			<forward name="personInsert" 		path="/jsp/actul/personInsert.jsp"/>
+			<forward name="statusUpt" 		path="/jsp/actul/statusUpt.jsp"/>
+			<forward name="statusPrint" 		path="/jsp/actul/statusPrint.jsp"/>
+			<forward name="edusearchList"           path=".layout_edusearchList"/>	
+			<forward name="uploadEduExcel" 		path="/jsp/actul/uploadEduExcel.jsp"/>
+			<forward name="recipientForm" 		path="/jsp/actul/recipientForm.jsp"/>
+		</action>
+			
+    </action-mappings>	
+    
+
+</struts-config>

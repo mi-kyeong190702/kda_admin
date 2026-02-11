@@ -1,0 +1,2512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="document">
+	
+	<!-- 부서코드  display--> 	
+	 <select id="comcodesearch"    resultClass="java.util.HashMap">
+		SELECT     groupcode
+			     , detcode
+			     , detcodename
+			     , tempcd1
+	     FROM com_code
+		 WHERE use_yn = 'Y'
+	    ORDER BY cdseq, detcode				
+	</select>
+	
+	<!-- 기관지코드  display--> 	
+	 <select id="books_kind"    resultClass="java.util.HashMap">
+		 SELECT  	 code_book_kind											
+					,book_name 						
+					,book_maker
+					,company_tel
+					,pers_name
+					,job_kind						
+					,use_yn						
+			  FROM books_kind
+			   WHERE use_yn = 'Y'			 		
+	 </select>
+	 
+	 <!-- dm 생성자  display-->
+	 <select id="dm_creatersearch"    resultClass="java.util.HashMap">
+		SELECT distinct dm_creater
+		     , code_book_kind
+		  FROM dm_list
+		  where dm_creater is not null
+	  ORDER BY dm_creater	
+	 </select>
+	  	
+	 <select id="dm_creatersearch1"    resultClass="java.util.HashMap">
+		SELECT distinct a.dm_creater
+		     , CONVERT(varchar,a.regi_date,112) + '_' + a.dm_print_yymm_seq  dm_print_yymm_seq
+		     , a.code_book_kind   
+		     , b.detcodename
+		  FROM dm_list a	
+			   LEFT JOIN com_code b
+			          ON b.groupcode='049'
+			         AND b.detcode=a.code_book_kind
+			where a.dm_creater is not null
+      ORDER BY dm_print_yymm_seq desc
+	 </select>
+	 
+	 <!-- 기관지코드(발송대장)  display--> 	
+	 <select id="books_kindall"    resultClass="java.util.HashMap">
+		 SELECT  	 code_book_kind											
+					,book_name 									
+			  FROM books_kind
+			   WHERE use_yn = 'Y' and code_book_kind = #code_book_kind#			 		
+	 </select>	
+	 	
+	 <!-- 문서 발송 대장  count --> 	
+	 <select id="documentsendcnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY year_seq ) no
+				  FROM doc_send 
+				  WHERE ISNULL(year_seq,'') !=''		 				
+							<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			receipt_dt <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			receipt_dt <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+					  		</dynamic>
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="receive1">
+						  			receive like '%'+#receive1#+'%'
+						  		</isNotEmpty>
+					  		</dynamic>			
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="receipt_dt1">
+						  			receipt_dt = #receipt_dt1#
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="title1">
+						  			title like '%'+#title1#+'%'						  			
+						  	 	</isNotEmpty>
+					  		</dynamic>					
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="attach1">
+						  	 		attach like '%'+#attach1#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark1">
+						  	 		remark like '%'+#remark1#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark2">
+						  	 		remark2 like '%'+#remark2#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="center1">
+						  			center = #center1#
+						  	 	</isNotEmpty>
+					  		</dynamic>														   
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	 <!-- 문서 접수 대장  count --> 	
+	 <select id="documentaccpcnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY year_seq ) no
+				  FROM doc_receive 
+				  WHERE ISNULL(year_seq,'') !=''
+	   	 				<dynamic prepend="and">
+					  	 	<isNotEmpty property="receipt_dt1">
+					  			receipt_dt = #receipt_dt1#
+					  		</isNotEmpty>
+						</dynamic>	
+			 		 	<dynamic prepend="and">
+					  	 	<isNotEmpty property="inqday1">
+					  			receipt_dt <![CDATA[>=]]> #inqday1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="inqday2">
+					  			receipt_dt <![CDATA[<=]]> #inqday2#
+					  	 	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="doc_seq1">
+					  			doc_seq like '%'+#doc_seq1#+'%'
+					  		</isNotEmpty>
+						</dynamic>			
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="run_dt1">
+					  			run_dt = #run_dt1#
+					  		</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+					  		<isNotEmpty property="send1">
+					  			send like '%'+#send1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  		<isNotEmpty property="title1">
+					  			title like '%'+#title1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="accach1">
+					  	 		accach like '%'+#accach1#+'%'						  			
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="center1">
+					  			center = #center1#
+					  	 	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+					  		<isNotEmpty property="remark1">
+					  			remark like '%'+#remark1#+'%'
+					  	 	</isNotEmpty>
+						</dynamic>					      
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	 
+	 <!-- 내부 결제 공문대장  count --> 	
+	 <select id="documentinsidecnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY year_seq ) no
+				  FROM inside_doc 
+				  WHERE ISNULL(year_seq,'') !=''	
+		 				<dynamic prepend="and">
+					  	 	<isNotEmpty property="inqday1">
+					  			receipt_dt <![CDATA[>=]]> #inqday1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="inqday2">
+					  			receipt_dt <![CDATA[<=]]> #inqday2#
+					  	 	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="register1">
+					  			register like '%'+#register1#+'%'
+					  		</isNotEmpty>
+						</dynamic>			
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="receipt_dt1">
+					  			receipt_dt = #receipt_dt1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="title1">
+					  			title like '%'+#title1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="attach1">
+					  	 		attach like '%'+#attach1#+'%'						  			
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="center1">
+					  			center = #center1#
+					  	 	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="remark1">
+					  			remark like '%'+#remark1#+'%'
+					  		</isNotEmpty>
+						</dynamic>						      
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	 <!-- 문서 발송 대장 검색 -->
+	 <select id="selectdocument" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY receipt_dt desc, year_seq desc) no 
+						,a.receipt_dt
+				      	,a.year_seq	
+				     	,b.detcodename
+						,b.detcode
+						,a.receive
+				        ,a.title
+				        ,a.attach
+				        ,a.remark
+				        ,a.remark2
+				        ,a.register
+				        ,a.regi_date
+				        ,a.updater
+			  	        ,a.up_date
+				  FROM doc_send a
+				    left join  com_code b
+				  		 on  b.groupcode = '031'
+				  		 and  a.center = b.detcode				  
+				 	  WHERE isnull (a.year_seq,'') != ''			 				
+						  	<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			a.receipt_dt <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			a.receipt_dt <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+					  		</dynamic>
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="receive1">
+						  			a.receive like '%'+#receive1#+'%'
+						  		</isNotEmpty>
+					  		</dynamic>			
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="receipt_dt1">
+						  			a.receipt_dt = #receipt_dt1#
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="title1">
+						  			a.title like '%'+#title1#+'%'						  			
+						  	 	</isNotEmpty>
+					  		</dynamic>					
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="attach1">
+						  	 		a.attach like '%'+#attach1#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>		
+					  		<dynamic prepend="and">
+						  		<isNotEmpty property="center1">
+						  			a.center = #center1#
+						  	 	</isNotEmpty>
+					  		</dynamic>
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark1">
+						  	 		a.remark like '%'+#remark1#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark2">
+						  	 		a.remark2 like '%'+#remark2#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>												
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	
+	 <!-- 문서 발송 대장 excel down -->
+	 <select id="documentsenddown" resultClass="java.util.HashMap">
+	   		SELECT  
+					 a.receipt_dt
+			      	,a.year_seq
+			        ,isnull(b.detcodename,'') detcodename
+			     	,isnull(a.receive,'') receive
+					,isnull(a.title,'') title
+					,isnull(a.attach,'') attach
+			      	,isnull(a.remark,'') remark	
+			      	,isnull(a.remark2,'') remark2		       
+			        ,a.register
+			        ,a.regi_date
+			        ,a.updater
+		  	        ,a.up_date
+			  FROM doc_send a
+			    left join  com_code b
+			  		 on  b.groupcode = '031'
+			  		 and  a.center = b.detcode				  
+			 	  WHERE isnull (a.year_seq,'') != ''	 				
+				  		<dynamic prepend="and">
+					  	 	<isNotEmpty property="inqday1">
+					  			a.receipt_dt <![CDATA[>=]]> #inqday1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="inqday2">
+					  			a.receipt_dt <![CDATA[<=]]> #inqday2#
+					  	 	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="receive1">
+					  			a.receive like '%'+#receive1#+'%'
+					  		</isNotEmpty>
+						</dynamic>			
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="receipt_dt1">
+					  			a.receipt_dt = #receipt_dt1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="title1">
+					  			a.title like '%'+#title1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="attach1">
+					  	 		a.attach like '%'+#attach1#+'%'						  			
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="center1">
+					  			a.center = #center1#
+					  	 	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark1">
+						  	 		a.remark like '%'+#remark1#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark2">
+						  	 		a.remark2 like '%'+#remark2#+'%'						  			
+						  		</isNotEmpty>
+					  		</dynamic>	
+			order by a.receipt_dt desc, a.year_seq desc												 						     
+	</select>
+	 		
+	<insert id="insertdocument" parameterClass="java.util.HashMap">
+		INSERT into doc_send (receipt_dt, year_seq, center, receive, title, attach, remark, register, regi_date, updater, up_date, remark2)
+				values ( #receipt_dt1#
+				        , (SELECT RIGHT('0000'+convert(varchar, isnull(MAX(year_seq),0)+1),4) from doc_send where left(receipt_dt,4) = left(#receipt_dt1# ,4)) 
+				        , #center1#
+				        , #receive1#  
+				        , #title1#
+				        , #attach1#  
+				        , #remark1#				      
+						, #register1#
+				        , GETDATE()
+						, #register1# 
+				        , GETDATE()
+				        , #remark2# 
+				        )	
+	</insert>
+	
+	<update id="updatedocument" parameterClass="java.util.HashMap">
+		UPDATE doc_send
+					SET 
+					      center  = #center1#
+						, receive = #receive1#  
+				        , title   = #title1#
+				        , attach  = #attach1#  
+				        , remark  = #remark1# 
+						, updater = #register1#						
+				        , up_date =  GETDATE()
+				        , remark2  = #remark2# 
+					WHERE  receipt_dt = #receipt_dt1# and year_seq = #year_seq1# 	
+	</update>
+	
+	<!-- 문서 접수 대장 검색 -->
+	 <select id="selectdocumentaccp" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY receipt_dt desc, year_seq desc) no 
+						,a.receipt_dt
+				      	,a.year_seq	
+						,a.send
+						,a.doc_seq
+						,a.run_dt
+						,a.title
+						,a.accach
+				     	,b.detcodename 
+						,b.detcode
+						,a.register
+						,a.remark				       
+				  FROM doc_receive a
+					  left join  com_code b
+				  		 on  b.groupcode = '031'
+				  		 and  a.center = b.detcode						  
+				 		 WHERE isnull (a.year_seq,'') != ''
+				 		 	<dynamic prepend="and">
+					  	 	<isNotEmpty property="receipt_dt1">
+					  			receipt_dt = #receipt_dt1#
+					  		</isNotEmpty>
+						</dynamic>	
+			 		 	<dynamic prepend="and">
+					  	 	<isNotEmpty property="inqday1">
+					  			receipt_dt <![CDATA[>=]]> #inqday1#
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="inqday2">
+					  			receipt_dt <![CDATA[<=]]> #inqday2#
+					  	 	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="doc_seq1">
+					  			doc_seq like '%'+#doc_seq1#+'%'
+					  		</isNotEmpty>
+						</dynamic>			
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="run_dt1">
+					  			run_dt = #run_dt1#
+					  		</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+					  		<isNotEmpty property="send1">
+					  			send like '%'+#send1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  		<isNotEmpty property="title1">
+					  			title like '%'+#title1#+'%'						  			
+					  	 	</isNotEmpty>
+						</dynamic>					
+						<dynamic prepend="and">
+					  	 	<isNotEmpty property="accach1">
+					  	 		accach like '%'+#accach1#+'%'						  			
+					  		</isNotEmpty>
+						</dynamic>		
+						<dynamic prepend="and">
+					  		<isNotEmpty property="center1">
+					  			center = #center1#
+					  	 	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+					  		<isNotEmpty property="remark1">
+					  			remark like '%'+#remark1#+'%'
+					  	 	</isNotEmpty>
+						</dynamic>						 										
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 
+	
+	<!-- 문서 접수 대장 excel down -->
+	 <select id="documentaccpdown" resultClass="java.util.HashMap">
+	 	SELECT   
+				 a.receipt_dt
+		      	,a.year_seq	
+				,a.send
+				,a.doc_seq
+				,a.run_dt
+				,isnull(a.title,'') title
+				,isnull(a.accach,'') accach
+				,isnull(b.detcodename,'') detcodename
+				,b.detcode
+				,isnull(a.register,'') register
+				,isnull(a.remark,'') remark				     
+		  FROM doc_receive a
+			  left join  com_code b
+		  		 on  b.groupcode = '031'
+		  		 and  a.center = b.detcode						  
+		 		 WHERE isnull (a.year_seq,'') != ''
+	 				<dynamic prepend="and">
+				  	 	<isNotEmpty property="receipt_dt1">
+				  			a.receipt_dt = #receipt_dt1#
+				  		</isNotEmpty>
+					</dynamic>	
+		 		 	<dynamic prepend="and">
+				  	 	<isNotEmpty property="inqday1">
+				  			a.receipt_dt <![CDATA[>=]]> #inqday1#
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="inqday2">
+				  			a.receipt_dt <![CDATA[<=]]> #inqday2#
+				  	 	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="doc_seq1">
+				  			a.doc_seq like '%'+#doc_seq1#+'%'
+				  		</isNotEmpty>
+					</dynamic>			
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="run_dt1">
+				  			a.run_dt = #run_dt1#
+				  		</isNotEmpty>
+					</dynamic>	
+					<dynamic prepend="and">
+				  		<isNotEmpty property="send1">
+				  			a.send like '%'+#send1#+'%'						  			
+				  	 	</isNotEmpty>
+					</dynamic>					
+					<dynamic prepend="and">
+				  		<isNotEmpty property="title1">
+				  			a.title like '%'+#title1#+'%'						  			
+				  	 	</isNotEmpty>
+					</dynamic>					
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="accach1">
+				  	 		a.accach like '%'+#accach1#+'%'						  			
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="center1">
+				  			a.center = #center1#
+				  	 	</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="remark1">
+				  			a.remark like '%'+#remark1#+'%'
+				  	 	</isNotEmpty>
+					</dynamic>
+			order by a.receipt_dt desc, a.year_seq desc											
+	</select> 
+	
+	<insert id="insertaccpdocument" parameterClass="java.util.HashMap">
+		INSERT into doc_receive (receipt_dt, year_seq, send, doc_seq, run_dt, title, accach, center, remark, register, regi_date, updater, up_date)
+				values ( #receipt_dt1#
+				        , (SELECT RIGHT('0000'+convert(varchar, isnull(MAX(year_seq),0)+1),4) from doc_receive where left(receipt_dt,4) = left(#receipt_dt1# ,4)) 
+				        , #send1#
+				        , #doc_seq1#  
+				        , #run_dt1#
+				        , #title1#  
+				        , #accach1# 
+						, #center1#
+						, #remark1#
+					    , #register1#
+				        , GETDATE()
+						, #updater# 
+				        , GETDATE()
+				        )	
+	</insert>
+	
+	<update id="updateaccpdocument" parameterClass="java.util.HashMap">
+		UPDATE doc_receive
+					SET 
+					      send       = #send1#
+			            , doc_seq    = #doc_seq1# 
+						, run_dt     = #run_dt1#										        
+				        , title      = #title1#  
+				        , accach     = #accach1# 
+						, center     = #center1#
+						, remark     = #remark1#
+						, register   = #register1#
+				        , regi_date  = GETDATE()
+					    , updater    = #updater#
+				        , up_date    = GETDATE()
+					WHERE  receipt_dt = #receipt_dt1# and year_seq = #year_seq1# 	
+	</update>
+	
+	 <!-- 내부 결제 공문대장 -->
+	 <select id="selectdocumentinside" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY receipt_dt desc, year_seq desc) no 
+						,a.receipt_dt
+				      	,a.year_seq	
+				     	,b.detcodename 
+						,b.detcode
+						,a.title
+				        ,a.attach
+				        ,a.remark
+				        ,a.register
+				        ,a.regi_date
+				        ,a.updater
+			  	        ,a.up_date
+				  FROM inside_doc a	
+					  left join  com_code b
+				  		 on  b.groupcode = '031'
+				  		 and  a.center = b.detcode					  
+				 		 WHERE isnull (a.year_seq,'') != ''
+				 			<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			a.receipt_dt <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			a.receipt_dt <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+						  	 	<isNotEmpty property="register1">
+						  			a.register like '%'+#register1#+'%'
+						  		</isNotEmpty>
+							</dynamic>			
+							<dynamic prepend="and">
+						  	 	<isNotEmpty property="receipt_dt1">
+						  			a.receipt_dt = #receipt_dt1#
+						  		</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+						  		<isNotEmpty property="title1">
+						  			a.title like '%'+#title1#+'%'						  			
+						  	 	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+						  	 	<isNotEmpty property="attach1">
+						  	 		a.attach like '%'+#attach1#+'%'						  			
+						  		</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+						  		<isNotEmpty property="center1">
+						  			a.center = #center1#
+						  	 	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+						  	 	<isNotEmpty property="remark1">
+						  			a.remark like '%'+#remark1#+'%'
+						  		</isNotEmpty>
+							</dynamic>																
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	
+	 <!-- 내부 결제 공문대장 excel down -->
+	 <select id="documentinsidedown" resultClass="java.util.HashMap">
+	 		SELECT   ROW_NUMBER()OVER(ORDER BY receipt_dt desc, year_seq desc) no 
+				,a.receipt_dt
+		      	,a.year_seq	
+		      	,isnull(b.detcodename,'') detcodename	
+		      	,isnull(a.title,'') title					     
+				,isnull(a.attach,'') attach
+		        ,isnull(a.remark,'') remark		     
+		        ,a.register
+		        ,a.regi_date
+		        ,a.updater
+	  	        ,a.up_date
+		  FROM inside_doc a	
+			  left join  com_code b
+		  		 on  b.groupcode = '031'
+		  		 and  a.center = b.detcode					  
+		 		 WHERE isnull (a.year_seq,'') != ''
+	 				<dynamic prepend="and">
+				  	 	<isNotEmpty property="inqday1">
+				  			a.receipt_dt <![CDATA[>=]]> #inqday1#
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="inqday2">
+				  			a.receipt_dt <![CDATA[<=]]> #inqday2#
+				  	 	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="register1">
+				  			a.register like '%'+#register1#+'%'
+				  		</isNotEmpty>
+					</dynamic>			
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="receipt_dt1">
+				  			a.receipt_dt = #receipt_dt1#
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="title1">
+				  			a.title like '%'+#title1#+'%'						  			
+				  	 	</isNotEmpty>
+					</dynamic>					
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="attach1">
+				  	 		a.attach like '%'+#attach1#+'%'						  			
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="center1">
+				  			a.center = #center1#
+				  	 	</isNotEmpty>
+					</dynamic>	
+					<dynamic prepend="and">
+				  	 	<isNotEmpty property="remark1">
+				  			a.remark like '%'+#remark1#+'%'
+				  		</isNotEmpty>
+					</dynamic>							 						     
+	</select> 	
+		
+	<insert id="insertinsidedocument" parameterClass="java.util.HashMap">
+		INSERT into inside_doc (receipt_dt, year_seq, center, title, attach, remark, register, regi_date, updater, up_date)
+				values ( #receipt_dt1#
+				        , (SELECT RIGHT('0000'+convert(varchar, isnull(MAX(year_seq),0)+1),4) from inside_doc where left(receipt_dt,4) = left(#receipt_dt1# ,4)) 
+				        , #center1#
+				        , #title1#
+				        , #attach1#  
+				        , #remark1# 
+						, #register1#
+				        , GETDATE()
+						, #updater# 
+				        , GETDATE()
+				        )	
+	</insert>
+	
+	<update id="updateinsidedocument" parameterClass="java.util.HashMap">
+		UPDATE inside_doc
+					SET 
+					      center   = #center1#
+						, title    = #title1#
+				        , attach   = #attach1#  
+				        , remark   = #remark1# 
+						, register = #register1#	
+						, updater  = #updater#						
+				        , up_date  =  GETDATE()
+					WHERE  receipt_dt = #receipt_dt1# and year_seq = #year_seq1# 	
+	</update>
+	
+	<!-- 기타 발송자  count --> 	
+	 <select id="dmsendcnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_book ) no
+				  FROM books_tbl 
+				  WHERE isnull (code_book,'') != ''
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="book_receipt_dt1">
+							  		book_receipt_dt = #book_receipt_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt1">							 		
+							  		book_start_dt <![CDATA[>=]]> #book_start_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_end_dt1">
+							  		book_end_dt <![CDATA[<=]]> #book_end_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_flag1">
+							  		book_flag = #book_flag1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_name1">
+							  		company_name like '%'+#company_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_tel1">
+							  		company_tel like '%'+#company_tel1#+'%'
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="pers_name1">
+							  		pers_name like '%'+#pers_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="job_kind1">
+							  		job_kind like '%'+#job_kind1#+'%'
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_call1">
+							  		code_call = #code_call1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_post">
+							  		code_post = #m_post# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_address">
+							  		pers_add like '%'+#m_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="d_address">
+							  		pers_add1 like '%'+#d_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>					    
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 기타 발송자 검색 -->
+	<select id="selectdmsend" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.code_book) no 
+						,a.code_book
+				      	,b.detcodename book_flag_name
+						,a.book_flag
+						,a.book_receipt_dt
+				        ,a.book_start_dt
+				        ,a.book_end_dt
+				        ,a.company_name
+				        ,a.company_tel
+				        ,a.pers_name
+						,a.job_kind
+						,c.detcodename code_call_name
+				        ,a.code_call
+			  	        ,a.code_post
+						,a.pers_add
+				        ,a.pers_add1
+			  	        ,a.use_yn
+				  FROM books_tbl a
+				 	 left join  com_code b
+				  		 on  b.groupcode = '047'
+				  		 and  a.book_flag = b.detcode
+			  		 left join  com_code c
+				  		 on  c.groupcode = '018'
+				  		 and  a.code_call = c.detcode					  
+				 	   WHERE isnull (a.code_book,'') != ''
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="book_receipt_dt1">
+							  		a.book_receipt_dt = #book_receipt_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt1">							 		
+							  		a.book_start_dt <![CDATA[<=]]> #book_end_dt1#
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_end_dt1">
+							  		a.book_end_dt  <![CDATA[>=]]> #book_start_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_flag1">
+							  		a.book_flag = #book_flag1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_name1">
+							  		a.company_name like '%'+#company_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_tel1">
+							  		a.company_tel = #company_tel1# 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		a.use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="pers_name1">
+							  		a.pers_name like '%'+#pers_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="job_kind1">
+							  		a.job_kind like '%'+#job_kind1#+'%'
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_call1">
+							  		a.code_call = #code_call1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_post">
+							  		a.code_post = #m_post# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_address">
+							  		a.pers_add like '%'+#m_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="d_address">
+							  		a.pers_add1 like '%'+#d_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>																			
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_book">
+							  		a.code_book = #code_book#
+							  	</isNotEmpty>
+							</dynamic>																			
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 
+	
+	<!-- 기타 발송자 검색 excel down-->
+	<select id="dmsenddown" resultClass="java.util.HashMap">
+	   	SELECT    
+			 a.code_book
+			,isnull(b.detcodename,'') book_flag_name		  
+			,a.book_flag
+			,a.book_receipt_dt
+	        ,a.book_start_dt
+	        ,a.book_end_dt
+	        ,isnull(a.company_name,'') company_name	      
+	        ,a.company_tel
+	        ,isnull(a.pers_name,'') pers_name
+	        ,isnull(a.job_kind,'') job_kind			
+			,isnull(c.detcodename,'') code_call_name			
+	        ,a.code_call
+  	        ,a.code_post
+  	        ,isnull(a.pers_add,'') pers_add
+  	        ,isnull(a.pers_add1,'') pers_add1			
+  	        ,a.use_yn
+	  FROM books_tbl a
+	 	 left join  com_code b
+	  		 on  b.groupcode = '047'
+	  		 and  a.book_flag = b.detcode
+  		 left join  com_code c
+	  		 on  c.groupcode = '018'
+	  		 and  a.code_call = c.detcode					  
+	 	   WHERE isnull (a.code_book,'') != ''
+		 		<dynamic prepend="and">
+							 	<isNotEmpty property="book_receipt_dt1">
+							  		a.book_receipt_dt = #book_receipt_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt1">							 		
+							  		a.book_start_dt <![CDATA[<=]]> #book_end_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_end_dt1">
+							  		a.book_end_dt <![CDATA[>=]]> #book_start_dt1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_flag1">
+							  		a.book_flag = #book_flag1# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_name1">
+							  		a.company_name like '%'+#company_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="company_tel1">
+							  		a.company_tel = #company_tel1# 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="use_yn1">
+							  		a.use_yn = #use_yn1# 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="pers_name1">
+							  		a.pers_name like '%'+#pers_name1#+'%' 
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="job_kind1">
+							  		a.job_kind like '%'+#job_kind1#+'%'
+							  	</isNotEmpty>
+							</dynamic>					
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_call1">
+							  		a.code_call = #code_call1# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_post">
+							  		a.code_post = #m_post# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="m_address">
+							  		a.pers_add like '%'+#m_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="d_address">
+							  		a.pers_add1 like '%'+#d_address#+'%'
+							  	</isNotEmpty>
+							</dynamic>											
+				order by a.code_book									
+	</select> 		
+	
+	<insert id="insertdmsend" parameterClass="java.util.HashMap">
+		INSERT into books_tbl (code_book, book_flag, book_receipt_dt, company_name, book_start_dt, book_end_dt, company_tel, pers_name, code_call, job_kind, code_post, pers_add, pers_add1, use_yn )
+				values ( 
+				          (select #book_flag# + SUBSTRING(CONVERT(varchar,getdate(),112),1,4) + right('0000'+convert(varchar,isnull((MAX(convert(int,substring(code_book,6,4)))+1),1)),4)
+							   from books_tbl
+							  where SUBSTRING(code_book,2,4) = SUBSTRING(CONVERT(varchar,getdate(),112),1,4)) 
+				        , #book_flag1#
+				        , #book_receipt_dt1#
+				        , #company_name1#  
+				        , #book_start_dt1# 
+						, #book_end_dt1#
+				        , #company_tel1#
+						, #pers_name1#				        
+						, #code_call1#
+				        , #job_kind1#
+				        , #m_post#  
+				        , #m_address# 
+						, #d_address#
+				        , #use_yn1#
+					   )	
+	</insert>
+	
+	<update id="updatedmsend" parameterClass="java.util.HashMap">
+		UPDATE books_tbl
+					SET 
+						  book_flag = #book_flag1#
+				        , book_receipt_dt = #book_receipt_dt1#
+				        , company_name = #company_name1#  
+				        , book_start_dt = #book_start_dt1# 
+						, book_end_dt = #book_end_dt1#
+				        , company_tel = #company_tel1#
+						, pers_name = #pers_name1#				        
+						, code_call = #code_call1#
+				        , job_kind = #job_kind1#
+				        , code_post = #m_post#  
+				        , pers_add = #m_address#
+				        <isNotEmpty property="d_address_upok">
+						, pers_add1 = #d_address#
+						</isNotEmpty>
+				        , use_yn = #use_yn1#					   
+					WHERE  code_book = #code_book1#
+	</update>
+	
+	<!-- 발송대장 (전체) 검색   count --> 	
+	<select id="dmreportallcount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+				     SELECT distinct
+				     	 a.code_pers
+				     	,a.pers_name				      	
+						,a.lic_no
+						,e.detcodename code_member_name
+						,a.code_member
+						,f.detcodename code_call_name
+				        ,a.code_call
+				        , case when a.code_place = '1' 
+								  then ''  
+					              else isnull(c.company_name,'')  end company_name				        
+				        , case when a.code_place = '1' 
+								  then a.code_post  
+					              else c.code_post  end code_post				        
+				        , case when a.code_place = '1' 
+								  then a.pers_add + a.pers_add_detail  
+					              else c.company_add +  c.company_add_detail  end pers_add		            
+				        ,a.pers_hp
+				        ,a.email
+				        ,g.detcodename code_bran_name
+						,a.code_bran
+						,a.code_place								   
+				  FROM   Person_M_TBL a  
+				    left join  com_code e
+				  		 on  e.groupcode = '006'
+				  		 and  a.code_member = e.detcode
+			  		left join  com_code f
+				  		 on  f.groupcode = '018'
+				  		 and  a.code_call = f.detcode
+			  		left join  com_code g
+				  		 on  g.groupcode = '007'
+				  		 and  a.code_bran = g.detcode	 	 	 				  
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+				  		 where	
+			  		 		  a.code_pers = p.code_pers  and				
+							  a.code_place <![CDATA[!=]]> '3'
+							  and a.code_member NOT IN ('07') 
+							  and a.pers_state in  ('01','07','09')
+							  <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		p.auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							  </dynamic>
+							  and a.mem_gubun = 1										    						 
+			 union all
+						SELECT  
+								 d.code_book 
+								,d.pers_name    	
+								,'' lic_no
+								,'' code_member_name
+								,''	code_member						
+								,h.detcodename code_call_name
+								,d.code_call
+								,d.company_name
+								, d.code_post				        
+						        ,(d.pers_add + d.pers_add1) pers_add 
+								,d.company_tel 'pers_hp'
+								,'' email
+								,'' code_bran_name
+								,''	code_bran
+								,'' code_place										
+						  FROM books_tbl d
+						  	left join  com_code h
+						  		 on  h.groupcode = '018'
+						  		 and  d.code_call = h.detcode
+				  		 	 where
+								   isnull (d.code_book,'') != ''
+							       <dynamic prepend="and">
+								 		<isNotEmpty property="book_start_dt">
+								  			d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+								 	 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+								  		</isNotEmpty>
+								   </dynamic>														   
+				    ) OUT
+				  )OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 발송대장 (전체) 검색 -->
+	<select id="selectdmsendreportall" resultClass="java.util.HashMap">
+	   		 SELECT OUT.*
+	 		    FROM (
+	   			  SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+				   	 SELECT  distinct	 
+				     	 a.code_pers
+					   , a.pers_name 				      	
+						,a.lic_no 
+						,e.detcodename code_member_name
+						,a.code_member
+						,f.detcodename code_call_name
+				        ,a.code_call 
+				        , case when a.code_place = '1' 
+								  then ''  
+					              else isnull(c.company_name,'')  end company_name				        
+				        , case when a.code_place = '1' 
+								  then a.code_post  
+					              else c.code_post  end code_post				        
+				        , case when a.code_place = '1' 
+								  then a.pers_add +' '+ a.pers_add_detail  
+					              else c.company_add +' '+  c.company_add_detail  end pers_add		            
+				        ,a.pers_hp 
+				        ,a.email 
+				        ,g.detcodename code_bran_name
+						,a.code_bran
+						,a.code_place				   
+				  FROM   Person_M_TBL a 
+			  		 left join  com_code e
+				  		 on  e.groupcode = '006'
+				  		 and  a.code_member = e.detcode
+			  		 left join  com_code f
+				  		 on  f.groupcode = '018'
+				  		 and  a.code_call = f.detcode
+			  		 left join  com_code g
+				  		 on  g.groupcode = '007'
+				  		 and  a.code_bran = g.detcode	 
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+				  		 where	
+				  		  	   a.code_pers = p.code_pers  and				
+							   a.code_place <![CDATA[!=]]> '3'
+							   and a.code_member NOT IN ('07')	
+							   and a.pers_state in  ('01','07','09')
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		p.auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>
+							   and a.mem_gubun = 1							   			 
+			 union all
+						SELECT  
+								 d.code_book 
+								,d.pers_name    	
+								,'' lic_no 
+								,'' code_member_name
+								,''	code_member						
+								,h.detcodename code_call_name
+								,d.code_call
+								,d.company_name 
+								, d.code_post 				        
+						        ,(d.pers_add +' '+ d.pers_add1) pers_add 
+								,d.company_tel pers_hp
+								,'' email
+								,'' code_bran_name
+								,''	code_bran
+								,'' code_place										
+						  FROM books_tbl d
+						  		left join  com_code h
+							  		 on  h.groupcode = '018'
+							  		 and  d.code_call = h.detcode
+					  		 where
+					  			isnull (d.code_book,'') != ''	
+							    <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+								  		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+								</dynamic>					  		  	    						  		 				 																
+					 ) OUT
+				 )OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#			  		
+	</select>
+	
+	<!-- 발송대장 (회원) 검색   count --> 	
+	<select id="dmreportmemcount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       distinct a.code_pers no
+				 FROM   Person_M_TBL a   
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+				  		 where	
+			  		 		   a.code_pers = p.code_pers  and				
+							   a.code_place <![CDATA[!=]]> '3' 
+							   and a.code_member NOT IN ('07')
+							   and a.pers_state in  ('01','07','09')
+							   <dynamic prepend="and">
+							 		<isNotEmpty property="book_start_dt">
+							  		    p.auth_end <![CDATA[>=]]> #book_start_dt# 
+							  			and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+									</isNotEmpty>
+							   </dynamic>		
+							   and a.mem_gubun = 1						      
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!--  발송대장 (회원) 검색  -->
+	<select id="selectdmsendreportmem" resultClass="java.util.HashMap">
+	   		  SELECT OUT.*
+	 			 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY ou.code_pers) no, ou.*
+				  from ( select distinct		 
+				     	  a.code_pers
+					    , a.pers_name 				      	
+						,a.lic_no 
+						,e.detcodename code_member_name
+						,a.code_member
+						,f.detcodename code_call_name
+				        ,a.code_call 
+				        , case when a.code_place = '1' 
+								  then ''  
+					              else isnull(c.company_name,'')  end company_name				        
+				        , case when a.code_place = '1' 
+								  then a.code_post  
+					              else c.code_post  end code_post				        
+				        , case when a.code_place = '1' 
+								  then a.pers_add +' '+ a.pers_add_detail  
+					              else c.company_add +' '+  c.company_add_detail  end pers_add		            
+				        ,a.pers_hp 
+				        ,a.email 
+				        ,g.detcodename code_bran_name
+						,a.code_bran
+						,a.code_place					   
+				  FROM   Person_M_TBL a 
+				     left join  com_code e
+				  		 on  e.groupcode = '006'
+				  		 and  a.code_member = e.detcode
+			  		 left join  com_code f
+				  		 on  f.groupcode = '018'
+				  		 and  a.code_call = f.detcode
+			  		 left join  com_code g
+				  		 on  g.groupcode = '007'
+				  		 and  a.code_bran = g.detcode	 
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+				  		 where				  		  
+				  		  	   a.code_pers = p.code_pers  and				
+							   a.code_place <![CDATA[!=]]> '3' 
+							   and a.code_member NOT IN ('07') 
+							   and a.pers_state in  ('01','07','09')
+							   <dynamic prepend="and">
+							 		<isNotEmpty property="book_start_dt">
+							  		    p.auth_end <![CDATA[>=]]> #book_start_dt# 
+							  			and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+									</isNotEmpty>
+							   </dynamic>
+							   and a.mem_gubun = 1		  						 																
+					) ou ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#  		
+	</select>			  					  		
+	
+	<!-- 발송대장 (회원+구독) 구독만검색 으로 수정  count --> 	
+	<select id="dmreportgoocount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+						SELECT  
+								 d.code_book      code_pers
+								,d.pers_name      pers_name  	
+								,''               lic_no
+								,''               code_member_name
+								,''	              code_member						
+								,h.detcodename    code_call_name
+								,d.code_call      code_call
+								,d.company_name   company_name
+								, d.code_post	  code_post	        
+						        ,(d.pers_add +' '+ d.pers_add1) pers_add 
+								,d.company_tel    pers_hp
+								,''               email
+								,''               code_bran_name
+								,''	              code_bran
+								,''               code_place											
+						  FROM books_tbl d
+							  left join  com_code h
+							  		 on  h.groupcode = '018'
+							  		 and  d.code_call = h.detcode	
+						  	where d.book_flag = '2'  
+								  <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								  </dynamic>				  										    
+				    ) OUT
+				  )OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 발송대장 (회원+구독) 구독만 검색 -->
+	<select id="selectdmsendreportgoo" resultClass="java.util.HashMap">
+	   		 SELECT OUT.*
+	 		    FROM (
+	   			  SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+						SELECT  
+								 d.code_book      code_pers
+								,d.pers_name      pers_name  	
+								,''               lic_no
+								,''               code_member_name
+								,''	              code_member						
+								,h.detcodename    code_call_name
+								,d.code_call      code_call
+								,d.company_name   company_name
+								, d.code_post	  code_post	        
+						        ,(d.pers_add +' '+ d.pers_add1) pers_add 
+								,d.company_tel    pers_hp
+								,''               email
+								,''               code_bran_name
+								,''	              code_bran
+								,''               code_place											
+						  FROM books_tbl d
+						  	left join  com_code h
+							  		 on  h.groupcode = '018'
+							  		 and  d.code_call = h.detcode	
+						  	where d.book_flag = '2'	
+								  <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								  </dynamic>		
+					 ) OUT
+				 )OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#			  		
+	</select>
+	
+	<!-- 발송대장 (회원+섭외) 섭외만 검색   count --> 	
+	<select id="dmreportsupcount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+						SELECT  
+								 d.code_book      code_pers
+								,d.pers_name      pers_name  	
+								,''               lic_no
+								,''               code_member_name
+								,''	              code_member						
+								,h.detcodename    code_call_name
+								,d.code_call      code_call
+								,d.company_name   company_name
+								, d.code_post	  code_post	        
+						        ,(d.pers_add +' '+ d.pers_add1) pers_add 
+								,d.company_tel    pers_hp
+								,''               email
+								,''               code_bran_name
+								,''	              code_bran
+								,''               code_place											
+						  FROM books_tbl d
+						 	 left join  com_code h
+							  		 on  h.groupcode = '018'
+							  		 and  d.code_call = h.detcode
+						  	where d.book_flag = '1' 
+								  <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								  </dynamic>
+				    ) OUT
+				  )OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 발송대장 (회원+섭외) 검색 -->
+	<select id="selectdmsendreportsup" resultClass="java.util.HashMap">
+	   		 SELECT OUT.*
+	 		    FROM (
+	   			  SELECT 
+				      ROW_NUMBER()OVER(ORDER BY OUT.code_pers ) no
+				       	,OUT.*
+				       FROM (
+						SELECT  
+								 d.code_book      code_pers
+								,d.pers_name      pers_name  	
+								,''               lic_no
+								,''               code_member_name
+								,''	              code_member						
+								,h.detcodename    code_call_name
+								,d.code_call      code_call
+								,d.company_name   company_name
+								, d.code_post	  code_post	        
+						        ,(d.pers_add +' '+ d.pers_add1) pers_add 
+								,d.company_tel    pers_hp
+								,''               email
+								,''               code_bran_name
+								,''	              code_bran
+								,''               code_place											
+						  FROM books_tbl d
+						  	 left join  com_code h
+							  		 on  h.groupcode = '018'
+							  		 and  d.code_call = h.detcode
+						  	where d.book_flag = '1'	 
+								  <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								  </dynamic>				  		 				 																
+					 ) OUT
+				 )OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#			  		
+	</select>
+	
+	<!-- 발송 대장 검색  count --> 	
+	 <select id="dmsearchcount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_book_kind ) no
+				  FROM dm_list 
+				  WHERE isnull (code_book_kind,'') != ''
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="pers_name">
+							  		pers_name = #pers_name# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_book_kind">							 		
+							  		code_book_kind = #code_book_kind# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="rece_yn">
+							  		rece_yn = #rece_yn# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_creater">
+							  		dm_creater = #dm_creater# 
+							  	</isNotEmpty>
+							</dynamic>												
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,regi_date,112) + '_' + dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 발송 대장 검색 -->
+	<select id="selectdmsearch" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.code_book_kind) no
+						,replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') dm_key  
+						,a.dm_pers_code
+						,e.book_name 
+						,a.dm_name
+						,a.code_book_kind 
+						,a.dm_print_yymm
+						,a.dm_print_yymm_seq
+						,a.pers_name
+				      	,b.detcodename code_member_name
+						,a.code_member
+						,a.lic_no
+						,a.company_name
+						,a.print_call code_call_name
+				        ,a.code_post
+				        ,a.pers_add
+				        ,a.pers_hp
+				        ,a.email
+				        ,c.detcodename code_bran_name
+				        ,a.code_bran
+				        ,d.detcodename rece_yn_name
+						,a.rece_yn	
+						,a.dm_creater					
+					 FROM dm_list a
+					 	 left join  com_code b
+							  		 on  b.groupcode = '006'
+							  		 and  a.code_member = b.detcode	
+				  		 left join  com_code c
+							  		 on  c.groupcode = '007'
+							  		 and  a.code_bran = c.detcode	
+				  		 left join  com_code d
+							  		 on  d.groupcode = '048'
+							  		 and  a.rece_yn = d.detcode	
+				  		  left join  books_kind e
+							  		 on  a.code_book_kind = e.code_book_kind					  
+				 		 WHERE isnull (a.code_book_kind,'') != ''
+					 		<dynamic prepend="and">
+							 	<isNotEmpty property="pers_name">
+							  		a.pers_name = #pers_name# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="code_book_kind">							 		
+							  		a.code_book_kind = #code_book_kind# 
+							  	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,a.regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,a.regi_date,112) + '_' + a.dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+							<dynamic prepend="and">
+							 	<isNotEmpty property="rece_yn">
+							  		a.rece_yn = #rece_yn# 
+							  	</isNotEmpty>
+							</dynamic>	
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_creater">
+							  		a.dm_creater = #dm_creater# 
+							  	</isNotEmpty>
+							</dynamic>																								
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	
+	<!-- 발송 대장 라벨 count -->
+	<select id="dmwritecnt" resultClass="java.util.HashMap">
+		SELECT COUNT( sout.ncount ) ncount
+	 		from(SELECT       ROW_NUMBER()OVER(ORDER BY  dm_pers_code) ncount
+	 					     ,replace(code_book_kind + dm_pers_code + dm_print_yymm + dm_print_yymm_seq,' ','') dm_key  							
+				 FROM dm_list 				 						  
+			 		 WHERE isnull (code_book_kind,'') != ''
+				 		<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name">
+						  		pers_name = #pers_name# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="code_book_kind">							 		
+						  		code_book_kind = #code_book_kind# 
+						  	</isNotEmpty>
+						</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,regi_date,112) + '_' + dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+						<dynamic prepend="and">
+						 	<isNotEmpty property="rece_yn">
+						  		rece_yn = #rece_yn# 
+						  	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+						 	<isNotEmpty property="dm_creater">
+						  		dm_creater = #dm_creater# 
+						  	</isNotEmpty>
+						</dynamic>	
+					 ) sout					 						     
+	</select> 	
+	
+	<!-- 발송 대장 라벨 출력 -->
+	<select id="dmwriteList" resultClass="java.util.HashMap">
+		SELECT ROW_NUMBER()OVER(ORDER BY dm_key)  ncount
+    		  ,dm_key dm_key 
+    		  ,code_book_kind
+    		  ,dm_pers_code
+    		  ,dm_print_yymm
+    		  ,dm_print_yymm_seq
+	 		from(SELECT       ROW_NUMBER()OVER(ORDER BY replace(code_book_kind + dm_pers_code + dm_print_yymm + dm_print_yymm_seq,' ','')) ncount
+	 					     ,replace(code_book_kind + dm_pers_code + dm_print_yymm + dm_print_yymm_seq,' ','') dm_key 
+	 					     ,code_book_kind
+				    		 ,dm_pers_code
+				    		 ,dm_print_yymm
+				    		 ,dm_print_yymm_seq									
+				 FROM dm_list 				 						  
+			 		 WHERE isnull (code_book_kind,'') != ''
+				 		<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name">
+						  		pers_name = #pers_name# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="code_book_kind">							 		
+						  		code_book_kind = #code_book_kind# 
+						  	</isNotEmpty>
+						</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,regi_date,112) + '_' + dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+						<dynamic prepend="and">
+						 	<isNotEmpty property="rece_yn">
+						  		rece_yn = #rece_yn# 
+						  	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+						 	<isNotEmpty property="dm_creater">
+						  		dm_creater = #dm_creater# 
+						  	</isNotEmpty>
+						</dynamic>	
+					 ) sout	
+				 where sout.ncount > #nstart# and sout.ncount <![CDATA[<=]]> #nend#				 						     
+	</select> 	
+	
+	<!-- 발송 대장 검색 excel down   company_name 추가 -->
+	<select id="dmsearchdown" resultClass="java.util.HashMap">
+	  	SELECT   
+	  			 replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') bacode
+  				,isnull(a.dm_name,'') dm_name
+			    ,isnull(a.pers_name,'') pers_name
+			    ,isnull(b.detcodename,'') code_member_name	 	
+				,isnull(a.lic_no,'') lic_no				
+				,isnull(a.print_call,'') code_call_name
+				,isnull(a.company_name,'') company_name
+				,isnull(a.code_post,'') code_post		       
+		        ,isnull(a.pers_add,'') pers_add
+		        ,isnull(a.pers_hp,'') pers_hp		       
+		        ,isnull(a.email,'') email		        
+		        ,isnull(c.detcodename,'') code_bran_name	       
+		        ,isnull(d.detcodename,'') rece_yn_name			
+			 FROM dm_list a
+			 	 left join  com_code b
+					  		 on  b.groupcode = '006'
+					  		 and  a.code_member = b.detcode	
+		  		 left join  com_code c
+					  		 on  c.groupcode = '007'
+					  		 and  a.code_bran = c.detcode	
+		  		 left join  com_code d
+					  		 on  d.groupcode = '048'
+					  		 and  a.rece_yn = d.detcode	
+		  		 left join  books_kind e
+	     					 on  a.code_book_kind = e.code_book_kind				  
+		 		 WHERE isnull (a.code_book_kind,'') != ''
+			 		<dynamic prepend="and">
+					 	<isNotEmpty property="pers_name">
+					  		a.pers_name = #pers_name# 
+					  	</isNotEmpty>
+					</dynamic>
+					<dynamic prepend="and">
+					 	<isNotEmpty property="code_book_kind">							 		
+					  		a.code_book_kind = #code_book_kind# 
+					  	</isNotEmpty>
+					</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,a.regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,a.regi_date,112) + '_' + a.dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+					<dynamic prepend="and">
+					 	<isNotEmpty property="rece_yn">
+					  		a.rece_yn = #rece_yn# 
+					  	</isNotEmpty>
+					</dynamic>																				
+					<dynamic prepend="and">
+					 	<isNotEmpty property="dm_creater">
+					  		dm_creater = #dm_creater# 
+					  	</isNotEmpty>
+					</dynamic>	
+	</select> 	
+	<select id="dmsearchBardown" resultClass="java.util.HashMap">
+		SELECT replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') bacode
+		     , isnull(a.dm_name,'')dm_name 
+			 , isnull(a.pers_name,'')pers_name 
+		     , isnull(b.detcodename,'') code_member_name 
+			 , isnull(a.lic_no,'')lic_no 
+			 , isnull(a.print_call,'') code_call_name 
+			 , isnull(a.company_name,'') company_name     
+			 , isnull(a.code_post,'')code_post 
+			 , isnull(a.pers_add,'')pers_add 
+			 , isnull(a.pers_hp,'')pers_hp 
+			 , isnull(a.email,'')email 
+			 , isnull(c.detcodename,'') code_bran_name 
+			 , isnull(d.detcodename,'') rece_yn_name 			
+		  FROM dm_list a
+		       left join com_code b
+					  on b.groupcode = '006'
+		             and a.code_member = b.detcode	
+			   left join com_code c
+					  on c.groupcode = '007'
+					 and a.code_bran = c.detcode	
+			   left join com_code d
+					  on d.groupcode = '048'
+					 and a.rece_yn = d.detcode	
+			   left join books_kind e
+		      		  on a.code_book_kind = e.code_book_kind				  
+		 WHERE replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') in ( $dm_bacode$ )
+	</select>
+	
+	<!-- 발송 대장 검색 전체(쪽지)-->
+	<select id="selectnotePad" resultClass="java.util.HashMap">
+	 	SELECT 	
+	 			 isnull(dm_pers_code,'') dm_pers_code			
+				,isnull(pers_hp,'') pers_hp				
+			 FROM dm_list 
+			 		 WHERE isnull (code_book_kind,'') != ''
+				 		<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name">
+						  		pers_name = #pers_name# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="code_book_kind">							 		
+						  		code_book_kind = #code_book_kind# 
+						  	</isNotEmpty>
+						</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,regi_date,112) + '_' + dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+						<dynamic prepend="and">
+						 	<isNotEmpty property="rece_yn">
+						  		rece_yn = #rece_yn# 
+						  	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+						 	<isNotEmpty property="dm_creater">
+						  		dm_creater = #dm_creater# 
+						  	</isNotEmpty>
+						</dynamic>	
+	</select> 	
+	
+	<!-- 발송 대장 검색 전체(문자)-->
+	<select id="documsData" resultClass="java.util.HashMap">
+	 	SELECT 	
+	 			 isnull(dm_pers_code,'') dm_pers_code			
+				,isnull(pers_hp,'') pers_hp	
+				,isnull(pers_name,'') pers_name			
+			 FROM dm_list 
+			 		 WHERE isnull (code_book_kind,'') != ''
+				 		<dynamic prepend="and">
+						 	<isNotEmpty property="pers_name">
+						  		pers_name = #pers_name# 
+						  	</isNotEmpty>
+						</dynamic>
+						<dynamic prepend="and">
+						 	<isNotEmpty property="code_book_kind">							 		
+						  		code_book_kind = #code_book_kind# 
+						  	</isNotEmpty>
+						</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="book_start_dt">
+							 		CONVERT(varchar,regi_date,112) like substring(#book_start_dt#,1,6)+'%'
+							 	</isNotEmpty>
+							</dynamic>
+							<dynamic prepend="and">
+							 	<isNotEmpty property="dm_print_yymm_seq">
+							  		replace(CONVERT(varchar,regi_date,112) + '_' + dm_print_yymm_seq,' ','') = replace(#dm_print_yymm_seq#,' ','') 
+							  	</isNotEmpty>
+							</dynamic>												
+						<dynamic prepend="and">
+						 	<isNotEmpty property="rece_yn">
+						  		rece_yn = #rece_yn# 
+						  	</isNotEmpty>
+						</dynamic>	
+						<dynamic prepend="and">
+						 	<isNotEmpty property="dm_creater">
+						  		dm_creater = #dm_creater# 
+						  	</isNotEmpty>
+						</dynamic>	
+	</select> 	
+	
+	<!-- 쪽지 생성 -->
+	<insert id="insertnotePad" parameterClass="java.util.HashMap">
+		INSERT into slipofpaper (create_dt, date_seq, code_pers, note_title, note_contents, st_dt, ed_dt, note_oper, regi_date, register )
+				values ( 
+						  SUBSTRING(CONVERT(varchar,getdate(),112),1,8)
+				        , (SELECT RIGHT('00'+convert(varchar, isnull(MAX(date_seq),0)+1),2) from slipofpaper where create_dt = SUBSTRING(CONVERT(varchar,getdate(),112),1,8) and code_pers = #dmperscode#)  
+				        , #dmperscode#
+				        , #note_title#
+				        , #note_contents#  
+				        , #st_dt# 
+						, #ed_dt#
+				        , #note_oper#										        
+						, GETDATE()
+				        , #register#				      
+					   )	
+	</insert>
+	
+	<!-- 쪽지 생성 전체-->
+	<insert id="insertnotePadall" parameterClass="java.util.HashMap">
+		INSERT into slipofpaper (create_dt, date_seq, code_pers, note_title, note_contents, st_dt, ed_dt, note_oper, regi_date, register )
+				values ( 
+						  SUBSTRING(CONVERT(varchar,getdate(),112),1,8)
+				        , (SELECT RIGHT('00'+convert(varchar, isnull(MAX(date_seq),0)+1),2) from slipofpaper where code_pers = #dm_pers_code#)  
+				        , #dm_pers_code#
+				        , #note_title#
+				        , #note_contents#  
+				        , #st_dt# 
+						, #ed_dt#
+				        , #note_oper#
+						, GETDATE()
+				        , #register#				      
+					   )	
+	</insert>
+	
+	<!-- 문자 전송 -->
+	<insert id="insertumsData" parameterClass="java.util.HashMap">
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						  REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+						, #msg_type# 
+				        , 0
+				        , GETDATE()
+				        , #pers_hp#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#
+				        , #etc1#
+				        , #etc2#  								      
+				        , #etc3#
+					   )	  
+	</insert>	
+	
+	<!-- 문자 예약 전송 -->
+	<insert id="insertumsResultData" parameterClass="java.util.HashMap">
+		INSERT into ums_data (cmid, msg_type, status, request_time, dest_phone, send_phone, subject, msg_body, etc1, etc2, etc3 )
+				values ( 
+						  REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 21),'-',''), ' ', ''), ':', ''),'.','')+CONVERT(VARCHAR,#umscnt#)
+				        , #msg_type# 
+				        , 0
+				        , #request_time#
+				        , #pers_hp#  
+				        , #send_phone# 
+						, #subject#
+				        , #msg_body#
+				        , #etc1#
+				        , #etc2#								     
+				        , #etc3# 
+					   )	
+	</insert>	
+	
+	<!-- 발송 대장 검색 발송구분 수정 -->
+	<update id="updaterece_yn" parameterClass="java.util.HashMap">
+		UPDATE dm_list
+		SET 
+			  rece_yn = #rece_yn#				        		   
+		WHERE   					 		
+              replace(code_book_kind + dm_pers_code + dm_print_yymm + dm_print_yymm_seq,' ','') = #dm_bacode#
+	</update>
+	
+	<!-- 증서 발급 현황   count --> 	
+	 <select id="docprintcnt"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT   ROW_NUMBER()OVER(ORDER BY yyyy_seq) no 
+				  FROM doc_print
+					   WHERE isnull (yyyy_seq,'') != ''
+			 				<dynamic prepend="and">
+					  		 	<isNotEmpty property="yyyy">
+					  		 		yyyy = #yyyy#
+					  		 	</isNotEmpty>
+						  	</dynamic>
+						  	<dynamic prepend="and">
+						  	 	<isNotEmpty property="center">
+					  		 		center = #center#
+					  		 	</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="doc_kind">
+					  		 		doc_kind = #doc_kind#
+					  		 	</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			convert(varchar, printing_date ,112) <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			convert(varchar, printing_date ,112) <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+							</dynamic>																
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 증서 발급 현황 -->
+	<select id="docprint" resultClass="java.util.HashMap">
+	    SELECT OUT.*
+	 		 FROM ( 	
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.yyyy_seq desc) no
+						,convert(varchar, a.printing_date ,112) printing_date
+						,a.yyyy
+				      	,a.yyyy_seq	
+				     	,a.operatier_id
+				     	,b.detcodename center_name 
+						,a.center
+						,c.detcodename doc_kind_name
+						,a.doc_kind
+				        ,a.reclaimant
+<!-- 				        JUMIN_DEL -->
+<!-- 				        ,a.reclaimant_no -->
+				        ,a.reclaimant_birth
+				        ,a.reclaimant_add
+				        ,a.printing_cnt
+				        ,a.remark			  	        
+				  FROM doc_print a	
+					  left join  com_code b
+				  		 on  b.groupcode = '031'
+				  		 and  a.center = b.detcode
+			  		  left join  com_code c
+				  		 on  c.groupcode = '051'
+				  		 and  a.doc_kind = c.detcode							  
+				 	   WHERE isnull (a.yyyy_seq,'') != ''
+			 				<dynamic prepend="and">
+					  		 	<isNotEmpty property="yyyy">
+					  		 		a.yyyy = #yyyy#
+					  		 	</isNotEmpty>
+						  	</dynamic>
+						  	<dynamic prepend="and">
+						  	 	<isNotEmpty property="center">
+					  		 		a.center = #center#
+					  		 	</isNotEmpty>
+					  		</dynamic>	
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="doc_kind">
+					  		 		a.doc_kind = #doc_kind#
+					  		 	</isNotEmpty>
+					  		</dynamic>
+					  		<dynamic prepend="and">
+						  	 	<isNotEmpty property="inqday1">
+						  			convert(varchar, a.printing_date ,112) <![CDATA[>=]]> #inqday1#
+						  		</isNotEmpty>
+							</dynamic>		
+							<dynamic prepend="and">
+						  		<isNotEmpty property="inqday2">
+						  			convert(varchar, a.printing_date ,112) <![CDATA[<=]]> #inqday2#
+						  	 	</isNotEmpty>
+							</dynamic>											
+				 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+			     
+	</select> 	
+	
+	<!-- 증서 발급 현황 excel down -->
+	<select id="docprintdown" resultClass="java.util.HashMap">
+	 	SELECT  
+	 			 convert(varchar, a.printing_date ,112) printing_date	 	
+				,a.yyyy
+		      	,a.yyyy_seq	
+		      	,isnull(a.operatier_id,'') operatier_id
+		      	,isnull(b.detcodename,'') center_name
+		      	,isnull(c.detcodename,'') doc_kind_name			
+				,isnull(a.reclaimant,'') reclaimant
+<!-- 				JUMIN_DEL		         -->
+<!-- 		        ,a.reclaimant_no -->
+		        ,a.reclaimant_birth
+		        ,isnull(a.reclaimant_add,'') reclaimant_add		       
+		        ,a.printing_cnt
+		        ,isnull(a.remark,'') remark	  	        
+		  FROM doc_print a	
+			  left join  com_code b
+		  		 on  b.groupcode = '031'
+		  		 and  a.center = b.detcode
+	  		  left join  com_code c
+		  		 on  c.groupcode = '051'
+		  		 and  a.doc_kind = c.detcode							  
+		 	   WHERE isnull (a.yyyy_seq,'') != ''
+	 				<dynamic prepend="and">
+			  		 	<isNotEmpty property="yyyy">
+			  		 		a.yyyy = #yyyy#
+			  		 	</isNotEmpty>
+				  	</dynamic>
+				  	<dynamic prepend="and">
+				  	 	<isNotEmpty property="center">
+			  		 		a.center = #center#
+			  		 	</isNotEmpty>
+			  		</dynamic>	
+			  		<dynamic prepend="and">
+				  	 	<isNotEmpty property="doc_kind">
+			  		 		a.doc_kind = #doc_kind#
+			  		 	</isNotEmpty>
+			  		</dynamic>
+			  		<dynamic prepend="and">
+				  	 	<isNotEmpty property="inqday1">
+				  			convert(varchar, a.printing_date ,112) <![CDATA[>=]]> #inqday1#
+				  		</isNotEmpty>
+					</dynamic>		
+					<dynamic prepend="and">
+				  		<isNotEmpty property="inqday2">
+				  			convert(varchar, a.printing_date ,112) <![CDATA[<=]]> #inqday2#
+				  	 	</isNotEmpty>
+					</dynamic>					
+			order by a.yyyy_seq desc										
+	</select> 	
+	 
+	<!-- 발송 대장 검색 bacode count --> 	
+	 <select id="dmbacodecount"    resultClass="java.util.HashMap">
+		SELECT count(no) cnt
+			  FROM ( 
+				SELECT 
+				       ROW_NUMBER()OVER(ORDER BY code_book_kind ) no
+				  FROM dm_list 
+				  WHERE 
+              replace(code_book_kind + dm_pers_code + dm_print_yymm + dm_print_yymm_seq,' ','') = #dm_bacode#
+				    ) OUT
+			  WHERE 1=1
+	</select>
+	
+	<!-- 발송 대장 검색 bacode-->
+	<select id="dmbacode"   resultClass="java.util.HashMap">
+	   	SELECT OUT.*
+	 		 FROM ( 
+				SELECT   ROW_NUMBER()OVER(ORDER BY a.code_book_kind) no
+						,isnull(a.code_book_kind,'')code_book_kind
+						,isnull(a.dm_pers_code,'')dm_pers_code
+						,isnull(a.dm_name,'')dm_name
+						,isnull(e.book_name,'')book_name
+						,isnull(a.pers_name,'')pers_name
+				      	,isnull(b.detcodename,'') code_member_name
+						,isnull(a.code_member,'')code_member
+						,isnull(a.lic_no,'')lic_no
+						,isnull(a.print_call,'') code_call_name
+				        ,isnull(a.code_post,'')code_post
+				        ,isnull(a.pers_add,'')pers_add
+				        ,isnull(a.pers_hp,'')pers_hp
+				        ,isnull(a.email,'')email
+				        ,isnull(c.detcodename,'') code_bran_name
+				        ,isnull(a.code_bran,'')code_bran
+				        ,isnull(d.detcodename,'') rece_yn_name
+						,isnull(a.rece_yn,'')rece_yn
+						,isnull(a.dm_creater,'')dm_creater
+						,replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') dm_key
+					 FROM dm_list a
+					 	 left join  com_code b
+							  		 on  b.groupcode = '006'
+							  		 and  a.code_member = b.detcode	
+				  		 left join  com_code c
+							  		 on  c.groupcode = '007'
+							  		 and  a.code_bran = c.detcode	
+				  		 left join  com_code d
+							  		 on  d.groupcode = '048'
+							  		 and  a.rece_yn = d.detcode	
+						 left join  books_kind e
+      								 on  a.code_book_kind = e.code_book_kind				  
+				 		 WHERE 					 		
+				 		 <isEmpty property="dm_bacode_single">
+              replace(a.code_book_kind + a.dm_pers_code + a.dm_print_yymm + a.dm_print_yymm_seq,' ','') IN ($dm_bacode$ )
+              			</isEmpty>
+				 		 <isNotEmpty property="dm_bacode_single">
+								a.code_book_kind = replace(substring(#dm_bacode_single#,1,1),' ','') and
+								a.dm_pers_code = replace(substring(#dm_bacode_single#,2,9),' ','') and
+								a.dm_print_yymm = replace(substring(#dm_bacode_single#,11,4),' ','') and
+								a.dm_print_yymm_seq = replace(substring(#dm_bacode_single#,15,1),' ','') 
+              			</isNotEmpty>
+					 ) OUT	   
+			  WHERE 1=1 
+			  		and out.no > #nstart#
+			  		and out.no <![CDATA[<=]]> #nend#
+					 						     
+	</select> 	
+	 
+	<!-- 발송대장 전체 dmlist 생성 -->
+	<insert id="insertdmall"    parameterClass="java.util.HashMap">
+		INSERT into dm_list (code_book_kind, dm_pers_code, dm_print_yymm, dm_print_yymm_seq, code_member, pers_name, lic_no, company_name, code_post, pers_add, pers_hp, email, code_bran, print_call, code_place, rece_yn, dm_name, dm_creater )
+				 ( 						
+		 	SELECT	distinct		
+						  j.code_book_kind
+			       		, a.code_pers 
+			       		, SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+			       		, (SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1')  
+			       		     from dm_list 
+			       		     where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+			       		       and code_book_kind = #code_book_kind#)
+			       		, a.code_member
+					    , a.pers_name 				      	
+						, a.lic_no 
+				        , case when a.code_place = '1' 
+								  then ''  
+					              else isnull(c.company_name,'')  end company_name				        
+						, case when a.code_place = '1' 
+								  then a.code_post  
+								  else c.code_post  end code_post
+						, case when a.code_place = '1' 
+								  then a.pers_add +' '+ a.pers_add_detail  
+								  else c.company_add +' '+  c.company_add_detail  end pers_add
+						, a.pers_hp
+						, a.email  		   		  
+						, a.code_bran					
+						, f.detcodename 
+						, a.code_place
+						, '1'	
+						, j.book_name
+						, #register#									   
+				  FROM   Person_M_TBL a 
+		  			 left join  com_code e
+			  			 on  e.groupcode = '006'
+			  			 and  a.code_member = e.detcode
+		  			 left join  com_code f
+			  			 on  f.groupcode = '018'
+			  			 and  a.code_call = f.detcode
+		  			 left join  com_code g
+			  			 on  g.groupcode = '007'
+			  			 and  a.code_bran = g.detcode		  			 
+		  			 left join  books_kind j
+			  			 on  j.code_book_kind = #code_book_kind#	
+			  			 and  j.use_yn = 'Y'			  				   
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+			  			 where  a.code_pers = p.code_pers	and		  			 		 			
+							    a.code_place <![CDATA[!=]]> '3'  
+							   and a.code_member NOT IN ('07') 
+							   and a.pers_state in  ('01','07','09')
+							    <dynamic prepend="and">
+							 		<isNotEmpty property="book_start_dt">
+							  			p.auth_end <![CDATA[>=]]> #book_start_dt# 
+							  			and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+									</isNotEmpty>
+							    </dynamic>	
+							    and a.mem_gubun = 1				   						 
+			 union all 
+						SELECT  
+								 k.code_book_kind
+								 ,d.code_book 
+								, (SUBSTRING(CONVERT(varchar,getdate(),112),3,2) + SUBSTRING(CONVERT(varchar,getdate(),112),5,2))
+			       		        , (SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1')  
+					       		     from dm_list 
+					       		     where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+					       		       and code_book_kind = #code_book_kind#)
+								 ,''  code_member 
+								,d.pers_name 								
+								,'' lic_no
+             			        , isnull(d.company_name,'') 
+								, d.code_post 
+								,(d.pers_add +' '+ d.pers_add1) 							
+								,d.company_tel 
+								,'' email	
+								,''	code_bran			
+								,h.detcodename 
+								,''	code_place	
+								,'1'	
+								,k.book_name
+								, #register#															
+						  FROM books_tbl d
+					  			left join  com_code h
+						  			 on  h.groupcode = '018'
+						  			 and  d.code_call = h.detcode
+					  	        left join  books_kind k
+			  						 on  k.code_book_kind = #code_book_kind#	
+			  						 and  k.use_yn = 'Y'
+	  						 where
+									 isnull (d.code_book,'') != ''	
+									 <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+									 </dynamic>
+	  			)		
+	</insert>
+	
+	<!-- 발송대장 회원(구분코드 :1)  dmlist 생성 -->
+	<insert id="insertdmmem"    parameterClass="java.util.HashMap">
+		INSERT into dm_list (code_book_kind, dm_pers_code, dm_print_yymm, dm_print_yymm_seq, code_member, pers_name, lic_no, company_name, code_post, pers_add, pers_hp, email, code_bran, print_call, code_place, rece_yn, dm_name, dm_creater )
+				 ( 						
+		 	SELECT	distinct		
+						  j.code_book_kind
+			       		, a.code_pers 
+			       		, SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+			       		, (SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1')  
+			       		     from dm_list 
+			       		     where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+			       		       and code_book_kind = #code_book_kind#)
+			       		,a.code_member
+					   , a.pers_name 				      	
+						,a.lic_no 
+				        , case when a.code_place = '1' 
+								  then ''  
+					              else isnull(c.company_name,'')  end company_name				        
+						, case when a.code_place = '1' 
+								  then a.code_post  
+								  else c.code_post  end code_post
+						, case when a.code_place = '1' 
+								  then a.pers_add +' '+ a.pers_add_detail  
+								  else c.company_add +' '+  c.company_add_detail  end pers_add
+						,a.pers_hp
+						,a.email  		   		  
+						,a.code_bran					
+						,f.detcodename 
+						,a.code_place
+						,'1'	
+						,j.book_name
+						, #register#									   
+				  FROM   Person_M_TBL a 
+		  			 left join  com_code e
+			  			 on  e.groupcode = '006'
+			  			 and  a.code_member = e.detcode
+		  			 left join  com_code f
+			  			 on  f.groupcode = '018'
+			  			 and  a.code_call = f.detcode
+		  			 left join  com_code g
+			  			 on  g.groupcode = '007'
+			  			 and  a.code_bran = g.detcode		  			 
+		  			 left join  books_kind j
+			  			 on  j.code_book_kind = #code_book_kind#	
+			  			 and  j.use_yn = 'Y'			  				   
+		             left join         (select c.company_name, c.code_post, c.code_pers, c.company_add, c.company_add_detail  
+		                                  from pers_company c          
+		                                 where c.primary_flag = '1' 
+		                                   and c.comp_seq = (select MAX(comp_seq) 
+		                                                       from pers_company   
+		                                                      where primary_flag = '1'
+		                                                        and code_pers = c.code_pers)
+		                                 ) c     
+                                       on a.code_pers = c.code_pers        
+  					LEFT JOIN ( select code_pers, MAX(auth_end) auth_end, MAX(auth_start) auth_start
+  					              from dues_h_tbl
+  					              where incom_flag != 'D'
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  auth_start <![CDATA[<=]]> #book_start_dt# 
+								  	</isNotEmpty>
+							   </dynamic>							   			 
+  					             group by code_pers)   p on p.code_pers = a.code_pers
+			  			 where  a.code_pers = p.code_pers	and		  			 		 			
+							    a.code_place <![CDATA[!=]]> '3'  
+							   and a.code_member NOT IN ('07') 
+							   and a.pers_state in  ('01','07','09')
+							   <dynamic prepend="and">
+								 	<isNotEmpty property="book_start_dt">
+								  		p.auth_end <![CDATA[>=]]> #book_start_dt# 
+								  		and  p.auth_start <![CDATA[<=]]> #book_start_dt# 
+									</isNotEmpty>
+							   </dynamic>
+							   and a.mem_gubun = 1
+	  			)		
+	</insert>
+	
+	<!-- 발송대장 구독(구분코드 :2) dmlist 생성 -->
+	<insert id="insertdmgoo"    parameterClass="java.util.HashMap">
+		INSERT into dm_list (code_book_kind, dm_pers_code, dm_print_yymm, dm_print_yymm_seq, code_member, pers_name, lic_no, company_name, code_post, pers_add, pers_hp, email, code_bran, print_call, code_place, rece_yn, dm_name, dm_creater )
+				 ( 						
+						SELECT  
+								 k.code_book_kind
+								 ,d.code_book 
+								, (SUBSTRING(CONVERT(varchar,getdate(),112),3,2) + SUBSTRING(CONVERT(varchar,getdate(),112),5,2))
+					       		, (SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1')  
+					       		     from dm_list 
+					       		     where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+					       		       and code_book_kind = #code_book_kind#)
+								 ,''  code_member 
+								,d.pers_name 								
+								,'' lic_no
+             					, isnull(d.company_name,'') 
+								, d.code_post 
+								,(d.pers_add +' '+ d.pers_add1) 							
+								,d.company_tel 
+								,'' email	
+								,''	code_bran			
+								,h.detcodename 
+								,''	code_place	
+								,'1'	
+								,k.book_name
+								, #register#															
+						  FROM books_tbl d
+					  			left join  com_code h
+						  			 on  h.groupcode = '018'
+						  			 and  d.code_call = h.detcode
+					  	        left join  books_kind k
+			  						 on  k.code_book_kind = #code_book_kind#	
+			  						 and  k.use_yn = 'Y'
+	  						 where d.book_flag = '2'  						  		   
+								   <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								   </dynamic>  						  		   		
+	  			)		
+	</insert>
+	
+	<!-- 발송대장 회원+섭외(구분코드 :3) dmlist 생성 -->
+	<insert id="insertdmsup"      parameterClass="java.util.HashMap">
+		INSERT into dm_list (code_book_kind, dm_pers_code, dm_print_yymm, dm_print_yymm_seq, code_member, pers_name, lic_no, company_name, code_post, pers_add, pers_hp, email, code_bran, print_call, code_place, rece_yn, dm_name, dm_creater )
+				 ( 						
+						SELECT  
+								 k.code_book_kind
+								 ,d.code_book 
+								, (SUBSTRING(CONVERT(varchar,getdate(),112),3,2) + SUBSTRING(CONVERT(varchar,getdate(),112),5,2))
+					       		, (SELECT isnull(case when MAX(isnull(dm_print_yymm_seq,'0')) = '9' then 'a' else char(ascii(MAX(isnull(dm_print_yymm_seq,'0')))+1) end,'1')  
+					       		     from dm_list 
+					       		     where dm_print_yymm = SUBSTRING(CONVERT(varchar,getdate(),112),3,4)
+					       		       and code_book_kind = #code_book_kind#)
+								,''  code_member 
+								,d.pers_name 								
+								,'' lic_no
+                                , isnull(d.company_name,'') 
+								, d.code_post 
+								,(d.pers_add +' '+ d.pers_add1) 							
+								,d.company_tel 
+								,'' email	
+								,''	code_bran			
+								,h.detcodename 
+								,''	code_place	
+								,'1'	
+								,k.book_name
+								, #register#															
+						  FROM books_tbl d
+					  			left join  com_code h
+						  			 on  h.groupcode = '018'
+						  			 and  d.code_call = h.detcode
+					  	        left join  books_kind k
+			  						 on  k.code_book_kind = #code_book_kind#	
+			  						 and  k.use_yn = 'Y'
+	  						 where d.book_flag = '1' 	  						      
+								   <dynamic prepend="and">
+										<isNotEmpty property="book_start_dt">
+											d.book_end_dt <![CDATA[>=]]> #book_start_dt# 
+									 		and  d.book_start_dt <![CDATA[<=]]> #book_start_dt# 
+										</isNotEmpty>
+								   </dynamic>
+	  			)		
+	</insert>
+		
+</sqlMap>    

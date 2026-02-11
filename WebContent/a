@@ -1,0 +1,175 @@
+					SELECT a.code_certifi
+						,a.result_no
+						,a.code_pers
+						,max(a.code_seq) code_seq
+						,c.oper_birth
+						,c.oper_lic_no
+						,max(c.oper_name)
+						,a.result_start_dt
+						,a.result_end_dt
+						,c.code_post
+						,isnull((c.pers_add), '') oper_comp_add1_1
+						,max(a.result_dt) result_dt
+						,max(m.detcodename) prtstateh
+						,max(a.print_state) prtstatec
+						,max(c.oper_comp_name1) oper_comp_name1
+						,max(c.oper_hp) oper_hp
+						,max(c.oper_email) oper_email
+						,max(c.member) member
+						,max(b.detcodename) codeoperation
+						,SUM(ISNULL(col1, 0)) col1
+						,SUM(ISNULL(col2, 0)) col2
+						,CASE 
+							WHEN SUM(isnull(col3, 0)) >= 4
+								THEN 4
+							ELSE SUM(isnull(col3, 0))
+							END col3
+					FROM result_print a
+					LEFT JOIN com_code m ON m.groupcode = '024'
+						AND m.detcode = a.print_state
+					LEFT JOIN (
+						SELECT x.code_pers
+							,x.code_certifi
+							,x.result_no
+							,x.code_seq
+							,replace(replace(ISNULL(x.신청서, ' ') + ',' + ISNULL(x.사진, ' ') + ',' + ISNULL(x.영양사면허증사본, ' ') + ',' + ISNULL(x.발급회비, ' ') + ',' + ISNULL(x.압축파일, ' '), ' ,', ''), ', ', '') detcodename
+						FROM (
+							SELECT *
+							FROM (
+								SELECT code_pers
+									,code_certifi
+									,result_no
+									,code_seq
+									,CASE 
+										WHEN isnull(add_file_1, '') != ''
+											THEN '신청서'
+										ELSE ''
+										END detcodename
+								FROM result_print
+								
+								UNION ALL
+								
+								SELECT code_pers
+									,code_certifi
+									,result_no
+									,code_seq
+									,CASE 
+										WHEN isnull(add_file_2, '') != ''
+											THEN '사진'
+										ELSE ''
+										END detcodename
+								FROM result_print
+								
+								UNION ALL
+								
+								SELECT code_pers
+									,code_certifi
+									,result_no
+									,code_seq
+									,CASE 
+										WHEN isnull(add_file_3, '') != ''
+											THEN '영양사면허증사본'
+										ELSE ''
+										END detcodename
+								FROM result_print
+								
+								UNION ALL
+								
+								SELECT code_pers
+									,code_certifi
+									,result_no
+									,code_seq
+									,CASE 
+										WHEN isnull(add_file_4, '') != ''
+											THEN '발급회비'
+										ELSE ''
+										END detcodename
+								FROM result_print
+								
+								UNION ALL
+								
+								SELECT code_pers
+									,code_certifi
+									,result_no
+									,code_seq
+									,CASE 
+										WHEN isnull(add_file_5, '') != ''
+											THEN '압축파일'
+										ELSE ''
+										END detcodename
+								FROM result_print
+								) z
+							pivot(max(z.detcodename) FOR z.detcodename IN (
+										[신청서]
+										,[사진]
+										,[영양사면허증사본]
+										,[발급회비]
+										,[압축파일]
+										)) AS pvt
+							) x
+						) b ON b.code_pers = a.code_pers
+						AND b.code_certifi = a.code_certifi
+						AND b.code_seq = a.code_seq
+						AND b.result_no = a.result_no
+						,(
+							SELECT a.oper_name
+								,a.oper_birth
+								,a.oper_lic_no
+								,a.oper_comp_name1
+								,a.oper_hp
+								,a.oper_email
+								,p.member
+								,p.code_post
+								,p.pers_add
+								,CASE 
+									WHEN g.outside_yn = 'N'
+										THEN isnull(c.edu_marks, 0)
+									ELSE 0
+									END col1
+								,CASE 
+									WHEN g.outside_yn = 'Y'
+										THEN isnull(c.edu_marks, 0)
+									ELSE 0
+									END col2
+								,isnull(c.service_marks, 0) col3
+								,a.person_yn code_pers
+								,f.oper_end_dt
+								,c.point_manage code_certifi
+								,c.result_state
+							FROM operater a
+							LEFT JOIN (
+								SELECT w.code_pers
+									,w.code_post
+									,w.pers_add
+									,cq.detcodename + '(' + cw.detcodename + ')' member
+								FROM Person_M_TBL w
+								LEFT JOIN com_code cq ON cq.groupcode = '006'
+									AND cq.detcode = w.code_member
+								LEFT JOIN com_code cw ON cw.groupcode = '021'
+									AND cw.detcode = w.pers_state
+								) p ON p.code_pers = a.person_yn
+							LEFT JOIN oper_result c ON c.code_kind = a.code_kind
+								AND c.code_certifi = a.code_certifi
+								AND c.code_seq = a.code_seq
+								AND c.code_bran = a.code_bran
+								AND c.bran_seq = a.bran_seq
+								AND c.receipt_no = a.receipt_no
+								,edu_test f
+							LEFT JOIN edu_test_name g ON g.code_kind = f.code_kind
+								AND g.code_certifi = f.code_certifi
+								AND g.code_seq = f.code_seq
+							WHERE a.code_kind = f.code_kind
+								AND a.code_certifi = f.code_certifi
+								AND a.code_seq = f.code_seq
+								AND a.code_bran = f.code_bran
+								AND a.bran_seq = f.bran_seq
+								AND f.code_kind IN ('2')
+							) c
+					WHERE a.code_pers = c.code_pers
+						AND a.code_certifi = c.code_certifi
+						AND c.oper_end_dt BETWEEN DATEADD(DAY, + 1, DATEADD(year, - 2, convert(DATE, a.result_end_dt)))							AND DATEADD(year, - 1, convert(DATE, a.result_end_dt))
+						AND c.result_state = '11' /* 발급상태  */
+						AND a.print_state = '3' /* 자격증구분  */
+						AND a.code_certifi = '5' /* 자격증번호  */ /* 생년월일 동일 조건  */ /* 이름 동일 조건  */ /* 발급년도  */ /* 반기 동일 조건  */
+						AND a.result_end_dt BETWEEN '2017' + '0101'							AND '2017' + '0731' /*후반기 조회시*/ /*print_state가 발급인 경우*/
+						

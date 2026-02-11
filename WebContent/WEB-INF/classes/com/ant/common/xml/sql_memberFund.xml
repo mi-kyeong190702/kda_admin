@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+		 
+<sqlMap namespace="memberDeposit">
+	
+	<!-- 
+	 * 작업명 : Home>회원>기부/기금 현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.01
+	 * 작  업 : getMemberFundCount 기부/기금 현황 페이징 카운터
+	-->
+<select id="getMemberFundCount" resultClass="java.util.HashMap">
+select COUNT(number) ncount
+  from(select ROW_NUMBER() over( order by pers_name ) number
+         from donation a left join promise      b on b.code_pers  = a.code_pers
+                                                 and b.promise_no = a.promise_no
+                         left join Person_M_TBL c on c.code_pers  = a.code_pers and c.mem_gubun = 1
+                         left join pers_company d on d.code_pers  = a.code_pers
+                                                 and d.comp_seq   =(select MAX(comp_seq)
+                                                                      from pers_company
+                                                                     where code_pers = a.code_pers )
+        where 1=1
+        <dynamic prepend="and"><isNotEmpty property="startdate"		> a.pres_let_dt <![CDATA[>=]]> #startdate#	/* startdate*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="enddate"		> a.pres_let_dt <![CDATA[<=]]> #enddate#	/* enddate	*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="gubun"			> a.gubun 		= 	#gubun#			/* 구분(기금1/기부2)*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="code_member"	> c.code_member = 	#code_member#	/* 회원구분			*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="pers_name"		> c.pers_name like 	#pers_name#+'%'	/* 이름				*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="lic_no"		> c.lic_no 		= 	#lic_no#		/* 면허번호			*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="company_name"	> d.company_name like 	'%'+#company_name#+'%'	/* 근무처명	*/</isNotEmpty></dynamic>
+
+       )sout
+</select>
+
+	<!-- 
+	 * 작업명 : Home>회원>기부/기금 현황
+	 * 작업자 : 김성훈
+	 * 작업일 : 2012.11.01
+	 * 작  업 : getMemberFundList 기부/기금 현황 리스트
+	-->
+<select id="getMemberFundList" resultClass="java.util.HashMap">
+select number
+     , pres_let_dt
+     , gubun     , f.detcodename han_gubun
+     , promise_no
+     , promise_mon
+     , pres_money
+     , pers_name
+<!--      JUMIN_DEL -->
+<!--      , pers_no -->
+     , lic_no
+     , pers_tel
+     , code_member  ,g.detcodename han_code_member
+     , company_name
+  from(select ROW_NUMBER() over( order by pers_name ) number
+            , isnull(a.pres_let_dt	, '') pres_let_dt
+            , isnull(a.gubun		, '') gubun
+            , isnull(b.promise_no	, '') promise_no	/* 약정번호	*/
+            , isnull(b.promise_mon	, '') promise_mon	/* 회차		*/
+            , isnull(a.pres_money	, '') pres_money
+            , isnull(c.pers_name	, '') pers_name
+            
+<!-- 			JUMIN_DEL -->
+<!-- 			,case when #check# = '1'  -->
+<!-- 				  then [dbo].[GetPersNoDecord](c.pers_no , '1') -->
+<!-- 		      when #check# = '2'  -->
+<!-- 				  then [dbo].[GetPersNoDecord](c.pers_no , '2')   -->
+<!-- 			  when #check# = '3' -->
+<!-- 			      then [dbo].[GetPersNoDecord](c.pers_no , '3') -->
+<!-- 			  else [dbo].[GetPersNoDecord](c.pers_no , '3') end pers_no   /*주민등록번호 */	 -->
+		  
+            
+            , isnull(c.lic_no		, '') lic_no
+            , isnull(c.pers_tel		, '') pers_tel
+            , isnull(c.code_member	, '') code_member
+            , ISNULL(d.company_name , '') company_name
+         from donation a left join promise      b on b.code_pers  = a.code_pers
+                                                 and b.promise_no = a.promise_no
+                         left join Person_M_TBL c on c.code_pers  = a.code_pers and c.mem_gubun = 1
+                         left join pers_company d on d.code_pers  = a.code_pers
+                                                 and d.comp_seq   =(select MAX(comp_seq)
+                                                                      from pers_company
+                                                                     where code_pers = a.code_pers )
+        where 1=1
+        <dynamic prepend="and"><isNotEmpty property="startdate"		> a.pres_let_dt <![CDATA[>=]]> #startdate#	/* startdate*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="enddate"		> a.pres_let_dt <![CDATA[<=]]> #enddate#	/* enddate	*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="gubun"			> a.gubun 		= 	#gubun#			/* 구분(기금1/기부2)*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="code_member"	> c.code_member = 	#code_member#	/* 회원구분			*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="pers_name"		> c.pers_name like 	#pers_name#+'%'	/* 이름				*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="lic_no"		> c.lic_no 		= 	#lic_no#		/* 면허번호			*/</isNotEmpty></dynamic>
+        <dynamic prepend="and"><isNotEmpty property="company_name"	> d.company_name like 	'%'+#company_name#+'%'	/* 근무처명	*/</isNotEmpty></dynamic>
+
+       )sout left join com_code f on f.groupcode  = '040' and f.detcode = gubun
+             left join com_code g on g.groupcode  = '006' and g.detcode = code_member
+
+WHERE number > #nstart# AND number <![CDATA[<=]]> #nend#
+</select>
+
+
+</sqlMap>
+
