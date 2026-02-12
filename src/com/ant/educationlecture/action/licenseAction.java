@@ -164,7 +164,14 @@ public class licenseAction extends DispatchAction {
 			result.append("\"" + ( selectlicense.get(i).get("result_state")			== null ? "" : selectlicense.get(i).get("result_state") )  	+"\","); 	//상태
 			
 			result.append("\"" + ( selectlicense.get(i).get("code_pers")	   		== null ? "" : selectlicense.get(i).get("code_pers") )     	+"\",");	//히든 주민번호(xml에서 추가한 명칭값과동일하게 )
-			result.append("\"" + ( selectlicense.get(i).get("person_yn1")	    	== null ? "" : selectlicense.get(i).get("person_yn1") )     +"\"");		//히든 회원코드값 )
+			result.append("\"" + ( selectlicense.get(i).get("person_yn1")	    	== null ? "" : selectlicense.get(i).get("person_yn1") )     +"\",");		//히든 회원코드값 )
+			
+			//2026.02 첨부파일 추가
+			result.append("\"" + ( selectlicense.get(i).get("file1")	    		== null ? "" : selectlicense.get(i).get("file1") )     		+"\",");
+			result.append("\"" + ( selectlicense.get(i).get("file2")	    		== null ? "" : selectlicense.get(i).get("file2") )     		+"\",");
+			result.append("\"" + ( selectlicense.get(i).get("file_name1")	    	== null ? "" : selectlicense.get(i).get("file_name1") )     +"\",");
+			result.append("\"" + ( selectlicense.get(i).get("file_name2")	    	== null ? "" : selectlicense.get(i).get("file_name2") )     +"\"");
+			
 			result.append("]}");
 			
 		}	
@@ -328,7 +335,7 @@ public class licenseAction extends DispatchAction {
 //							,"oper_no"
 							,"oper_birth"
 							,"oper_hp","operemail","person_yn","code_operation","result_state","oper_state","attend_cnt","operation_place","refund_bank", "refund_account", "refund_account_owner"}; //헤더 영문
-		String header_k[]={"*신규/갱신(i/u)","*Key", "(접수번호)","(학기)","(횟수)", "(내용)", "(시험년도)", "(시험주최)", "(시험구분)"
+		String header_k[]={"*신규/갱신(i/u)","*Key", "(접수번호)","(구분)","(횟수)", "(내용)", "(시험년도)", "(시험주최)", "(시험구분)"
 							,"*이름","*면허번호"
 //							JUMIN_DEL
 //							,"*주민번호"
@@ -955,7 +962,7 @@ public class licenseAction extends DispatchAction {
 								"oper_birth",
 								"oper_lic_no","attend_cnt","result_state","result_point"
 								,"time_cnt","oper_hp","oper_email","person_yn","oper_comp_name1","oper_comp_add1_1","code_post","code_kind","code_seq","bran_seq"}; //헤더 영문
-			String header_k[]={"신규/갱신 구분","Key","접수번호","년도","지부","구분코드","학기","횟수","대상자","시험명","증서발급","합격가능점수","합격가능이수시간","합격가능이수일수"
+			String header_k[]={"신규/갱신 구분","Key","접수번호","년도","지부","구분코드","구분","횟수","대상자","시험명","증서발급","합격가능점수","합격가능이수시간","합격가능이수일수"
 								,"시험장소","이름",
 //								JUMIN_DEL
 //								"주민번호",

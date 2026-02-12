@@ -72,7 +72,7 @@
       ,a.regi_date
       ,a.updater
       ,a.up_date
-	  ,case when b.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + b.edutest_name + '-' + l.detcodename
+	  ,case when b.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else ' ' end) + b.edutest_name + '-' + l.detcodename
                     else b.edutest_name end edutest_name
 	  ,a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq+convert(varchar,isnull(a.operation_cnt,'0'))+convert(varchar,isnull(a.season,'0')) as detcode
   FROM edu_test a
@@ -134,7 +134,7 @@
 			, f.code_bran
 			, f.code_kind
 			, f.code_seq
-			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename   
+			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename   
                     else g.edutest_name end  edutest_name
 			, a.code_operation
 			, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate
@@ -324,7 +324,7 @@ from operater a
 			, f.code_bran
 			, f.code_kind
 			, f.code_seq
-			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename   
+			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename   
                     else g.edutest_name end  edutest_name
 			, a.code_operation
 			, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate
@@ -362,7 +362,26 @@ from operater a
 			, a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq+convert(varchar,isnull(f.operation_cnt,'0'))+convert(varchar,isnull(f.season,'0')) as detcode
 	     ,ROW_NUMBER()OVER(ORDER BY a.code_kind,a.code_certifi,a.code_seq,a.code_bran,a.bran_seq,a.receipt_no ) ncount
 	     , xx2.detcodename codeoperation
-	   
+         , ISNULL((SELECT MAX('Y')
+              FROM OPER_ADD_FILE SUB
+             WHERE code_certifi = a.code_certifi and code_seq = a.code_seq and
+                   code_bran = a.code_bran and bran_seq = a.bran_seq and
+                   receipt_no = a.receipt_no and add_file_no = '22'), 'N') file1
+         , ISNULL((SELECT MAX('Y')
+              FROM OPER_ADD_FILE SUB
+             WHERE code_certifi = a.code_certifi and code_seq = a.code_seq and
+                   code_bran = a.code_bran and bran_seq = a.bran_seq and
+                   receipt_no = a.receipt_no and add_file_no = '23'), 'N') file2
+         , (SELECT MAX(CHANG_FILE_NAME)
+              FROM OPER_ADD_FILE SUB
+             WHERE code_certifi = a.code_certifi and code_seq = a.code_seq and
+                   code_bran = a.code_bran and bran_seq = a.bran_seq and
+                   receipt_no = a.receipt_no and add_file_no = '22') file_name1
+         , (SELECT MAX(CHANG_FILE_NAME)
+              FROM OPER_ADD_FILE SUB
+             WHERE code_certifi = a.code_certifi and code_seq = a.code_seq and
+                   code_bran = a.code_bran and bran_seq = a.bran_seq and
+                   receipt_no = a.receipt_no and add_file_no = '23') file_name2
 from operater a 
 	left join (select  w.code_pers, cq.detcodename + '(' + cw.detcodename + ')' member
                   from Person_M_TBL w
@@ -524,7 +543,7 @@ from operater a
 			, f.code_bran
 			, f.code_kind
 			, f.code_seq
-			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename  
+			, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename  
                     else g.edutest_name end  edutest_name
 			, a.code_operation
 			, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate
@@ -694,7 +713,7 @@ from operater a
 	<!-- 시험별응시현황 엑셀 다운용 select -->
     <select id="conditionExcel" resultClass="java.util.HashMap">
  	select  ' ' upYN
- 	 , case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + cb.detcodename   
+ 	 , case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + cb.detcodename   
 		        else g.edutest_name + ' (' + cb.detcodename + ')' end  edutest_name
      , ISNULL(a.oper_name, '') oper_name
      , ISNULL(a.oper_lic_no, '') oper_lic_no
@@ -915,7 +934,7 @@ from operater a
     SELECT count(*) cnt
         FROM (
         select f.yyyy, f.code_bran, f.code_kind, 
-               case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename   
+               case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename   
                     else g.edutest_name end  edutest_name,
                a.code_operation, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate,
                a.code_pay_flag, a.code_certifi,
@@ -1093,7 +1112,7 @@ from operater a
 		, isnull(f.code_bran, '') code_bran
 		, isnull(f.code_kind, '') code_kind
 		, isnull(f.code_seq, '') code_seq
-		, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else convert(varchar,f.season)+' ' end) + g.edutest_name + '-' + l.detcodename   
+		, case when f.code_kind = '5' then convert(varchar,f.yyyy)+'년도 '+'제'+CONVERT(varchar,f.operation_cnt)+'회 ' + (case when f.season in (1,2) then convert(varchar,f.season)+'학기 ' when f.season = 3 then '집합교육 ' when f.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename   
 		            else g.edutest_name end  edutest_name
         , isnull(a.code_operation, '') code_operation
 		, case when isnull(a.register,'') <![CDATA[<>]]> '' then 0 else 1 end paystate
@@ -4920,7 +4939,7 @@ from operater a
 	</update>
 	
 	<select id="selectEtestN" resultClass="java.util.HashMap">
-		select case when a.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else convert(varchar,a.season)+' ' end) + g.edutest_name + '-' + l.detcodename   
+		select case when a.code_kind = '5' then convert(varchar,a.yyyy)+'년도 '+'제'+CONVERT(varchar,a.operation_cnt)+'회 ' + (case when a.season in (1,2) then convert(varchar,a.season)+'학기 ' when a.season = 3 then '집합교육 ' when a.season = 4 then '온라인교육 ' else ' ' end) + g.edutest_name + '-' + l.detcodename   
 		            else g.edutest_name end  edutest_name
 		     , a.code_kind+a.code_certifi+a.code_seq+a.code_bran+a.bran_seq+convert(varchar,isnull(a.operation_cnt,'0'))+convert(varchar,isnull(a.season,'0')) as detcode
 			 , a.season

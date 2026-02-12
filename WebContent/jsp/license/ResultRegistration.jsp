@@ -158,10 +158,12 @@ function init(){
 		sForm.code_operation1.value = val6;
 		
 		var season1=val7.substr(val7.length-1,1);
-		if(season1=='1') document.getElementById("s1").checked=true;
+		/* if(season1=='1') document.getElementById("s1").checked=true;
 		if(season1=='2') document.getElementById("s2").checked=true;
 		if(season1=='3') document.getElementById("s3").checked=true;
-		if(season1=='4') document.getElementById("s4").checked=true;
+		if(season1=='4') document.getElementById("s4").checked=true; */
+		if(season1=='5') document.getElementById("s5").checked=true;
+		if(season1=='6') document.getElementById("s6").checked=true;
 		
 		
 		goSearch(sForm,0);
@@ -231,7 +233,7 @@ jQuery("#list").jqGrid({
       mtype: 'post',      
      // width:'1100',
       height:'390',
-      colNames: [ '횟수','학기','시험명','이름',
+      colNames: [ '횟수','구분','시험명','이름',
 //                   JUMIN_DEL
 //                   '주민번호',
                   '생년월일',
@@ -346,10 +348,12 @@ function goSearch(form,intPage){
 	 var code_certifi1 			= sForm.code_certifi1.value;									//구분코드(교육및시험구분)(key)
 	 var season1 				= "";															//학기
 	 
-	 if(sForm.s1.checked		== true )	season1 = "1";								
+	 /* if(sForm.s1.checked		== true )	season1 = "1";								
 	 else if(sForm.s2.checked	== true )	season1	= "2";			
 	 else if(sForm.s3.checked	== true )	season1	= "3";			
-	 else if(sForm.s4.checked	== true )	season1	= "4";			
+	 else if(sForm.s4.checked	== true )	season1	= "4"; */
+	 if(sForm.s5.checked       == true )   season1 = "5";                              
+     else if(sForm.s6.checked   == true )   season1 = "6";
 	 else  season1="";
 	 	 
 	 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
@@ -409,13 +413,21 @@ function goSelect(rowid,iCol){
 		if(list.season == '0') {													//학기
 			document.getElementById("s0").value = '0';
 		}else if(list.season == '1'){
-			document.getElementById("s1").checked = 'true';
+			document.getElementById("s1").value = '1';
+			//document.getElementById("s1").checked = 'true';
 		}else if(list.season == '2'){
-			document.getElementById("s2").checked = 'true';
+			document.getElementById("s2").value = '2';
+			//document.getElementById("s2").checked = 'true';
 		}else if(list.season == '3'){
-			document.getElementById("s3").checked = 'true';
+			document.getElementById("s3").value = '3';
+			//document.getElementById("s3").checked = 'true';
 		}else if(list.season == '4'){
-			document.getElementById("s4").checked = 'true';
+			document.getElementById("s4").value = '4';
+			//document.getElementById("s4").checked = 'true';
+		}else if(list.season == '5'){
+            document.getElementById("s5").checked = 'true';
+		}else if(list.season == '6'){
+            document.getElementById("s6").checked = 'true';
 		} 
 
 		document.sForm.operation_cnt1.value     			= list.operation_cnt;	//횟수
@@ -463,10 +475,12 @@ function goSave(){
 	 var detcode1 					= sForm.edutest_name1.value; //종류,구분,순번
 	 var season1 				= "";
 	 
-	 if(sForm.s1.checked		== true )	season1 ="1";			//학기
+	 /* if(sForm.s1.checked		== true )	season1 ="1";			//학기
 	 else if(sForm.s2.checked	== true )	season1 ="2";
 	 else if(sForm.s3.checked	== true )	season1 ="3";
-	 else if(sForm.s4.checked	== true )	season1 ="4";
+	 else if(sForm.s4.checked	== true )	season1 ="4"; */
+	 if(sForm.s5.checked       == true )   season1 ="5";
+	 else if(sForm.s6.checked  == true )   season1 ="6";
 
 	 var operation_cnt1 			= sForm.operation_cnt1.value;			//횟수
 	 var edutest_name1				= sForm.edutest_name1.value;			//시험명
@@ -552,10 +566,12 @@ function excelDown(){
 		 var code_certifi1 			= sForm.code_certifi1.value;									//구분코드(교육및시험구분)(key)
 		 var season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
-		 else if(sForm.s2.checked	== true )	season1	= "2";			
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
+		 else if(sForm.s2.checked	== true )	season1	= "2";
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 	 
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
@@ -670,10 +686,12 @@ function sendEmail() {
 		 var code_certifi1 			= sForm.code_certifi1.value;									//구분코드(교육및시험구분)(key)
 		 var season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 	 
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
@@ -767,11 +785,13 @@ function notePad(form){
 		if(sForm.code_bran1.value		!= "")	param+="&code_bran1="		+sForm.code_bran1.value;			//지부(교육주최)
 		if(sForm.edutest_name1.value	!= "")	param+="&edutest_name1="	+sForm.edutest_name1.value;			//시험명
 		
-		if(sForm.s1.checked		== true )	season1 = "1";								
+		/* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
-		 else  season1="";
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		if(sForm.s5.checked       == true )   season1 = "5";                              
+        else if(sForm.s6.checked   == true )   season1 = "6";
+		else  season1="";
 		if(season1			!= "")	param+="&season1="			+season1;							//학기
 		
 		if(sForm3.oper_name1.value		!= "")	param+="&oper_name1="		+sForm3.oper_name1.value;			//이름
@@ -875,10 +895,12 @@ function smssand(form){
 		 var code_certifi1 			= sForm.code_certifi1.value;									//구분코드(교육및시험구분)(key)
 		 var season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 	 
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
@@ -994,10 +1016,12 @@ function setEduN(val){
 			sForm.operation_place1.value=jc[i].operation_place;
 			sForm.operation_cnt1.value=jc[i].operation_cnt;
 			var season1=jc[i].season;
-			if(season1=='1') document.getElementById("s1").checked=true;
+			/* if(season1=='1') document.getElementById("s1").checked=true;
 			if(season1=='2') document.getElementById("s2").checked=true;
 			if(season1=='3') document.getElementById("s3").checked=true;
-			if(season1=='4') document.getElementById("s4").checked=true;
+			if(season1=='4') document.getElementById("s4").checked=true; */
+			if(season1=='5') document.getElementById("s5").checked=true;
+			if(season1=='6') document.getElementById("s6").checked=true;
 			sForm.finish_point1.value=jc[i].finish_point;
 			sForm.finish_time1.value=jc[i].finish_time;
 			sForm.print_kind1.value=jc[i].print_kind;
@@ -1150,18 +1174,26 @@ function goClear(){
                <td class="alt1">※&nbsp;&nbsp;교육구분</td>
                <td >
               	   <input type="hidden" id="s0" value="0" />
+              	   <input type="hidden" id="s1" value="1" />
+              	   <input type="hidden" id="s2" value="2" />
+              	   <input type="hidden" id="s3" value="3" />
+              	   <input type="hidden" id="s4" value="4" />
               		
 				   <div style="border:0px solid black; display:inline-block; text-align:left;">
-				   <input type="radio" name="season1" id="s1" value="1" checked="checked" />
+				   <input type="radio" name="season1" id="s5" value="5" checked="checked" />
+                   <label for="s1">검정과목1</label><br/>
+				   <!-- <input type="radio" name="season1" id="s1" value="1" checked="checked" />
 				   <label for="s1">1학기</label><br/>
 				   <input type="radio" name="season1" id="s3" value="3" />
-				   <label for="s3">집합교육</label>
+				   <label for="s3">집합교육</label> -->
 				   </div>
 				   <div style="border:0px solid red; display:inline-block; text-align:left;">
-				   <input type="radio" name="season1" id="s2" value="2" />
+				   <input type="radio" name="season1" id="s6" value="6" />
+                   <label for="s2">검정과목2</label><br/>
+				   <!-- <input type="radio" name="season1" id="s2" value="2" />
 				   <label for="s2">2학기</label><br/>
 				   <input type="radio" name="season1" id="s4" value="4" />
-				   <label for="s4">온라인교육</label>
+				   <label for="s4">온라인교육</label> -->
 				   </div>
 			   </td>
 			   <td class="alt">합격이수일수</td>

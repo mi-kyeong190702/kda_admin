@@ -140,15 +140,17 @@ jQuery("#list").jqGrid({
       mtype: 'post',      
      // width:'1100',
       height:'500',
-      colNames: [ '횟수','학기','내용','이름','면허번호',
+      colNames: [ '횟수','구분','내용','이름','면허번호',
 //                   JUMIN_DEL
 //                   '주민번호',
                   '생년월일',
                   '핸드폰','이메일','회원구분','출석','접수상태',
 //                   '응시결과상태',
-                  '대상자',
-                  '시험장소','구분코드','년도','대상자코드','결제여부'
-                  ,'교육주최','지부순번','종류','순번','접수번호','응시상태','회원코드','회원코드1'],
+                  '대상자', '시험장소',
+                  '구분코드','년도','대상자코드','결제여부',
+                  '교육주최','지부순번','종류','순번','접수번호','응시상태','회원코드','회원코드1',
+                  '증명사진', '면허증', '파일명1', '파일명2',
+                  ],
       colModel: [
 			{name:'operation_cnt',  	index:'operation_cnt', 		width: 40,editable: false, align: 'center'},				//횟수
    			{name:'season',    			index:'season',   			width: 40,editable: false, align: 'center'},				//학기
@@ -179,7 +181,13 @@ jQuery("#list").jqGrid({
    			{name:'result_state',      	index:'result_state',      	hidden:true},		//상태
    			
    			{name:'code_pers',      	index:'code_pers',      	hidden:true},		//회원코드
-   			{name:'person_yn1',      	index:'person_yn1',       	hidden:true}		//회원코드1
+   			{name:'person_yn1',      	index:'person_yn1',       	hidden:true},		//회원코드1
+   			
+   		    //2026.02 첨부파일 추가 반명함판증명사진 / 영양사면허증
+            {name:'file1',              index:'file1',    width: 70,editable: false, align: 'center'},
+            {name:'file2',              index:'file2',    width: 70,editable: false, align: 'center'},
+            {name:'file_name1',         index:'file_name1',         hidden:true},       //회원코드
+            {name:'file_name2',         index:'file_name2',         hidden:true},
    			
    			    ],
    			    
@@ -192,30 +200,7 @@ jQuery("#list").jqGrid({
  			multiselect: true,
  			//gridview: true,
  			caption: '시험별응시현황',
-			altclass:'myAltRowClass'/* ,			
-			onSelectRow: function(ids) {	
-				//alert(ids);
-				if(ids == null) {
-					ids=0;
-					if(jQuery("#list").jqGrid('getGridParam','records') >0 ) //전체 레코드가 0보다 많다면
-					{
-						alert("컬럼을 정확히 선택해 주세요");
-					}
-				} else {
-					//goSelect();
-					if(jQuery("#list").jqGrid('getGridParam','records') >0 ) //전체 레코드가 0보다 많다면
-					{						
-						var id = jQuery("#list").jqGrid('getGridParam','selrow') ;
-						var rowdata=jQuery("#list").jqGrid('getGridParam','selarrrow');						
-						for(var i=0;i<rowdata.length;i++){
-							if(rowdata[i]!=id){
-								jQuery("#list").jqGrid('setSelection',rowdata[i]);
-							}
-						}
-						goSelect();
-					}				
-				} 
-			}*/
+			altclass:'myAltRowClass'
   
 });
 
@@ -225,6 +210,7 @@ $("#list").click(function(e) {
     	if(jQuery("#list").jqGrid('getGridParam','records') >0 ) //전체 레코드가 0보다 많다면
 		{						
 			var id = jQuery("#list").jqGrid('getGridParam','selrow') ;
+			
 			//var rowdata=jQuery("#list").jqGrid('getGridParam','selarrrow');						
 			$("#list").jqGrid('resetSelection');
 			$("#list").jqGrid('setSelection',id);
@@ -234,7 +220,16 @@ $("#list").click(function(e) {
 					$("#list").jqGrid('setSelection',rowdata[i]);
 				}
 			} */
-			goSelect();
+			
+			var tStr = el.attributes[3].nodeValue;
+			if ( tStr == "list_file1" ) {
+				tStr = "1";
+			}else if ( tStr == "list_file2" ) {
+				tStr = "2";
+			}else{
+				tStr = "";
+			}
+			goSelect(tStr);
 		}
     }
 });
@@ -280,10 +275,12 @@ function powerinit(){
 		 var yyyy1					= sForm.yyyy1.value;											//년도
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
 		 var season1 				= "";															//학기
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 
 		 var code_operation1 		= sForm.code_operation1.value;									//대상자
@@ -322,49 +319,76 @@ function powerinit(){
 
 
  var rowSelected = false;
-function goSelect(rowid,iCol){
+function goSelect(sMod){
 		var gr = jQuery("#list").jqGrid('getGridParam','selrow');   
 		if( gr != null ) {
 			var list = $("#list").getRowData(gr);
-					
-			/*그리드에서 select시에 테이블로 출력될 value값들  */
-			document.sForm.code_certifi1.value     			= list.code_certifi;			//구분코드
-//			alert("구분코드===>"+document.sForm.code_certifi1.value);
-			document.sForm.yyyy1.value     					= list.yyyy;					//년도
-			document.sForm.operation_cnt1.value     		= list.operation_cnt;			//횟수
-//			document.sForm.season1.value     				= list.season1;					//학기
 			
-			if(list.season == '0') {
-				document.getElementById("s0").value = '0';
-			}else if(list.season == '1'){
-				document.getElementById("s1").checked = 'true';
-			}else if(list.season == '2'){
-				document.getElementById("s2").checked = 'true';
-			}else if(list.season == '3'){
-				document.getElementById("s3").checked = 'true';
-			}else if(list.season == '4'){
-				document.getElementById("s4").checked = 'true';
-			} 
+			//파일 다운로드 인 경우
+			if ( sMod != "" ) {
+				var fileFlag = "";
+				var fileName = "";
+				
+				if ( sMod == "1" ) {
+					fileFlag = list.file1;
+					fileName = list.file_name1;
+				}else if ( sMod == "2" ) {
+					fileFlag = list.file2;
+					fileName = list.file_name2;
+				}
+				
+				if ( fileFlag == "Y" ) {
+					window.open("https://www.dietitian.or.kr/upload/license_inspection/"+fileName, "_blank");
+					//window.open("http://211.171.32.206:5588/assets/ver2/popup/images/"+"popup_20260212.png", "_blank");
+				}
+			}else{
+				/*그리드에서 select시에 테이블로 출력될 value값들  */
+	            document.sForm.code_certifi1.value              = list.code_certifi;            //구분코드
+//	          alert("구분코드===>"+document.sForm.code_certifi1.value);
+	            document.sForm.yyyy1.value                      = list.yyyy;                    //년도
+	            document.sForm.operation_cnt1.value             = list.operation_cnt;           //횟수
+//	          document.sForm.season1.value                    = list.season1;                 //학기
+	            
+	            if(list.season == '0') {
+	                document.getElementById("s0").value = '0';
+	            }else if(list.season == '1'){
+	                document.getElementById("s1").value = '1';
+	                //document.getElementById("s1").checked = 'true';
+	            }else if(list.season == '2'){
+	                document.getElementById("s2").value = '2';
+	                //document.getElementById("s2").checked = 'true';
+	            }else if(list.season == '3'){
+	                document.getElementById("s3").value = '3';
+	                //document.getElementById("s3").checked = 'true';
+	            }else if(list.season == '4'){
+	                document.getElementById("s4").value = '4';
+	                //document.getElementById("s4").checked = 'true';
+	            }else if(list.season == '5'){
+	                document.getElementById("s5").checked = 'true';
+	            }else if(list.season == '6'){
+	                document.getElementById("s6").checked = 'true';
+	            } 
 
-			document.sForm.code_operation1.value     		= list.code_operation;			//대상자
-			document.sForm.oper_state1.value     			= list.oper_state;				//결제여부
-			document.sForm.result_state1.value     			= list.result_state;			//상태
-			document.sForm.code_bran1.value     			= list.code_bran;				//교육주최
-			document.sForm.operation_place1.value     		= list.operation_place;		//시험장소
-			document.sForm.edutest_name1.value     			= list.edutest_name;			//내용
-			document.sForm.oper_name1.value     			= list.oper_name;				//이름
-			document.sForm.oper_lic_no1.value     			= list.oper_lic_no;			//면허번호
-// 			JUMIN_DEL
-// 			document.sForm.oper_no1.value     				= list.oper_no;				//주민번호
-			document.sForm.oper_birth1.value     				= list.oper_birth;				//생년월일
-			document.sForm.oper_hp1.value     				= list.oper_hp;				//핸드폰
-			document.sForm.oper_email1.value     			= list.oper_email;				//이메일
-			document.sForm.person_yn1.value     			= list.person_yn;				//회원구분
-			document.sForm.attend_cnt1.value     			= list.attend_cnt;				//출석
-			document.sForm.bran_seq1.value     				= list.bran_seq;				//지부순번
-			document.sForm.code_kind1.value     			= list.code_kind;				//종류
-			document.sForm.code_seq1.value     				= list.code_seq;				//순번
-			document.sForm.receipt_no1.value     			= list.receipt_no;				//접수번호
+	            document.sForm.code_operation1.value            = list.code_operation;          //대상자
+	            document.sForm.oper_state1.value                = list.oper_state;              //결제여부
+	            document.sForm.result_state1.value              = list.result_state;            //상태
+	            document.sForm.code_bran1.value                 = list.code_bran;               //교육주최
+	            document.sForm.operation_place1.value           = list.operation_place;     //시험장소
+	            document.sForm.edutest_name1.value              = list.edutest_name;            //내용
+	            document.sForm.oper_name1.value                 = list.oper_name;               //이름
+	            document.sForm.oper_lic_no1.value               = list.oper_lic_no;         //면허번호
+//	          JUMIN_DEL
+//	          document.sForm.oper_no1.value                   = list.oper_no;             //주민번호
+	            document.sForm.oper_birth1.value                    = list.oper_birth;              //생년월일
+	            document.sForm.oper_hp1.value                   = list.oper_hp;             //핸드폰
+	            document.sForm.oper_email1.value                = list.oper_email;              //이메일
+	            document.sForm.person_yn1.value                 = list.person_yn;               //회원구분
+	            document.sForm.attend_cnt1.value                = list.attend_cnt;              //출석
+	            document.sForm.bran_seq1.value                  = list.bran_seq;                //지부순번
+	            document.sForm.code_kind1.value                 = list.code_kind;               //종류
+	            document.sForm.code_seq1.value                  = list.code_seq;                //순번
+	            document.sForm.receipt_no1.value                = list.receipt_no;              //접수번호
+			}
 			rowSelected = true;
 		}
 	} 
@@ -383,10 +407,12 @@ function goSelect(rowid,iCol){
 		if(sForm.result_state1.value	!= "")	param+="&result_state1="	+sForm.result_state1.value;		//응시결과상태
 		if(sForm.oper_state1.value		!= "")	param+="&oper_state1="		+sForm.oper_state1.value;		//응시상태
 										//학기
-		 if(sForm.s1.checked		== true )	param+="&season1=" + "1" ;								
+		 /* if(sForm.s1.checked		== true )	param+="&season1=" + "1" ;								
 		 else if(sForm.s2.checked	== true )	param+="&season1="	+ "2" ;			
 		 else if(sForm.s3.checked	== true )	param+="&season1="	+ "3" ;			
-		 else if(sForm.s4.checked	== true )	param+="&season1="	+ "4" ;			
+		 else if(sForm.s4.checked	== true )	param+="&season1="	+ "4" ; */
+		 if(sForm.s5.checked       == true )   param+="&season1=" + "5" ;                              
+         else if(sForm.s6.checked   == true )   param+="&season1="  + "6" ;         
 		
 		if(sForm.edutest_name2.value !="") param+="&edutest_name1="		+sForm.edutest_name2.value;
 		
@@ -430,11 +456,14 @@ function goSelect(rowid,iCol){
  		if(sForm.code_certifi1.value	!= "")	param+="&code_certifi1="	+sForm.code_certifi1.value;			//구분코드(자격증구분)
   		if(sForm.yyyy1.value			!= "")	param+="&yyyy1="			+sForm.yyyy1.value;					//년도
  		if(sForm.code_bran1.value		!= "")	param+="&code_bran1="		+sForm.code_bran1.value;			//지부(교육주최)
- 		if(sForm.s1.checked		== true )	season1 = "1";								
+ 		/* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
-		 else  season1="";
+		 else if(sForm.s4.checked	== true )	season1	= "4";	
+		 else  season1=""; */
+ 		if(sForm.s5.checked       == true )   season1 = "5";                              
+        else if(sForm.s6.checked   == true )   season1 = "6";
+        else  season1="";
  		if(season1			!= "")	param+="&season1="			+season1;				//학기
  		
  		if(sForm.operation_cnt1.value	!= "")	param+="&operation_cnt1="	+sForm.operation_cnt1.value;		//횟수
@@ -536,10 +565,12 @@ function goSelect(rowid,iCol){
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
 		 var season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 
 		 var code_operation1 		= sForm.code_operation1.value;									//대상자
@@ -640,10 +671,12 @@ function goSelect(rowid,iCol){
 		 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
 		 var season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 
 		 var code_operation1 		= sForm.code_operation1.value;									//대상자
@@ -692,10 +725,12 @@ function goSelect(rowid,iCol){
 			sForm.operation_place1.value=jc[i].operation_place;
 			sForm.operation_cnt1.value=jc[i].operation_cnt;
 			var season1=jc[i].season;
-			if(season1=='1') document.getElementById("s1").checked=true;
+			/* if(season1=='1') document.getElementById("s1").checked=true;
 			if(season1=='2') document.getElementById("s2").checked=true;
 			if(season1=='3') document.getElementById("s3").checked=true;
-			if(season1=='4') document.getElementById("s4").checked=true;
+			if(season1=='4') document.getElementById("s4").checked=true; */
+			if(season1=='5') document.getElementById("s5").checked=true;
+            if(season1=='6') document.getElementById("s6").checked=true;
 			sForm.finish_point1.value=jc[i].finish_point;
 			sForm.finish_time1.value=jc[i].finish_time;
 			sForm.print_kind1.value=jc[i].print_kind;
@@ -737,10 +772,12 @@ function goSave(){
 	 
 	 var season1 				= "";															//학기
 	      
-	 if(sForm.s1.checked		== true )	season1 = "1";								
+	 /* if(sForm.s1.checked		== true )	season1 = "1";								
 	 else if(sForm.s2.checked	== true )	season1	= "2";			
 	 else if(sForm.s3.checked	== true )	season1	= "3";			
-	 else if(sForm.s4.checked	== true )	season1	= "4";			
+	 else if(sForm.s4.checked	== true )	season1	= "4"; */
+	 if(sForm.s5.checked       == true )   season1 = "5";                              
+     else if(sForm.s6.checked   == true )   season1 = "6";
 	 else  season1="";
 	 
 	 var operation_cnt1			= sForm.operation_cnt1.value;									//횟수
@@ -839,10 +876,12 @@ function goSaveBatch(){
 			 operation_cnt1			= sForm.operation_cnt1.value;									//횟수
 			 season1 				= "";															//학기
 			 
-			 if(sForm.s1.checked		== true )	season1 = "1";								
+			 /* if(sForm.s1.checked		== true )	season1 = "1";								
 			 else if(sForm.s2.checked	== true )	season1	= "2";			
 			 else if(sForm.s3.checked	== true )	season1	= "3";			
-			 else if(sForm.s4.checked	== true )	season1	= "4";			
+			 else if(sForm.s4.checked	== true )	season1	= "4"; */
+			 if(sForm.s5.checked     == true )   season1 = "5";                              
+             else if(sForm.s6.checked   == true )   season1 = "6";
 			 else  season1="";
 			 
 			 code_operation1 		= sForm.code_operation1.value;									//대상자
@@ -926,10 +965,12 @@ function goDel(){
 		 operation_cnt1			= sForm.operation_cnt1.value;									//횟수
 		 season1 				= "";															//학기
 		 
-		 if(sForm.s1.checked		== true )	season1 = "1";								
+		 /* if(sForm.s1.checked		== true )	season1 = "1";								
 		 else if(sForm.s2.checked	== true )	season1	= "2";			
 		 else if(sForm.s3.checked	== true )	season1	= "3";			
-		 else if(sForm.s4.checked	== true )	season1	= "4";			
+		 else if(sForm.s4.checked	== true )	season1	= "4"; */
+		 if(sForm.s5.checked      == true )   season1 = "5";                              
+         else if(sForm.s6.checked   == true )   season1 = "6";
 		 else  season1="";
 		 
 		 code_operation1 		= sForm.code_operation1.value;									//대상자
@@ -1088,18 +1129,28 @@ function goDel(){
                <td class="alt1">※&nbsp;&nbsp;교육구분</td>
                <td >
               	   <input type="hidden" id="s0" value="0" />
+              	   <!-- <input type="hidden" id="s1" value="1" /> -->
+              	   <input type="hidden" id="s2" value="2" />
+              	   <input type="hidden" id="s3" value="3" />
+              	   <input type="hidden" id="s4" value="4" />
               		
 				   <div style="border:0px solid black; display:inline-block; text-align:left;">
 				   <input type="radio" name="season1" id="s1" value="1" checked="checked" />
+                   <label for="s1">테스트</label>
+				   <input type="radio" name="season1" id="s5" value="5" />
+                   <label for="s1">검정과목1</label>
+				   <!-- <input type="radio" name="season1" id="s1" value="1" checked="checked" />
 				   <label for="s1">1학기</label><br/>
 				   <input type="radio" name="season1" id="s3" value="3" />
-				   <label for="s3">집합교육</label>
+				   <label for="s3">집합교육</label> -->
 				   </div>
 				   <div style="border:0px solid red; display:inline-block; text-align:left;">
-				   <input type="radio" name="season1" id="s2" value="2" />
+				   <input type="radio" name="season1" id="s6" value="6" />
+                   <label for="s2">검정과목2</label><br/>
+				   <!-- <input type="radio" name="season1" id="s2" value="2" />
 				   <label for="s2">2학기</label><br/>
 				   <input type="radio" name="season1" id="s4" value="4" />
-				   <label for="s4">온라인교육</label>
+				   <label for="s4">온라인교육</label> -->
 				   </div>
 			   </td>
                <td class="alt">※&nbsp;&nbsp;응시결과상태</td>

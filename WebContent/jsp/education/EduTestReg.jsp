@@ -429,7 +429,11 @@ function init(){
 			document.getElementById("s3").checked = true;
 		}else if(v_season1 == '4'){
 			document.getElementById("s4").checked = true;
-		}
+		}else if(v_season1 == '5'){
+            document.getElementById("s5").checked = true;
+        }else if(v_season1 == '6'){
+            document.getElementById("s6").checked = true;
+        }
 		sForm3.operation_cnt1.value   	= '<%=v_operation_cnt1%>';		
 
 		var operation1 			= '<%=v_operation1%>';
@@ -527,17 +531,25 @@ function init(){
 			}
 	    	
 	    	//code_kind1 자격증교육 이나 자격시험 인 경우 2026.02
-	        if ( val2 == "1" || val2 == "5" ) {
-	            $("#s1").removeAttr("checked");
-	            $("#s2").removeAttr("checked");
-	            $("#s3").removeAttr("checked");
-	            $("#s4").removeAttr("checked");
-	            
+	    	$("#s3").removeAttr("checked");
+            $("#s4").removeAttr("checked");
+            $("#s5").removeAttr("checked");
+            $("#s6").removeAttr("checked");
+	        if ( val2 == "1" ) {
 	            $("#s3").attr("disabled", "disabled");
-	            $("#s4").attr("disabled", "disabled");    
+	            $("#s4").attr("disabled", "disabled");
+	            $("#s5").attr("disabled", "disabled");
+                $("#s6").attr("disabled", "disabled");
+	        }else if ( val2 == "5" ) {
+	        	$("#s3").attr("disabled", "disabled");
+                $("#s4").attr("disabled", "disabled");
+                $("#s5").removeAttr("disabled");
+                $("#s6").removeAttr("disabled");
 	        }else{
 	            $("#s3").removeAttr("disabled");
 	            $("#s4").removeAttr("disabled");
+                $("#s5").attr("disabled", "disabled");
+                $("#s6").attr("disabled", "disabled");
 	        }
 	    	
 	    	if('<%=v_detcode1%>'!=''){
@@ -589,7 +601,9 @@ function goSearch(form,intPage){
 	 /* if(document.getElementById("s1").checked		== true )	season1 = "1";								//교육구분
 	 else if(document.getElementById("s2").checked	== true )	season1="2"; */			
 	 if(document.getElementById("s3").checked	== true )	season1="3";			
-	 else if(document.getElementById("s4").checked	== true )	season1="4";			
+	 else if(document.getElementById("s4").checked == true )   season1="4";
+	 else if(document.getElementById("s5").checked == true )   season1="5";
+	 else if(document.getElementById("s6").checked == true )   season1="6";
 	 else  season1="";
  	 var operation_cnt1 		= sForm3.operation_cnt1.value;									//횟수
 	 
@@ -688,7 +702,9 @@ function goSave(){
 	 /* if(document.getElementById("s1").checked		== true )	season1 ="1";			//교육구분
 	 else if(document.getElementById("s2").checked	== true )	season1 ="2"; */			
 	 if(document.getElementById("s3").checked	== true )	season1 ="3";			
-	 else if(document.getElementById("s4").checked	== true )	season1 ="4";			
+	 else if(document.getElementById("s4").checked == true )   season1 ="4";
+	 else if(document.getElementById("s5").checked == true )   season1 ="5";
+	 else if(document.getElementById("s6").checked == true )   season1 ="6";
 	 else  season1="0";
 //	 alert("교육구분="+season1);
  	 var operation_cnt1 		= sForm3.operation_cnt1.value;									//횟수
@@ -784,10 +800,16 @@ function goSave(){
 	 }
 	 
 	 //2026.02 결제방법 필수선택
-	 if(!sForm3.account_way1[0].checked && !sForm3.account_way1[1].checked && !sForm3.account_way1[2].checked){
+	 if( !sForm3.account_way1[0].checked && !sForm3.account_way1[1].checked && !sForm3.account_way1[2].checked ){
 		 alert("결제방법을 선택해주십시오.");
          return;
 	 }
+	 
+	 //2026.02 자격시험인 경우 교육구분 필수
+	 if( code_kind1 == "5" && season1 != "5" && season1 != "6" ){
+         alert("교육구분을 선택해주십시오.");
+         return;
+     }
 
 	 var finish_time1   		= sForm4.finish_time1.value; 									//이수시간
 	 var finish_date1 			= sForm4.finish_date1.value;										//이수일수
@@ -922,6 +944,8 @@ function goDel(){
 	//document.getElementById("s2").checked = false;
 	document.getElementById("s3").checked = false;
 	document.getElementById("s4").checked = false;
+	document.getElementById("s5").checked = false;
+	document.getElementById("s6").checked = false;
 	
 	if(list.season == '0') {
 		document.getElementById("s0").value = '0';
@@ -935,6 +959,10 @@ function goDel(){
 		document.getElementById("s3").checked = true;
 	}else if(list.season == '4'){
 		document.getElementById("s4").checked = true;
+	}else if(list.season == '5'){
+        document.getElementById("s5").checked = true;
+	}else if(list.season == '6'){
+        document.getElementById("s6").checked = true;
 	} 
 
 	document.sForm3.operation_cnt1.value     = list.operation_cnt;		//횟수
@@ -1421,13 +1449,17 @@ function check_ct(){
 					   <!-- <input type="radio" name="season1" id="s1" value="1" />
 					   <label for="s1">1학기</label><br/> -->
 					   <input type="radio" name="season1" id="s3" value="3" />
-					   <label for="s3">집합교육</label>
+					   <label for="s3">집합교육</label><br/>
+					   <input type="radio" name="season1" id="s5" value="5" />
+                       <label for="s5">검정과목1</label>
 				   </div>
 				   <div style="border:0px solid red; display:inline-block; text-align:left;">
 					   <!-- <input type="radio" name="season1" id="s2" value="2" />
 					   <label for="s2">2학기</label><br/> -->
 					   <input type="radio" name="season1" id="s4" value="4" />
-					   <label for="s4">온라인교육</label>
+                       <label for="s4">온라인교육</label><br/>
+					   <input type="radio" name="season1" id="s6" value="6" />
+                       <label for="s6">검정과목2</label>
 				   </div>
 			   </td>
 			   <td>
