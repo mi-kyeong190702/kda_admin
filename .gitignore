@@ -1,0 +1,48 @@
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Build / target
+target/
+bin/
+out/
+*.class
+
+# Logs / temp
+logs/
+*.log
+tmp/
+temp/
+
+# Node (있다면)
+node_modules/
+
+# Secrets
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+.env
+
+.svn/
+
+
+.svn/
+# Large assets
+WebContent/assets/
+WebContent/board/file/
+WebContent/main_popup/data/
+
+*.mp4
+*.zip
+*.pdf
+
+WebContent/WEB-INF/classes/
+
+.classpath
+.project
+.settings/
