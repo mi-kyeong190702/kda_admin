@@ -93,27 +93,27 @@ jQuery("#list").jqGrid({
       width:'1097',
       colNames: ['입출일자','입출구분코드','입출구분','회비구분코드','회비구분','회원구분코드','회원구분','입출금액','입출장소코드','입출장소','입출방법코드','입출방법','금융기관명','유효시작일','유효만료일','확인여부코드','인증상태','인증일','완납여부코드','완납여부','등록자','회비관리순번','회비상세관리순번','duesDelYn'],
       colModel: [
-			{name:'pres_let_dt',			index:'pres_let_dt', 		width:40, 	sortable:false,	align:'center'},
+			{name:'pres_let_dt',			index:'pres_let_dt', 		width:50, 	sortable:false,	align:'center'},
 			{name:'code_inout_gubun',		index:'code_inout_gubun',	width:100,	sortable:false,	hidden:true},
-   			{name:'iog_name',				index:'iog_name', 			width:40, 	sortable:false,	align:'center'},
+   			{name:'iog_name',				index:'iog_name', 			width:50, 	sortable:false,	align:'center'},
 			{name:'dues_gubun',				index:'dues_gubun', 		width:40, 	sortable:false,	hidden:true},
 			{name:'dg_name',				index:'dg_name', 			width:60, 	sortable:false,	align:'center'},
 			{name:'code_member',			index:'code_member', 		width:40, 	sortable:false,	hidden:true},
-			{name:'cm_name',				index:'cm_name', 			width:80, 	sortable:false,	align:'center'},
+			{name:'cm_name',				index:'cm_name', 			width:180, 	sortable:false,	align:'center'},
    			{name:'pres_money',				index:'pres_money', 		width:50, 	sortable:false,	formatter:'currency',	formatoptions:{thousandsSeparator:','},	align:'right'},
    			{name:'code_receipt',			index:'code_receipt', 		width:100,	sortable:false,	hidden:true},
    			{name:'rc_name',				index:'rc_name', 			width:50,	sortable:false,	align:'center'},	
 			{name:'code_pay_flag',			index:'code_pay_flag', 		width:40, 	sortable:false,	hidden:true},
    			{name:'pf_name',				index:'pf_name', 			width:50,	sortable:false,	align:'center'},
-   			{name:'bank_name',				index:'bank_name', 			width:100,	sortable:false,	align:'center'},
-   			{name:'auth_start',				index:'auth_start', 		width:50,	sortable:false,	align:'center'},
-   			{name:'auth_end',				index:'auth_end', 			width:50,	sortable:false,	align:'center'},
+   			{name:'bank_name',				index:'bank_name', 			width:60,	sortable:false,	align:'center'},
+   			{name:'auth_start',				index:'auth_start', 		width:60,	sortable:false,	align:'center'},
+   			{name:'auth_end',				index:'auth_end', 			width:60,	sortable:false,	align:'center'},
    			{name:'conform_yn',				index:'conform_yn', 		width:100,	sortable:false,	hidden:true},
-   			{name:'cf_name',				index:'cf_name', 			width:40,	sortable:false,	align:'center'},
+   			{name:'cf_name',				index:'cf_name', 			width:50,	sortable:false,	align:'center'},
    			{name:'conform_dt',				index:'conform_dt', 		width:40,	sortable:false,	align:'center'},
    			{name:'incom_flag',				index:'incom_flag', 		width:100,	sortable:false,	hidden:true},
-   			{name:'if_name',				index:'if_name', 			width:40,	sortable:false,	align:'center'},
-   			{name:'register',				index:'register', 			width:40, 	sortable:false,	align:'center'},
+   			{name:'if_name',				index:'if_name', 			width:50,	sortable:false,	align:'center'},
+   			{name:'register',				index:'register', 			width:60, 	sortable:false,	align:'center'},
    			{name:'dues_h_seq',				index:'dues_h_seq', 		width:40, 	sortable:false,	hidden:true},
    			{name:'dues_b_seq',				index:'dues_b_seq', 		width:40, 	sortable:false,	hidden:true},
    			{name:'duesDelYn',				index:'duesDelYn',          width:40, 	sortable:false,	hidden:true}
@@ -661,6 +661,7 @@ $(function() {
           	 	<td class="nobg3">현 유효기간</td>
           	 	<td class="nobg1" colspan="5"><%=dusH.get(0).get("auth_start") %>~<%=dusH.get(0).get("auth_end") %></td>
           	 </tr> --%>
+          	 
              <tr>
                <td class="nobg">입출일자</td>
                <td class="nobg3">회비구분</td>
@@ -676,12 +677,12 @@ $(function() {
 			 </tr>             
 			 <tr>
                <td class="alt2">
-               		<input type="text" name="presDt" id="datepicker" class="input" style=padding-top:3px  style=padding-bottom:3px  value="<%=date %>" size="12" align="center" />
+               		<input type="text" name="presDt" id="datepicker" class="input" style=padding-top:3px style=padding-bottom:3px value="<%=date %>" />
                </td>
                
                <td>
                <!-- 2022 -->
-               		<select name="dGubun" id="dGubun" onchange="javascript:cmem(this.value);" class="" >					
+               		<select name="dGubun" id="dGubun" onchange="javascript:cmem(this.value);" style=width:100px >					
 	                <% String detCode,detCName="";
 	                	if(result.get(0).get("big_name").toString().equals("영양교사")||result.get(0).get("big_name").toString().equals("학교영양사")){
 	                	/* if(result.get(0).get("code_sub").toString().equals("01")||result.get(0).get("code_sub").toString().equals("02")||result.get(0).get("code_sub").toString().equals("03")||result.get(0).get("code_sub").toString().equals("04")){ */ 
@@ -708,7 +709,7 @@ $(function() {
 	                </select>
 				</td>
 				<td>
-               		<select name="iogGubun" class="" onchange="ioChk(this);">
+               		<select name="iogGubun" onchange="ioChk(this);" style=width:60px >
 	                <% 	                	
 	                	for(int i=0;i<code.size();i++){
 	                		if("015".equals(code.get(i).get("groupcode").toString())){
@@ -722,7 +723,7 @@ $(function() {
                	</td>
                	<!-- 2022 -->
 				<td>
-               		<select name="cMember"  id="cMember" onchange="javascript:cpm(this);" class="" >
+               		<select name="cMember"  id="cMember" onchange="javascript:cpm(this);" style=width:200px >
 	                 <% ////////////////////////////연회비 및 교육생만 최초 조회 되도록/////////////////////////////
 	                	for(int i=0;i<code2.size();i++){
 	                		if("006".equals(code2.get(i).get("groupcode").toString())&&!"2".equals(code2.get(i).get("tempcd").toString())&&!"3".equals(code2.get(i).get("tempcd").toString())&&!"4".equals(code2.get(i).get("tempcd").toString())){
@@ -735,9 +736,9 @@ $(function() {
 	               %> 
 	                </select>
 	           	</td>
-				<td><input type="text" name="pMoney" id="pMoney"size="10"  value="<%=request.getAttribute("pm")%>"class="" /></td>
+				<td><input type="text" name="pMoney" id="pMoney" size="5" value="<%=request.getAttribute("pm")%>" /></td>
 				<td>
-			   		<select name="rc" onchange="javascript:crc(this);" class="" >
+			   		<select name="rc" onchange="javascript:crc(this);" style=width:60px >
 	                <% 
 	                	for(int i=0;i<code.size();i++){
 	                		if("013".equals(code.get(i).get("groupcode").toString())){
@@ -750,7 +751,7 @@ $(function() {
 	                </select>
 			   </td>
 			   <td>
-               		<select name="pFlag" class="" >
+               		<select name="pFlag" style=width:70px >
 	                <% 
 	                	for(int i=0;i<code.size();i++){
 	                		if("014".equals(code.get(i).get("groupcode").toString())){
@@ -762,13 +763,13 @@ $(function() {
 	                %>
 	                </select>
                </td>
-               <td><input type="text" name="bName" size="10" class="" ></td>
+               <td><input type="text" name="bName" size="8" class="" ></td>
                <%-- <td><% if(dusH.size()>0) out.print(dusH.get(0).get("auth_end")); %></td> --%>
                <td>
-					<input type="text" name="authDt" id="datepicker1" class="input" style=padding-top:3px  style=padding-bottom:3px  value="<%=date %>" size="12" align="center" />
+					<input type="text" name="authDt" id="datepicker1" class="input" style=padding-top:3px  style=padding-bottom:3px  value="<%=date %>" />
 				</td>	            
 			   <td>
-			   		<select name="cf_yn" id="cf_yn" class="" >
+			   		<select name="cf_yn" id="cf_yn" style=width:70px >
 			   			<% 
 	                	for(int i=0;i<code.size();i++){
 	                		if("052".equals(code.get(i).get("groupcode").toString())){
