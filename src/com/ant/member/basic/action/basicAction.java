@@ -1257,8 +1257,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 						auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
 				////////////////////////////////CMS추가///////////////////////////
 					}else if("4".equals(tmpDgubun)){
-						//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-						if("39".equals(code_member) || "40".equals(code_member)){
+						//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+						//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+						if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 							cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
@@ -1329,8 +1330,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 								auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
 								////////////////////////////////CMS추가///////////////////////////
 							}else if("4".equals(dues_gubun)){
-								//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-								if("39".equals(code_member) || "40".equals(code_member)){
+								//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+								//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+								if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 									cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 									cal.add(cal.DATE, -1); //1일을 뺀다.
 									auth_end=sdf.format(cal.getTime());
@@ -1579,8 +1581,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 							auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
 							////////////////////////////////CMS추가///////////////////////////
 						}else if("4".equals(dues_gubun)){
-							//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-							if("39".equals(code_member) || "40".equals(code_member)){
+							//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+							//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+							if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
@@ -1630,8 +1633,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 							auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
 							////////////////////////////////CMS추가///////////////////////////
 	     				}else if("4".equals(dues_gubun)){
-	     					//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-							if("39".equals(code_member) || "40".equals(code_member)){
+	     					//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+							//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+	     					if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
@@ -1830,8 +1834,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 				auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
         ////////////////////////////////CMS추가///////////////////////////
 			}else if("4".equals(dues_gubun)){
-				//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-				if("39".equals(code_member) || "40".equals(code_member)){
+				//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+				//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+				if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
@@ -1939,8 +1944,9 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 				auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
 			////////////////////////////////CMS추가///////////////////////////
 			}else if("4".equals(dues_gubun)){
-				//39(C신규취업회원(년)), 40(C기취업회원(년))인 경우 인증일 1년
-				if("39".equals(code_member) || "40".equals(code_member)){
+				//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
+				//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
+				if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
 					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
