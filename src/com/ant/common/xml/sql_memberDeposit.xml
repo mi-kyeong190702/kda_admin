@@ -62,8 +62,8 @@ select COUNT(number)+1 ncount
 	 * 작   업 : getMemberDepositList_1and2	회원>예수금현황>예수금집계표(tab_1, tab_2) 조회 출력
 	 -->
 <select id="getMemberDepositList_1" resultClass="java.util.HashMap">
+<!-- 2026.03.23 쿼리 수정 -->
 select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
-
 		, code_bran , tempcd1
         , isnull(SUM(col1)  ,0) col1
         , isnull(SUM(col2)  ,0) col2
@@ -72,7 +72,7 @@ select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
      	, isnull(SUM(col5)  ,0) col5
      	, isnull(SUM(col6)  ,0) col6
      	, isnull(SUM(col7)  ,0) col7
-     	, isnull(SUM(col8)  ,0) col8 /* 2015년 회비변경으로 코드멤버 추가 */
+     	, isnull(SUM(col8)  ,0) col8
      	, isnull(SUM(col9)  ,0) col9
      	, isnull(SUM(col10),0) col10
      	, isnull(SUM(col11),0) col11
@@ -80,58 +80,46 @@ select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
      	, isnull(SUM(col13),0) col13
      	, isnull(SUM(col14),0) col14
      	, isnull(SUM(col15),0) col15
-     	, isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
-     								    + isnull(SUM(col3) ,0)
-     								    + isnull(SUM(col4) ,0)
-     								    + isnull(SUM(col5) ,0)
-     								    + isnull(SUM(col6) ,0)
-     								    + isnull(SUM(col7) ,0) 
-     								    + isnull(SUM(col8)  ,0) 
-						   			    + isnull(SUM(col9)  ,0) 
-									    + isnull(SUM(col10),0) 
-									    + isnull(SUM(col11),0) 
-									    + isnull(SUM(col12),0)
-									    + isnull(SUM(col13),0)
-									    + isnull(SUM(col14),0)
-									    + isnull(SUM(col15),0) totcount
-     <!-- , code_bran , tempcd1
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col3),0) col3
-     , isnull(SUM(col4),0) col4
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col3),0)
-     + isnull(SUM(col4),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0) totcount -->
-     
-     , isnull(SUM(bran_money),0) bran_money
+     	, isnull(SUM(col16),0) col16
+     	, isnull(SUM(col17),0) col17
+     	, isnull(SUM(col18),0) col18
+     	, isnull(SUM(col19),0) col19
+     	, isnull(SUM(col20),0) col20
+     	, isnull(SUM(col21),0) col21
+     	, isnull(SUM(col22),0) col22
+     	, isnull(SUM(col23),0) col23
+     	, isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+     	  + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+     	  + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
+        , isnull(SUM(bran_money),0) bran_money
   from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
             , code_bran, tempcd1, code_member, detcodename
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1 /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
-            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6
-            , case when code_member = '07' then SUM(pers_count) end col7
-            
-            , case when code_member = '39' then SUM(pers_count) end col8	    /* 2015년 회비변경으로 코드멤버 추가 */
-			, case when code_member = '40' then SUM(pers_count) end col9  
-            , case when code_member = '41' then SUM(pers_count) end col10
-			, case when code_member = '42' then SUM(pers_count) end col11  
-			, case when code_member = '45' then SUM(pers_count) end col12
-			, case when code_member = '46' then SUM(pers_count) end col13 
-			, case when code_member = '48' then SUM(pers_count) end col14
-			, case when code_member = '49' then SUM(pers_count) end col15 
-            	  
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1
+            , case when code_member = '54' then SUM(pers_count) end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col3
+            , case when code_member = '55' then SUM(pers_count) end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col5
+            , case when code_member = '56' then SUM(pers_count) end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col7
+            , case when code_member = '57' then SUM(pers_count) end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col9
+            , case when code_member = '58' then SUM(pers_count) end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col11
+            , case when code_member = '59' then SUM(pers_count) end col12
+            , case when code_member = '07' then SUM(pers_count) end col13
+            , case when code_member = '45' then SUM(pers_count) end col14
+			, case when code_member = '50' then SUM(pers_count) end col15
+            , case when code_member = '41' then SUM(pers_count) end col16
+			, case when code_member = '51' then SUM(pers_count) end col17  
+			, case when code_member = '46' then SUM(pers_count) end col18
+			, case when code_member = '42' then SUM(pers_count) end col19 
+			, case when code_member = '40' then SUM(pers_count) end col20
+			, case when code_member = '52' then SUM(pers_count) end col21
+			, case when code_member = '39' then SUM(pers_count) end col22
+			, case when code_member = '53' then SUM(pers_count) end col23 
             , bran_money
-     
          from (select ROW_NUMBER() over(order by b.code_member) number
                     , a.code_bran, d.tempcd1, b.code_member, e.detcodename
                     , count(a.code_pers) pers_count
@@ -168,71 +156,64 @@ select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
       )bb
  group by code_bran, tempcd1
 union all
-select '99'   ncount
-     , ''     code_bran
-     , 'TOTAL' tempcd1
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col3),0) col3
-     , isnull(SUM(col4),0) col4
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     
-     , isnull(SUM(col8)  ,0) col8 /* 2015년 회비변경으로 코드멤버 추가 */
-     , isnull(SUM(col9)  ,0) col9
-     , isnull(SUM(col10),0) col10
-     , isnull(SUM(col11),0) col11
-     , isnull(SUM(col12),0) col12
-     , isnull(SUM(col13),0) col13
-     , isnull(SUM(col14),0) col14
-     , isnull(SUM(col15),0) col15
-     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
-     							    + isnull(SUM(col3) ,0)
-     							    + isnull(SUM(col4) ,0)
-     							    + isnull(SUM(col5) ,0)
-     							    + isnull(SUM(col6) ,0)
-     							    + isnull(SUM(col7) ,0) 
-     							    + isnull(SUM(col8)  ,0) 
-					   			    + isnull(SUM(col9)  ,0) 
-								    + isnull(SUM(col10),0) 
-								    + isnull(SUM(col11),0) 
-								    + isnull(SUM(col12),0)
-								    + isnull(SUM(col13),0)
-								    + isnull(SUM(col14),0)
-								    + isnull(SUM(col15),0) totcount
-   <!--   , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col3),0)
-     + isnull(SUM(col4),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0) totcount -->
-     
-     
-     
-     , isnull(SUM(bran_money),0) bran_money
+ select '99'   ncount
+        , ''   code_bran
+        , 'TOTAL' tempcd1
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
+        , isnull(SUM(bran_money),0) bran_money
   from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
             , code_bran, tempcd1, code_member, detcodename
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1 /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
-            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6
-            , case when code_member = '07' then SUM(pers_count) end col7
-            
-            , case when code_member = '39' then SUM(pers_count) end col8   /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '40' then SUM(pers_count) end col9
-            , case when code_member = '41' then SUM(pers_count) end col10
-            , case when code_member = '42' then SUM(pers_count) end col11  
-            , case when code_member = '45' then SUM(pers_count) end col12 
-            , case when code_member = '46' then SUM(pers_count) end col13 
-            , case when code_member = '48' then SUM(pers_count) end col14 
-            , case when code_member = '49' then SUM(pers_count) end col15       
-            
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1
+            , case when code_member = '54' then SUM(pers_count) end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col3
+            , case when code_member = '55' then SUM(pers_count) end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col5
+            , case when code_member = '56' then SUM(pers_count) end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col7
+            , case when code_member = '57' then SUM(pers_count) end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col9
+            , case when code_member = '58' then SUM(pers_count) end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col11
+            , case when code_member = '59' then SUM(pers_count) end col12
+            , case when code_member = '07' then SUM(pers_count) end col13
+            , case when code_member = '45' then SUM(pers_count) end col14
+            , case when code_member = '50' then SUM(pers_count) end col15
+            , case when code_member = '41' then SUM(pers_count) end col16
+            , case when code_member = '51' then SUM(pers_count) end col17  
+            , case when code_member = '46' then SUM(pers_count) end col18
+            , case when code_member = '42' then SUM(pers_count) end col19 
+            , case when code_member = '40' then SUM(pers_count) end col20
+            , case when code_member = '52' then SUM(pers_count) end col21
+            , case when code_member = '39' then SUM(pers_count) end col22
+            , case when code_member = '53' then SUM(pers_count) end col23
             , bran_money
-     
          from (select ROW_NUMBER() over(order by b.code_member) number
                     , a.code_bran, d.tempcd1, b.code_member, e.detcodename
                     , count(a.code_pers) pers_count
@@ -271,69 +252,62 @@ select '99'   ncount
 
 <select id="getMemberDepositList_2" resultClass="java.util.HashMap">
 select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
-     , code_bran , tempcd1
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col3),0) col3
-     , isnull(SUM(col4),0) col4
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     
-     , isnull(SUM(col8)  ,0) col8
-     , isnull(SUM(col9)  ,0) col9
-     , isnull(SUM(col10),0) col10
-     , isnull(SUM(col11),0) col11
-     , isnull(SUM(col12),0) col12
-     , isnull(SUM(col13),0) col13
-     , isnull(SUM(col14),0) col14
-     , isnull(SUM(col15),0) col15
-     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
-     							    + isnull(SUM(col3) ,0)
-     							    + isnull(SUM(col4) ,0)
-     							    + isnull(SUM(col5) ,0)
-     							    + isnull(SUM(col6) ,0)
-     							    + isnull(SUM(col7) ,0) 
-     							    + isnull(SUM(col8)  ,0) 
-					   			    + isnull(SUM(col9)  ,0) 
-								    + isnull(SUM(col10),0) 
-								    + isnull(SUM(col11),0) 
-								    + isnull(SUM(col12),0)
-								    + isnull(SUM(col13),0)
-								    + isnull(SUM(col14),0)
-								    + isnull(SUM(col15),0) totcount
-     
-    <!--  , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col3),0)
-     + isnull(SUM(col4),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0) totcount -->
-     
-     , isnull(SUM(bran_money),0) bran_money
+        , code_bran , tempcd1
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
+        , isnull(SUM(bran_money),0) bran_money
   from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
             , code_bran, tempcd1, code_member, detcodename
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1  /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
-            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6            
-            , case when code_member = '07' then SUM(pers_count) end col7
-            
-            , case when code_member = '39' then SUM(pers_count) end col8    /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '40' then SUM(pers_count) end col9
-            , case when code_member = '41' then SUM(pers_count) end col10
-            , case when code_member = '42' then SUM(pers_count) end col11  
-            , case when code_member = '45' then SUM(pers_count) end col12
-            , case when code_member = '46' then SUM(pers_count) end col13 
-            , case when code_member = '48' then SUM(pers_count) end col14
-          	, case when code_member = '49' then SUM(pers_count) end col15 
-            
-            
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1
+            , case when code_member = '54' then SUM(pers_count) end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col3
+            , case when code_member = '55' then SUM(pers_count) end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col5
+            , case when code_member = '56' then SUM(pers_count) end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col7
+            , case when code_member = '57' then SUM(pers_count) end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col9
+            , case when code_member = '58' then SUM(pers_count) end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col11
+            , case when code_member = '59' then SUM(pers_count) end col12
+            , case when code_member = '07' then SUM(pers_count) end col13
+            , case when code_member = '45' then SUM(pers_count) end col14
+            , case when code_member = '50' then SUM(pers_count) end col15
+            , case when code_member = '41' then SUM(pers_count) end col16
+            , case when code_member = '51' then SUM(pers_count) end col17  
+            , case when code_member = '46' then SUM(pers_count) end col18
+            , case when code_member = '42' then SUM(pers_count) end col19 
+            , case when code_member = '40' then SUM(pers_count) end col20
+            , case when code_member = '52' then SUM(pers_count) end col21
+            , case when code_member = '39' then SUM(pers_count) end col22
+            , case when code_member = '53' then SUM(pers_count) end col23
             , bran_money
-     
          from (select ROW_NUMBER() over(order by b.code_member) number
                     , a.code_bran, d.tempcd1, b.code_member, e.detcodename
                     , count(a.code_pers) pers_count
@@ -371,70 +345,63 @@ select ROW_NUMBER()OVER(ORDER BY code_bran) ncount
  group by code_bran, tempcd1
 union all
 select '99'   ncount
-     , ''     code_bran
-     , 'TOTAL' tempcd1
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col3),0) col3
-     , isnull(SUM(col4),0) col4
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     
-     , isnull(SUM(col8)  ,0) col8
-     , isnull(SUM(col9)  ,0) col9
-     , isnull(SUM(col10),0) col10
-     , isnull(SUM(col11),0) col11
-     , isnull(SUM(col12),0) col12
-     , isnull(SUM(col13),0) col13
-     , isnull(SUM(col14),0) col14
-     , isnull(SUM(col15),0) col15
-     , isnull(SUM(col1),0)	+ isnull(SUM(col2) ,0)
-     							    + isnull(SUM(col3) ,0)
-     							    + isnull(SUM(col4) ,0)
-     							    + isnull(SUM(col5) ,0)
-     							    + isnull(SUM(col6) ,0)
-     							    + isnull(SUM(col7) ,0) 
-     							    + isnull(SUM(col8)  ,0) 
-					   			    + isnull(SUM(col9)  ,0) 
-								    + isnull(SUM(col10),0) 
-								    + isnull(SUM(col11),0) 
-								    + isnull(SUM(col12),0)
-								    + isnull(SUM(col13),0)
-								    + isnull(SUM(col14),0)
-								    + isnull(SUM(col15),0) totcount
-     
-     
-   <!--   , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col3),0)
-     + isnull(SUM(col4),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0) totcount -->
-     
-     , isnull(SUM(bran_money),0) bran_money
+        , ''     code_bran
+        , 'TOTAL' tempcd1
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
+        , isnull(SUM(bran_money),0) bran_money
   from(select ROW_NUMBER()OVER(ORDER BY code_member ) no
             , code_bran, tempcd1, code_member, detcodename
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1  /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col2
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col3
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col4
-            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col5
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col6            
-            , case when code_member = '07' then SUM(pers_count) end col7
-            
-            , case when code_member = '39' then SUM(pers_count) end col8    /* 2015년 회비변경으로 코드멤버 추가 */
-            , case when code_member = '40' then SUM(pers_count) end col9
-            , case when code_member = '41' then SUM(pers_count) end col10
-            , case when code_member = '42' then SUM(pers_count) end col11  
-            , case when code_member = '45' then SUM(pers_count) end col12
-            , case when code_member = '46' then SUM(pers_count) end col13 
-            , case when code_member = '48' then SUM(pers_count) end col14
-          	, case when code_member = '49' then SUM(pers_count) end col15 
-          	
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then SUM(pers_count) end col1
+            , case when code_member = '54' then SUM(pers_count) end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then SUM(pers_count) end col3
+            , case when code_member = '55' then SUM(pers_count) end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then SUM(pers_count) end col5
+            , case when code_member = '56' then SUM(pers_count) end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then SUM(pers_count) end col7
+            , case when code_member = '57' then SUM(pers_count) end col8
+            , case when code_member = '09' OR code_member = '29' OR code_member = '89' then SUM(pers_count) end col9
+            , case when code_member = '58' then SUM(pers_count) end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then SUM(pers_count) end col11
+            , case when code_member = '59' then SUM(pers_count) end col12
+            , case when code_member = '07' then SUM(pers_count) end col13
+            , case when code_member = '45' then SUM(pers_count) end col14
+            , case when code_member = '50' then SUM(pers_count) end col15
+            , case when code_member = '41' then SUM(pers_count) end col16
+            , case when code_member = '51' then SUM(pers_count) end col17  
+            , case when code_member = '46' then SUM(pers_count) end col18
+            , case when code_member = '42' then SUM(pers_count) end col19 
+            , case when code_member = '40' then SUM(pers_count) end col20
+            , case when code_member = '52' then SUM(pers_count) end col21
+            , case when code_member = '39' then SUM(pers_count) end col22
+            , case when code_member = '53' then SUM(pers_count) end col23
             , bran_money
-     
          from (select ROW_NUMBER() over(order by b.code_member) number
                     , a.code_bran, d.tempcd1, b.code_member, e.detcodename
                     , count(a.code_pers) pers_count
@@ -740,65 +707,64 @@ select COUNT(groupcode) +1  ncount
 	 -->
 <select id="getMemberDepositList_5_1" resultClass="java.util.HashMap">
 select ROW_NUMBER() over(order by code_receipt, code_bran) number
-     , isnull(code_receipt,'') code_receipt
-     , isnull(g.detcodename,'') detcodename /* 처리장소 : 본회, 지회 */
-     , code_bran   , f.tempcd1     /* 해당지부 : 서울, 부산... 제주 */
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     , isnull(SUM(col8),0) col8
-     , isnull(SUM(col9),0) col9
-     
-     , isnull(SUM(col39),0) col39
-     , isnull(SUM(col40),0) col40
-     , isnull(SUM(col41),0) col41
-	 , isnull(SUM(col42),0) col42
-	 , isnull(SUM(col45),0) col45
-	 , isnull(SUM(col46),0) col46
-	 , isnull(SUM(col48),0) col48
-	 , isnull(SUM(col49),0) col49
-     
-     , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0)
-     + isnull(SUM(col8),0)
-     + isnull(SUM(col9),0)
-     
-     + isnull(SUM(col39),0)
-     + isnull(SUM(col40),0)
-     + isnull(SUM(col41),0)
-	 + isnull(SUM(col42),0)
-	 + isnull(SUM(col45),0)
-	 + isnull(SUM(col46),0)
-	 + isnull(SUM(col48),0)
-	 + isnull(SUM(col49),0) totcount  
-	 
+        , isnull(code_receipt,'') code_receipt
+        , isnull(g.detcodename,'') detcodename /* 처리장소 : 본회, 지회 */
+        , code_bran   , f.tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
   from(select ROW_NUMBER() over(order by code_receipt, code_bran, code_member) ncount
             , code_receipt/* 처리장소 : 본회, 지회 */
             , code_member /* 회원종류 : 신규, 기   */
             , code_bran   /* 해당지부 : 서울, 부산... 제주 */
-
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
-            , case when code_member = '07' then mem_dues end col7
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col1
+            , case when code_member = '54' then mem_dues end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col3
+            , case when code_member = '55' then mem_dues end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col5
+            , case when code_member = '56' then mem_dues end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col7
+            , case when code_member = '57' then mem_dues end col8
             , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
-            
-            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원 (년)    */
-            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)     */
-            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원     */           
-		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원  */   
-		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원       */   
-		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원    */   
-		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원     */   
-		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원       */   
-     
+            , case when code_member = '58' then mem_dues end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col11
+            , case when code_member = '59' then mem_dues end col12
+            , case when code_member = '07' then mem_dues end col13
+            , case when code_member = '45' then mem_dues end col14
+            , case when code_member = '50' then mem_dues end col15
+            , case when code_member = '41' then mem_dues end col16
+            , case when code_member = '51' then mem_dues end col17  
+            , case when code_member = '46' then mem_dues end col18
+            , case when code_member = '42' then mem_dues end col19 
+            , case when code_member = '40' then mem_dues end col20
+            , case when code_member = '52' then mem_dues end col21
+            , case when code_member = '39' then mem_dues end col22
+            , case when code_member = '53' then mem_dues end col23
          from(select count(ncount) ncount
                    , code_receipt/* 처리장소 : 본회, 지회 */
                    , code_member /* 회원종류 : 신규, 기   */
@@ -809,7 +775,6 @@ select ROW_NUMBER() over(order by code_receipt, code_bran) number
                           , a.code_member /* 회원종류 : 신규, 기   */
                           , c.code_bran   /* 해당지부 : 서울, 부산... 제주 */
                           , a.mem_dues
-            
                        from dues_h_tbl a left join dues_b_tbl b on b.code_inout_gubun = '1'	/* 입금 */
                                                                and b.conform_yn = '3'
                                                                and a.incom_flag = 'Y'
@@ -844,64 +809,64 @@ select ROW_NUMBER() over(order by code_receipt, code_bran) number
 union all
 /* 소계 */
 select ROW_NUMBER() over(order by code_receipt) number
-     , isnull(code_receipt,'') code_receipt
-     , 'SUM' detcodename /* 처리장소 : 본회, 지회 */
-     , '15' code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     , isnull(SUM(col8),0) col8
-     , isnull(SUM(col9),0) col9
-     
-     , isnull(SUM(col39),0) col39
-	 , isnull(SUM(col40),0) col40
-     , isnull(SUM(col41),0) col41
-	 , isnull(SUM(col42),0) col42
-	 , isnull(SUM(col45),0) col45
-	 , isnull(SUM(col46),0) col46
-	 , isnull(SUM(col48),0) col48
-	 , isnull(SUM(col49),0) col49
-     
-     , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0)
-     + isnull(SUM(col8),0)
-     + isnull(SUM(col9),0) 
-     
-     + isnull(SUM(col39),0)
-     + isnull(SUM(col40),0)
-     + isnull(SUM(col41),0)
-	 + isnull(SUM(col42),0)
-	 + isnull(SUM(col45),0)
-	 + isnull(SUM(col46),0)
-	 + isnull(SUM(col48),0)
-	 + isnull(SUM(col49),0) totcount
+        , isnull(code_receipt,'') code_receipt
+        , 'SUM' detcodename /* 처리장소 : 본회, 지회 */
+        , '15' code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
   from(select ROW_NUMBER() over(order by code_receipt, code_member, code_bran) ncount
             , code_receipt/* 처리장소 : 본회, 지회 */
             , code_member /* 회원종류 : 신규, 기   */
             , code_bran   /* 해당지부 : 서울, 부산... 제주 */
-
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
-            , case when code_member = '07' then mem_dues end col7
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col1
+            , case when code_member = '54' then mem_dues end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col3
+            , case when code_member = '55' then mem_dues end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col5
+            , case when code_member = '56' then mem_dues end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col7
+            , case when code_member = '57' then mem_dues end col8
             , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
-            
-            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원(년)     */
-            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)    */
-            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원     */           
-		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원  */   
-		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원       */   
-		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원    */   
-		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원     */   
-		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원       */  
-     
+            , case when code_member = '58' then mem_dues end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col11
+            , case when code_member = '59' then mem_dues end col12
+            , case when code_member = '07' then mem_dues end col13
+            , case when code_member = '45' then mem_dues end col14
+            , case when code_member = '50' then mem_dues end col15
+            , case when code_member = '41' then mem_dues end col16
+            , case when code_member = '51' then mem_dues end col17  
+            , case when code_member = '46' then mem_dues end col18
+            , case when code_member = '42' then mem_dues end col19 
+            , case when code_member = '40' then mem_dues end col20
+            , case when code_member = '52' then mem_dues end col21
+            , case when code_member = '39' then mem_dues end col22
+            , case when code_member = '53' then mem_dues end col23
          from(select count(ncount) ncount
                    , code_receipt/* 처리장소 : 본회, 지회 */
                    , code_member /* 회원종류 : 신규, 기   */
@@ -946,63 +911,63 @@ select ROW_NUMBER() over(order by code_receipt) number
 union all
 /* 총계 */
 select '9' number
-    , '3' code_receipt, 'TOTAL' detcodename /* 처리장소 : 본회, 지회 */
-     , ''code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
-     , isnull(SUM(col1),0) col1
-     , isnull(SUM(col2),0) col2
-     , isnull(SUM(col5),0) col5
-     , isnull(SUM(col6),0) col6
-     , isnull(SUM(col7),0) col7
-     , isnull(SUM(col8),0) col8
-     , isnull(SUM(col9),0) col9
-     
-     , isnull(SUM(col39),0) col39
-     , isnull(SUM(col40),0) col40
-     , isnull(SUM(col41),0) col41
-	 , isnull(SUM(col42),0) col42
-	 , isnull(SUM(col45),0) col45
-	 , isnull(SUM(col46),0) col46
-	 , isnull(SUM(col48),0) col48
-	 , isnull(SUM(col49),0) col49
-     
-     , isnull(SUM(col1),0)
-     + isnull(SUM(col2),0)
-     + isnull(SUM(col5),0)
-     + isnull(SUM(col6),0)
-     + isnull(SUM(col7),0)
-     + isnull(SUM(col8),0)
-     + isnull(SUM(col9),0) 
-     
-     + isnull(SUM(col39),0)
-     + isnull(SUM(col40),0)
-     + isnull(SUM(col41),0)
-	 + isnull(SUM(col42),0)
-	 + isnull(SUM(col45),0)
-	 + isnull(SUM(col46),0)
-	 + isnull(SUM(col48),0)
-	 + isnull(SUM(col49),0) totcount
+        , '3' code_receipt, 'TOTAL' detcodename /* 처리장소 : 본회, 지회 */
+        , ''code_bran   , '' tempcd1     /* 해당지부 : 서울, 부산... 제주 */
+        , isnull(SUM(col1),0) col1
+        , isnull(SUM(col2),0) col2
+        , isnull(SUM(col3),0) col3
+        , isnull(SUM(col4),0) col4
+        , isnull(SUM(col5),0) col5
+        , isnull(SUM(col6),0) col6
+        , isnull(SUM(col7),0) col7
+        , isnull(SUM(col8)  ,0) col8
+        , isnull(SUM(col9)  ,0) col9
+        , isnull(SUM(col10),0) col10
+        , isnull(SUM(col11),0) col11
+        , isnull(SUM(col12),0) col12
+        , isnull(SUM(col13),0) col13
+        , isnull(SUM(col14),0) col14
+        , isnull(SUM(col15),0) col15
+        , isnull(SUM(col16),0) col16
+        , isnull(SUM(col17),0) col17
+        , isnull(SUM(col18),0) col18
+        , isnull(SUM(col19),0) col19
+        , isnull(SUM(col20),0) col20
+        , isnull(SUM(col21),0) col21
+        , isnull(SUM(col22),0) col22
+        , isnull(SUM(col23),0) col23
+        , isnull(SUM(col1),0) + isnull(SUM(col2) ,0) + isnull(SUM(col3) ,0) + isnull(SUM(col4) ,0) + isnull(SUM(col5) ,0) 
+          + isnull(SUM(col6) ,0) + isnull(SUM(col7) ,0) + isnull(SUM(col8)  ,0) + isnull(SUM(col9)  ,0) + isnull(SUM(col10),0)
+          + isnull(SUM(col11),0) + isnull(SUM(col12),0) + isnull(SUM(col13),0) + isnull(SUM(col14),0) + isnull(SUM(col15),0)
+          + isnull(SUM(col16),0) + isnull(SUM(col17),0) + isnull(SUM(col18),0) + isnull(SUM(col19),0) + isnull(SUM(col20),0)
+          + isnull(SUM(col21),0) + isnull(SUM(col22),0) + isnull(SUM(col23),0) totcount
   from(select ROW_NUMBER() over(order by code_receipt, code_member, code_bran) ncount
             , code_receipt/* 처리장소 : 본회, 지회 */
             , code_member /* 회원종류 : 신규, 기   */
             , code_bran   /* 해당지부 : 서울, 부산... 제주 */
-
-            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col1
-            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col2
-            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col5
-            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col6
-            , case when code_member = '07' then mem_dues end col7
-            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col8
+            , case when code_member = '05' OR code_member = '25' OR code_member = '85' then mem_dues end col1
+            , case when code_member = '54' then mem_dues end col2
+            , case when code_member = '01' OR code_member = '21' OR code_member = '81' then mem_dues end col3
+            , case when code_member = '55' then mem_dues end col4
+            , case when code_member = '06' OR code_member = '26' OR code_member = '86' then mem_dues end col5
+            , case when code_member = '56' then mem_dues end col6
+            , case when code_member = '02' OR code_member = '22' OR code_member = '82' then mem_dues end col7
+            , case when code_member = '57' then mem_dues end col8
             , case when code_member = '09' OR code_member = '29' OR code_member = '89' then mem_dues end col9
-            
-            , case when code_member = '39' then mem_dues end col39   /*  C신규취업회원(년)      */
-            , case when code_member = '40' then mem_dues end col40   /*  C기취업회원(년)      */
-            , case when code_member = '41' then mem_dues end col41   /*  C신규취업회원      */           
-		    , case when code_member = '42' then mem_dues end col42   /*  C신규미취업회원   */   
-		    , case when code_member = '45' then mem_dues end col45   /*  C기 취업회원        */   
-		    , case when code_member = '46' then mem_dues end col46   /*  C기 미취업회원     */   
-		    , case when code_member = '48' then mem_dues end col48   /*  C신규특별회원      */   
-		    , case when code_member = '49' then mem_dues end col49   /*  C기 특별회원        */
-     
+            , case when code_member = '58' then mem_dues end col10
+            , case when code_member = '08' OR code_member = '28' OR code_member = '88' then mem_dues end col11
+            , case when code_member = '59' then mem_dues end col12
+            , case when code_member = '07' then mem_dues end col13
+            , case when code_member = '45' then mem_dues end col14
+            , case when code_member = '50' then mem_dues end col15
+            , case when code_member = '41' then mem_dues end col16
+            , case when code_member = '51' then mem_dues end col17  
+            , case when code_member = '46' then mem_dues end col18
+            , case when code_member = '42' then mem_dues end col19 
+            , case when code_member = '40' then mem_dues end col20
+            , case when code_member = '52' then mem_dues end col21
+            , case when code_member = '39' then mem_dues end col22
+            , case when code_member = '53' then mem_dues end col23
          from(select count(ncount) ncount
                    , code_receipt/* 처리장소 : 본회, 지회 */
                    , code_member /* 회원종류 : 신규, 기   */

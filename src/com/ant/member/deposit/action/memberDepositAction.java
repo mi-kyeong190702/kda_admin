@@ -186,16 +186,23 @@ public class memberDepositAction extends DispatchAction {
 				result.append("\"" + ( memberlist.get(i).get("col5"				)	== null ? "" : memberlist.get(i).get("col5"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col6"				)	== null ? "" : memberlist.get(i).get("col6"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col7"				)	== null ? "" : memberlist.get(i).get("col7"				))	+"\",");
-				
-				result.append("\"" + ( memberlist.get(i).get("col12"			)	== null ? "" : memberlist.get(i).get("col12"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col10"  			)	== null ? "" : memberlist.get(i).get("col10"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col13"			)	== null ? "" : memberlist.get(i).get("col13"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col11"			)	== null ? "" : memberlist.get(i).get("col11"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col9"				)	== null ? "" : memberlist.get(i).get("col9"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col8"				)	== null ? "" : memberlist.get(i).get("col8"				))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col9"				)	== null ? "" : memberlist.get(i).get("col9"				))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col10"			)	== null ? "" : memberlist.get(i).get("col10"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col11"			)	== null ? "" : memberlist.get(i).get("col11"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col12"			)	== null ? "" : memberlist.get(i).get("col12"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col13"			)	== null ? "" : memberlist.get(i).get("col13"			))	+"\",");
 				
-				/*result.append("\"" + ( memberlist.get(i).get("col14"			)	== null ? "" : memberlist.get(i).get("col14"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col15"			)	== null ? "" : memberlist.get(i).get("col15"			))	+"\",");*/
+				result.append("\"" + ( memberlist.get(i).get("col14"			)	== null ? "" : memberlist.get(i).get("col14"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col15"  			)	== null ? "" : memberlist.get(i).get("col15"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col16"			)	== null ? "" : memberlist.get(i).get("col16"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col17"			)	== null ? "" : memberlist.get(i).get("col17"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col18"			)	== null ? "" : memberlist.get(i).get("col18"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col19"			)	== null ? "" : memberlist.get(i).get("col19"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col20"			)	== null ? "" : memberlist.get(i).get("col20"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col21"			)	== null ? "" : memberlist.get(i).get("col21"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col22"			)	== null ? "" : memberlist.get(i).get("col22"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col23"			)	== null ? "" : memberlist.get(i).get("col23"			))	+"\",");
 				
 				result.append("\"" + ( memberlist.get(i).get("totcount"		)	== null ? "" : memberlist.get(i).get("totcount"		))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("bran_money"	)	== null ? "" : memberlist.get(i).get("bran_money"	))	+"\"");
@@ -218,19 +225,23 @@ public class memberDepositAction extends DispatchAction {
 		String				date	=sdf.format(new java.util.Date()); //현재 날짜		
 		String				user	=request.getParameter("register"); //유저ID
 		
-		
-		
 		//여기부터 개발자 변경 필요--------------------------------------
 
-		String header_e[]={"tempcd1","col1","col2","col3","col4",
-				           "col5","col6","col7",
-				           "col12","col10","col13","col11","col9","col8","totcount","bran_money",}; //헤더 영문
-		String header_k[]={"지부명", "기 취업회원", "신규 취업회원", "기 미취업회원", "신규 미취업회원",
-				           "기 특별회원", "신규 특별회원", "학생회원",
-				           "C기취업회원", "C신규취업회원", "C기미취업회원", "C신규미취업회원", "C기취업회원(년)", "C신규취업회원(년)", "인원수", "지부예수금"}; //헤더 국문
-		int c_size[]={15,15,15,15,15,
-				      15,15,15,
-				      15,15,15,15,15,15,15,15};  //열 넓이를 위한 배열
+		String header_e[]={"tempcd1","col1","col2","col3","col4","col5",
+				           "col6","col7","col8","col9","col10",
+				           "col11","col12","col13","col14","col15",
+				           "col16","col17","col18","col19","col20",
+				           "col21","col22","col23","totcount","bran_money",}; //헤더 영문
+		String header_k[]={"지부명", "n기취업회원 A", "n기취업회원 B", "n신규취업회원 A", "n신규취업회원 B", "n기미취업회원 A",
+				           "n기미취업회원 B", "n신규미취업회원 A", "n신규미취업회원 B", "n기특별회원 A", "n기특별회원 B",
+				           "n신규특별회원 A", "n신규특별회원 B", "학생회원", "C기취업회원 A", "C기취업회원 B",
+				           "C신규취업회원 A", "C신규취업회원 B", "C기미취업회원", "C신규미취업회원", "C기취업회원(년) A",
+				           "C기취업회원(년) B", "C신규취업회원(년) A", "C신규취업회원(년) B", "인원수", "지부예수금"}; //헤더 국문
+		int c_size[]={15,15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15};  //열 넓이를 위한 배열
 		
 		//검색조건
 		
@@ -369,16 +380,24 @@ public class memberDepositAction extends DispatchAction {
 				result.append("\"" + ( memberlist.get(i).get("col5"				)	== null ? "" : memberlist.get(i).get("col5"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col6"				)	== null ? "" : memberlist.get(i).get("col6"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col7"				)	== null ? "" : memberlist.get(i).get("col7"				))	+"\",");
-				
-				result.append("\"" + ( memberlist.get(i).get("col12"			)	== null ? "" : memberlist.get(i).get("col12"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col10"  			)	== null ? "" : memberlist.get(i).get("col10"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col13"			)	== null ? "" : memberlist.get(i).get("col13"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col11"			)	== null ? "" : memberlist.get(i).get("col11"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col9"				)	== null ? "" : memberlist.get(i).get("col9"				))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col8"				)	== null ? "" : memberlist.get(i).get("col8"				))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col9"				)	== null ? "" : memberlist.get(i).get("col9"				))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col10"			)	== null ? "" : memberlist.get(i).get("col10"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col11"			)	== null ? "" : memberlist.get(i).get("col11"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col12"			)	== null ? "" : memberlist.get(i).get("col12"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col13"			)	== null ? "" : memberlist.get(i).get("col13"			))	+"\",");
 				
-				/*result.append("\"" + ( memberlist.get(i).get("col14"			)	== null ? "" : memberlist.get(i).get("col14"			))	+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col15"			)	== null ? "" : memberlist.get(i).get("col15"			))	+"\",");*/
+				result.append("\"" + ( memberlist.get(i).get("col14"			)	== null ? "" : memberlist.get(i).get("col14"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col15"  			)	== null ? "" : memberlist.get(i).get("col15"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col16"			)	== null ? "" : memberlist.get(i).get("col16"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col17"			)	== null ? "" : memberlist.get(i).get("col17"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col18"			)	== null ? "" : memberlist.get(i).get("col18"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col19"			)	== null ? "" : memberlist.get(i).get("col19"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col20"			)	== null ? "" : memberlist.get(i).get("col20"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col21"			)	== null ? "" : memberlist.get(i).get("col21"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col22"			)	== null ? "" : memberlist.get(i).get("col22"			))	+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col23"			)	== null ? "" : memberlist.get(i).get("col23"			))	+"\",");
+				
 				result.append("\"" + ( memberlist.get(i).get("totcount"		)	== null ? "" : memberlist.get(i).get("totcount"		))	+"\",");
 				result.append("\"" + ( memberlist.get(i).get("bran_money"	)	== null ? "" : memberlist.get(i).get("bran_money"	))	+"\"");
 				result.append("]}");
@@ -405,22 +424,21 @@ public class memberDepositAction extends DispatchAction {
 		
 		//여기부터 개발자 변경 필요--------------------------------------
 
-/*		String header_e[]={"tempcd1","col1","col2","col3","col4",
-				           "col5","col6","col7","totcount","bran_money",}; //헤더 영문
-		String header_k[]={"지부명", "기 취업회원", "신규 취업회원", "기 미취업회원", "신규 미취업회원",
-				           "기 특별회원", "신규 특별회원", "학생회원", "인원수", "지부예수금"}; //헤더 국문
-		int c_size[]={15,15,15,15,15,
+		String header_e[]={"tempcd1","col1","col2","col3","col4","col5",
+				           "col6","col7","col8","col9","col10",
+				           "col11","col12","col13","col14","col15",
+				           "col16","col17","col18","col19","col20",
+				           "col21","col22","col23","totcount","bran_money",}; //헤더 영문
+		String header_k[]={"지부명", "n기취업회원 A", "n기취업회원 B", "n신규취업회원 A", "n신규취업회원 B", "n기미취업회원 A",
+				           "n기미취업회원 B", "n신규미취업회원 A", "n신규미취업회원 B", "n기특별회원 A", "n기특별회원 B",
+				           "n신규특별회원 A", "n신규특별회원 B", "학생회원", "C기취업회원 A", "C기취업회원 B",
+				           "C신규취업회원 A", "C신규취업회원 B", "C기미취업회원", "C신규미취업회원", "C기취업회원(년) A",
+				           "C기취업회원(년) B", "C신규취업회원(년) A", "C신규취업회원(년) B", "인원수", "지부예수금"}; //헤더 국문
+		int c_size[]={15,15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
 				      15,15,15,15,15};  //열 넓이를 위한 배열
-*/		
-		String header_e[]={"tempcd1","col1","col2","col3","col4",
-					       "col5","col6","col7",
-					       "col12","col10","col13","col11","col9","col8","totcount","bran_money",}; //헤더 영문
-		String header_k[]={"지부명", "기 취업회원", "신규 취업회원", "기 미취업회원", "신규 미취업회원",
-					       "기 특별회원", "신규 특별회원", "학생회원",
-					       "C기취업회원","C신규취업회원","C기미취업회원","C신규미취업회원","C기취업회원(년)","C신규취업회원(년)","인원수", "지부예수금"}; //헤더 국문
-		int c_size[]={15,15,15,15,15,
-				      15,15,15,
-				      15,15,15,15,15,15,15,15};  //열 넓이를 위한 배열
 		
 		//검색조건
 		
@@ -990,21 +1008,28 @@ public class memberDepositAction extends DispatchAction {
 				result.append("\"" + ( memberlist.get(i).get("tempcd1"		)== null ? "" : memberlist.get(i).get("tempcd1"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col1"			)== null ? "" : memberlist.get(i).get("col1"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col2"			)== null ? "" : memberlist.get(i).get("col2"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col3"			)== null ? "" : memberlist.get(i).get("col3"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col4"			)== null ? "" : memberlist.get(i).get("col4"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col5"			)== null ? "" : memberlist.get(i).get("col5"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col6"			)== null ? "" : memberlist.get(i).get("col6"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col7"			)== null ? "" : memberlist.get(i).get("col7"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col8"			)== null ? "" : memberlist.get(i).get("col8"			))+"\",");
 				result.append("\"" + ( memberlist.get(i).get("col9"			)== null ? "" : memberlist.get(i).get("col9"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col10"		)== null ? "" : memberlist.get(i).get("col10"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col11"		)== null ? "" : memberlist.get(i).get("col11"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col12"		)== null ? "" : memberlist.get(i).get("col12"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col13"		)== null ? "" : memberlist.get(i).get("col13"			))+"\",");
 				
-				result.append("\"" + ( memberlist.get(i).get("col45"				)== null ? "" : memberlist.get(i).get("col45"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col41"				)== null ? "" : memberlist.get(i).get("col41"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col46"				)== null ? "" : memberlist.get(i).get("col46"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col42"				)== null ? "" : memberlist.get(i).get("col42"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col40"				)== null ? "" : memberlist.get(i).get("col40"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col39"				)== null ? "" : memberlist.get(i).get("col39"				))+"\",");/* 20150113 CMS추가 */
-				
-				/*result.append("\"" + ( memberlist.get(i).get("col48"				)== null ? "" : memberlist.get(i).get("col48"				))+"\",");
-				result.append("\"" + ( memberlist.get(i).get("col49"				)== null ? "" : memberlist.get(i).get("col49"				))+"\",");*/
+				result.append("\"" + ( memberlist.get(i).get("col14"		)== null ? "" : memberlist.get(i).get("col14"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col15"		)== null ? "" : memberlist.get(i).get("col15"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col16"		)== null ? "" : memberlist.get(i).get("col16"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col17"		)== null ? "" : memberlist.get(i).get("col17"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col18"		)== null ? "" : memberlist.get(i).get("col18"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col19"		)== null ? "" : memberlist.get(i).get("col19"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col20"		)== null ? "" : memberlist.get(i).get("col20"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col21"		)== null ? "" : memberlist.get(i).get("col21"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col22"		)== null ? "" : memberlist.get(i).get("col22"			))+"\",");
+				result.append("\"" + ( memberlist.get(i).get("col23"		)== null ? "" : memberlist.get(i).get("col23"			))+"\",");
 								
 				result.append("\"" + ( memberlist.get(i).get("totcount"		)== null ? "" : memberlist.get(i).get("totcount"		))+"\"");
 				result.append("]}");
@@ -1026,22 +1051,21 @@ public class memberDepositAction extends DispatchAction {
 		String				date	=sdf.format(new java.util.Date()); //현재 날짜		
 		String				user	=request.getParameter("register"); //유저ID
 		
-		String header_e[]={"detcodename","tempcd1","col1","col2","col5",
-						   "col6","col7","col8","col9",
-						   "col45","col41","col46","col42","col40","col39",
-						   "totcount"
-						  }; //헤더 영문
-		String header_k[]={"입금장소",  "구분", "신규 취업회원", "신규 미취업회원", 
-						   "기 취업회원", "기 미취업회원", "학생회원", "신규 특별회원", "기 특별회원",
-						   "C기취업회원", "C신규취업회원", "C기미취업회원", "C신규미취업회원", "C기취업회원(년)", "C신규취업회원(년)",
-						   "소계"
-						  }; //헤더 국문
-		int c_size[]={15,15,15,15,
-				 	  15,15,15,15,15,
-				 	  15,15,15,15,15,15,
-				 	  15
-				 	 };  //열 넓이를 위한 배열
-
+		String header_e[]={"detcodename","tempcd1","col1","col2","col3","col4","col5",
+				           "col6","col7","col8","col9","col10",
+				           "col11","col12","col13","col14","col15",
+				           "col16","col17","col18","col19","col20",
+				           "col21","col22","col23","totcount"}; //헤더 영문
+		String header_k[]={"입금장소", "구분", "n기취업회원 A", "n기취업회원 B", "n신규취업회원 A", "n신규취업회원 B", "n기미취업회원 A",
+				           "n기미취업회원 B", "n신규미취업회원 A", "n신규미취업회원 B", "n기특별회원 A", "n기특별회원 B",
+				           "n신규특별회원 A", "n신규특별회원 B", "학생회원", "C기취업회원 A", "C기취업회원 B",
+				           "C신규취업회원 A", "C신규취업회원 B", "C기미취업회원", "C신규미취업회원", "C기취업회원(년) A",
+				           "C기취업회원(년) B", "C신규취업회원(년) A", "C신규취업회원(년) B", "소계"}; //헤더 국문
+		int c_size[]={15,15,15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15,
+				      15,15,15,15,15};  //열 넓이를 위한 배열
 		
 		//검색조건
 		

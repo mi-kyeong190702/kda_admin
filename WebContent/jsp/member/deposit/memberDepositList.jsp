@@ -238,29 +238,37 @@ $(document).ready(function(){
 		viewrecords:true,
 		
 		/* 2022.07.19 C신규특별회원 / C기특별회원 컬럼 삭제 및 컬럼 순서 변경 */
-		colNames	: [ '지부명', '기 취업회원', '신규 취업회원', '기 미취업회원', '신규 미취업회원', ' 기 특별회원', '신규 특별회원', '학생회원', 'C기취업회원', 'C신규취업회원', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년)', 'C신규취업회원(년)', '인원수', '지부예수금'],
+		/* 2026.03.23 회원구분 추가 */
+		colNames	: [ '지부명', 'n기취업회원 A', 'n기취업회원 B', 'n신규취업회원 A', 'n신규취업회원 B', 'n기미취업회원 A', 'n기미취업회원 B', 'n신규미취업회원 A', 'n신규미취업회원 B', 'n기특별회원 A', 'n기특별회원 B', 'n신규특별회원 A', 'n신규특별회원 B', '학생회원', 'C기취업회원 A', 'C기취업회원 B', 'C신규취업회원 A', 'C신규취업회원 B', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년) A', 'C기취업회원(년) B', 'C신규취업회원(년) A', 'C신규취업회원(년) B', '인원수', '지부예수금'],
 		colModel	: [
 	        	  		{name:'tempcd1'			, index:'tempcd1 asc, invdate'		, align:"center"	, sortable:false, width:100}					// 지부명
-				      , {name:'col1'					, index:'col1'			      , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 기 취업회원
-				      , {name:'col2'		    	  	, index:'col2'			      , width:66	, align:"right"		, sortable:false, formatter:'integer'}	 	// 신규 취업회원
-				      , {name:'col3'		    	  	, index:'col3'			 	  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 기 미취업회원
-				      , {name:'col4'		   		  	, index:'col4'			 	  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 신규 미취업회원
-				      , {name:'col5'		    	  	, index:'col5'				  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 기 특별회원
-				      , {name:'col6'		    	  	, index:'col6'		 		  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 신규 특별회원
-				      , {name:'col7'		          	, index:'col7'				  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 학생회원
+				      , {name:'col1'					, index:'col1'			      , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// n기취업회원 A
+				      , {name:'col2'                    , index:'col2'                , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n기취업회원 B
+				      , {name:'col3'		    	  	, index:'col3'			      , width:66	, align:"right"		, sortable:false, formatter:'integer'}	 	// n신규취업회원 A
+				      , {name:'col4'                    , index:'col4'                , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n신규취업회원 B
+				      , {name:'col5'		    	  	, index:'col5'			 	  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// n기미취업회원 A
+				      , {name:'col6'                    , index:'col6'                , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n기미취업회원 B
+				      , {name:'col7'		   		  	, index:'col7'			 	  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// n신규미취업회원 A
+				      , {name:'col8'                    , index:'col8'                , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n신규미취업회원 B
+				      , {name:'col9'		    	  	, index:'col9'				  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// n기특별회원 A
+				      , {name:'col10'                   , index:'col10'               , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n기특별회원 B
+				      , {name:'col11'		    	  	, index:'col11'		 		  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// n신규특별회원 A
+				      , {name:'col12'                   , index:'col12'               , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // n신규특별회원 B
+				      , {name:'col13'		          	, index:'col13'				  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// 학생회원
 				      
-				      , {name:'col8'           			, index:'col8'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원
-				      , {name:'col9'		          	, index:'col9'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원
-				      , {name:'col10'	          		, index:'col10'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기미취업회원
-				      , {name:'col11'		          	, index:'col11'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규미취업회원
-				      , {name:'col12'		          	, index:'col12'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원(년)
-				      , {name:'col13'		          	, index:'col13'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원(년)
-				      
-				      /* , {name:'col14'	          		, index:'col14'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규특별회원
-				      , {name:'col15'	          		, index:'col15'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기특별회원 */
+				      , {name:'col14'           	    , index:'col14'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원 A
+				      , {name:'col15'                   , index:'col15'           , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // C기취업회원 B
+				      , {name:'col16'		          	, index:'col16'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원 A
+				      , {name:'col17'                   , index:'col17'           , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // C신규취업회원 B
+				      , {name:'col18'	          		, index:'col18'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기미취업회원
+				      , {name:'col19'		          	, index:'col19'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규미취업회원
+				      , {name:'col20'		          	, index:'col20'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원(년) A
+				      , {name:'col21'                   , index:'col21'           , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // C기취업회원(년) B
+				      , {name:'col22'		          	, index:'col22'			  , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원(년) A
+				      , {name:'col23'                   , index:'col23'           , width:66    , align:"right"     , sortable:false, formatter:'integer'}      // C신규취업회원(년) B
 				      
 				      , {name:'totcount'		  		, index:'totcount'	      , width:60	, align:"right"		, sortable:false, formatter:'integer'}		// 인원수
-				      , {name:'bran_money'  	, index:'bran_money'	  , width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 지부예수금
+				      , {name:'bran_money'  	        , index:'bran_money'	  , width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 지부예수금
 				      ],
 				      
 		rowNum:10000000,
@@ -294,29 +302,37 @@ $(document).ready(function(){
 		viewrecords:true,
 		
 		/* 2022.07.19 C신규특별회원 / C기특별회원 컬럼 삭제 및 컬럼 순서 변경 */
-		colNames	: [ '지부명', '기 취업회원', '신규 취업회원', '기 미취업회원', '신규 미취업회원', ' 기 특별회원', '신규 특별회원', '학생회원', 'C기취업회원', 'C신규취업회원', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년)', 'C신규취업회원(년)', '인원수', '본회 예수금 집계'],
+		/* 2026.03.23 회원구분 추가 */
+		colNames	: [ '지부명', 'n기취업회원 A', 'n기취업회원 B', 'n신규취업회원 A', 'n신규취업회원 B', 'n기미취업회원 A', 'n기미취업회원 B', 'n신규미취업회원 A', 'n신규미취업회원 B', 'n기특별회원 A', 'n기특별회원 B', 'n신규특별회원 A', 'n신규특별회원 B', '학생회원', 'C기취업회원 A', 'C기취업회원 B', 'C신규취업회원 A', 'C신규취업회원 B', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년) A', 'C기취업회원(년) B', 'C신규취업회원(년) A', 'C신규취업회원(년) B', '인원수', '본회 예수금 집계'],
 		colModel	: [
 							  {name:'tempcd1'	    ,index:'tempcd1 asc, invdate'	, align:"center"		, sortable:false, width:100}					// 지부명
-							, {name:'col1'				,index:'col1'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 기 취업회원
-							, {name:'col2'				,index:'col2'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 신규 취업회원
-							, {name:'col3'				,index:'col3'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 기 미취업회원
-							, {name:'col4'				,index:'col4'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 신규 미취업회원
-							, {name:'col5'				,index:'col5'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 기 특별회원
-							, {name:'col6'				,index:'col6'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 신규 특별회원
-							, {name:'col7'				,index:'col7'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 학생회원
+							, {name:'col1'				,index:'col1'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n기취업회원 A
+							, {name:'col2'              ,index:'col2'               , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n기취업회원 B
+							, {name:'col3'				,index:'col3'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n신규취업회원 A
+							, {name:'col4'				,index:'col4'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n신규취업회원 B
+							, {name:'col5'				,index:'col5'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n기미취업회원 A
+							, {name:'col6'				,index:'col6'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n기미취업회원 B
+							, {name:'col7'				,index:'col7'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// n신규미취업회원 A
+							, {name:'col8'              ,index:'col8'               , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n신규미취업회원 B
+							, {name:'col9'              ,index:'col9'               , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n기특별회원 A
+							, {name:'col10'             ,index:'col10'              , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n기특별회원 B
+							, {name:'col11'             ,index:'col11'              , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n신규특별회원 A
+							, {name:'col12'             ,index:'col12'              , width:90  , align:"right"     , sortable:false, formatter:'integer'}      // n신규특별회원 B
+							, {name:'col13'				,index:'col13'				, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 학생회원
 							
-							, {name:'col8'    	 		,index:'col8'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원
-							, {name:'col9'				,index:'col9'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원
-						    , {name:'col10'	     		,index:'col10'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기미취업회원
-						    , {name:'col11'				,index:'col11'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규미취업회원
-						    , {name:'col12'				,index:'col12'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원(년)
-						    , {name:'col13'				,index:'col13'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원(년)
+							, {name:'col14'    	 		,index:'col14'			    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원 A
+							, {name:'col15'				,index:'col15'			    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기취업회원 B
+						    , {name:'col16'	     		,index:'col16'			    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원 A
+						    , {name:'col17'				,index:'col17'		   	    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규취업회원 B
+						    , {name:'col18'				,index:'col18'			    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기미취업회원
+						    , {name:'col19'				,index:'col19'			    , width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규미취업회원
+						    , {name:'col20'             ,index:'col20'              , width:66  , align:"right"     , sortable:false, formatter:'integer'}      // C기취업회원(년) A
+						    , {name:'col21'             ,index:'col21'              , width:66  , align:"right"     , sortable:false, formatter:'integer'}      // C기취업회원(년) B
+						    , {name:'col22'             ,index:'col22'              , width:66  , align:"right"     , sortable:false, formatter:'integer'}      // C신규취업회원(년) A
+						    , {name:'col23'             ,index:'col23'              , width:66  , align:"right"     , sortable:false, formatter:'integer'}      // C신규취업회원(년) B
 						    
-						    /* , {name:'col14'	    		,index:'col14'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C신규특별회원
-						    , {name:'col15'	    		,index:'col15'			, width:66	, align:"right"		, sortable:false, formatter:'integer'}		// C기특별회원 */
-						    
-							, {name:'totcount'		,index:'totcount'		, width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 인원수
-							, {name:'bran_money' ,index:'bran_money'	, width:140	, align:"right", sortable:false, formatter:'integer'}		// 본회 예수금 집계
+							, {name:'totcount'		    ,index:'totcount'		    , width:90	, align:"right"		, sortable:false, formatter:'integer'}		// 인원수
+							, {name:'bran_money'        ,index:'bran_money'	        , width:140	, align:"right"     , sortable:false, formatter:'integer'}		// 본회 예수금 집계
 						 ],	 // colModel End
 					
 		rowNum:10000000,
@@ -439,31 +455,39 @@ $(document).ready(function(){
 			viewrecords:true,
 			
 			/* 2022.07.19 C신규특별회원 / C기특별회원 컬럼 삭제 및 컬럼 순서 변경 */
-			//           1   ,   2  ,    	3    ,	4	,	5  ,	6,			7,			8,		9		,	10	 , 	11	,		12		,	13,		14,			15,			16,				17,			18,		     19  ;
-			colNames:[ '번호', '입금장소코드', '입금장소', '지부코드', '구분', '신규 취업회원', '신규 미취업회원', '기 취업회원', '기 미취업회원', '학생회원', '신규 특별회원', '기 특별회원', 'C기취업회원', 'C신규취업회원', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년)', 'C신규취업회원(년)', '소계'],
+			/* 2026.03.23 회원구분 추가 */
+			colNames:[ '번호', '입금장소코드', '입금장소', '지부코드', '구분', 'n기취업회원 A', 'n기취업회원 B', 'n신규취업회원 A', 'n신규취업회원 B', 'n기미취업회원 A', 'n기미취업회원 B', 'n신규미취업회원 A', 'n신규미취업회원 B', 'n기특별회원 A', 'n기특별회원 B', 'n신규특별회원 A', 'n신규특별회원 B', '학생회원', 'C기취업회원 A', 'C기취업회원 B', 'C신규취업회원 A', 'C신규취업회원 B', 'C기미취업회원', 'C신규미취업회원', 'C기취업회원(년) A', 'C기취업회원(년) B', 'C신규취업회원(년) A', 'C신규취업회원(년) B', '소계'],
 			colModel:[
-			          		{name:'number'		 		,index:'number asc, invdate'					, align:"center"	, sortable:false, width:60, hidden:true	} 	// 1.  번호
-						  , {name:'code_receipt'		,index:'code_receipt'			, width:60		, align:"center"	, sortable:false, hidden:true					}	// 2.  입금장소코드
-						  , {name:'detcodename'			,index:'detcodename'			, width:100		, align:"center"	, sortable:false										}	// 3.  입금장소
-						  , {name:'code_bran'			,index:'code_bran'				, width:60		, align:"right"		, sortable:false, hidden:true					}	// 4.  지부코드
-						  , {name:'tempcd1'				,index:'tempcd1'				, width:90		, align:"center"	, sortable:false										}	// 5.  구분
-						  , {name:'col1'				,index:'col1'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 6.  신규 취업회원
-						  , {name:'col2'				,index:'col2'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 7. 	 신규 미취업회원
-						  , {name:'col5'				,index:'col5'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 8.  기 취업회원
-						  , {name:'col6'				,index:'col6'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 9.  기 미취업회원
-						  , {name:'col7'				,index:'col7'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 10.학생 회원
-						  , {name:'col8'				,index:'col8'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 11.신규특별회원
-						  , {name:'col9'				,index:'col9'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 12.기 특별회원
+			          		{name:'number'		 		,index:'number asc, invdate'					, align:"center"	, sortable:false, width:60, hidden:true	    } 	// 1.  번호
+						  , {name:'code_receipt'		,index:'code_receipt'			, width:60		, align:"center"	, sortable:false, hidden:true			    }	// 2.  입금장소코드
+						  , {name:'detcodename'			,index:'detcodename'			, width:100		, align:"center"	, sortable:false							}	// 3.  입금장소
+						  , {name:'code_bran'			,index:'code_bran'				, width:60		, align:"right"		, sortable:false, hidden:true				}	// 4.  지부코드
+						  , {name:'tempcd1'				,index:'tempcd1'				, width:90		, align:"center"	, sortable:false							}	// 5.  구분
+						  , {name:'col1'				,index:'col1'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 6.  n기취업회원 A
+						  , {name:'col2'				,index:'col2'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 7.  n기취업회원 B
+						  , {name:'col3'				,index:'col3'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 8.  n신규취업회원 A
+						  , {name:'col4'				,index:'col4'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 9.  n신규취업회원 B
+						  , {name:'col5'				,index:'col5'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 10. n기미취업회원 A
+						  , {name:'col6'				,index:'col6'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 11. n기미취업회원 B
+						  , {name:'col7'				,index:'col7'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 12. n신규미취업회원 A
+						  , {name:'col8'                ,index:'col8'                   , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 13. n신규미취업회원 B
+						  , {name:'col9'                ,index:'col9'                   , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 14. n기특별회원 A
+						  , {name:'col10'               ,index:'col10'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 15. n기특별회원 B
+						  , {name:'col11'               ,index:'col11'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 16. n신규특별회원 A
+						  , {name:'col12'               ,index:'col12'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 17. n신규특별회원 B
+						  , {name:'col13'               ,index:'col13'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 18. 학생회원
 						  
-						  , {name:'col41'				,index:'col41'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 15.C신규취업회원
-						  , {name:'col45'				,index:'col45'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 17.C기취업회원
-						  , {name:'col46'				,index:'col46'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 18.C기미취업회원
-						  , {name:'col42'				,index:'col42'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 16.C신규미취업회원
-						  , {name:'col40'				,index:'col40'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 14.C기취업회원(년)
-						  , {name:'col39'				,index:'col39'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 13.C신규취업회원(년)
+						  , {name:'col14'				,index:'col14'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 19. C기취업회원 A
+						  , {name:'col15'				,index:'col15'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 20. C기취업회원 B
+						  , {name:'col16'				,index:'col16'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 21. C신규취업회원 A
+						  , {name:'col17'				,index:'col17'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 22. C신규취업회원 B
+						  , {name:'col18'				,index:'col18'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 23. C기미취업회원
+						  , {name:'col19'				,index:'col19'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 24. C신규미취업회원
+						  , {name:'col20'               ,index:'col20'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 25. C기취업회원(년) A
+						  , {name:'col21'               ,index:'col21'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 26. C기취업회원(년) B
+						  , {name:'col22'               ,index:'col22'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 27. C신규취업회원(년) A
+						  , {name:'col23'               ,index:'col23'                  , width:90      , align:"right"     , sortable:false, formatter:'integer'       }   // 28. C신규취업회원(년) B
 						  
-						  /*, {name:'col48'				,index:'col48'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 19.C신규특별회원
-						  , {name:'col49'				,index:'col49'					, width:90 		, align:"right"		, sortable:false, formatter:'integer'		}	// 20.C기특별회원 */
 						  , {name:'totcount'			,index:'totcount'				, width:100		, align:"right"		, sortable:false, formatter:'integer'		}	// 21.소계
 						 ],	// colModel End
 					
@@ -571,7 +595,6 @@ $(document).ready(function(){
 
 
 function goSearch(form, nTabCnt){
-
 	if(nTabCnt == '1'){
 		goTabSearch_1(form);
 	}else if(nTabCnt == '2'){
@@ -755,6 +778,8 @@ function excelDown_1(form) {
 	if(form.code_bran.value != '') param += "&code_bran="+form.code_bran.value;
 
 	param+="&nTabCnt=1&code_receipt=1&startdate="+startdate+"&enddate="+enddate;
+	param+="&register="+"<%=g_name%>";
+	
 	form.target="frm";
 	form.action="memberDeposit.do?method=memberDepositExcel"+param;
 	form.submit();	
@@ -781,7 +806,7 @@ function excelDown_2(form) {
 	if(form.code_bran.value != '') param += "&code_bran="+form.code_bran.value;
 	
 	param+="&nTabCnt=2&code_receipt=2&startdate="+startdate+"&enddate="+enddate;
-
+	param+="&register="+"<%=g_name%>";
 
 	form.target="frm";
 	form.action="memberDeposit.do?method=memberDepositExcel"+param;
@@ -868,7 +893,7 @@ function excelDown_5(form) {
 		}
 
 		form.target="frm";
-		form.action="memberDeposit.do?method=memberDepositExcel&nTabCnt=5_1&receipt_dt="+receipt_dt;
+		form.action="memberDeposit.do?method=memberDepositExcel&nTabCnt=5_1&receipt_dt="+receipt_dt+"&register="+"<%=g_name%>";
 		form.submit();
 		
 	}else if(form.d2.checked == true){
