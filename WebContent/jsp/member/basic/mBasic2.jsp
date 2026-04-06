@@ -88,32 +88,31 @@ jQuery("#list").jqGrid({
       url: "<%=url%>",
       datatype: "json",
       mtype: 'POST',
-      //height:'330', //근무처명, 근무처주소 들어갈땐 밑의 height으로 교체
-      height:'295', 
+      height:'460', 
       width:'1097',
       colNames: ['입출일자','입출구분코드','입출구분','회비구분코드','회비구분','회원구분코드','회원구분','입출금액','입출장소코드','입출장소','입출방법코드','입출방법','금융기관명','유효시작일','유효만료일','확인여부코드','인증상태','인증일','완납여부코드','완납여부','등록자','회비관리순번','회비상세관리순번','duesDelYn'],
       colModel: [
-			{name:'pres_let_dt',			index:'pres_let_dt', 		width:50, 	sortable:false,	align:'center'},
+			{name:'pres_let_dt',			index:'pres_let_dt', 		width:50, 	sortable:true,	align:'center'},
 			{name:'code_inout_gubun',		index:'code_inout_gubun',	width:100,	sortable:false,	hidden:true},
    			{name:'iog_name',				index:'iog_name', 			width:50, 	sortable:false,	align:'center'},
 			{name:'dues_gubun',				index:'dues_gubun', 		width:40, 	sortable:false,	hidden:true},
-			{name:'dg_name',				index:'dg_name', 			width:60, 	sortable:false,	align:'center'},
+			{name:'dg_name',				index:'dg_name', 			width:60, 	sortable:true,	align:'center'},
 			{name:'code_member',			index:'code_member', 		width:40, 	sortable:false,	hidden:true},
-			{name:'cm_name',				index:'cm_name', 			width:180, 	sortable:false,	align:'center'},
-   			{name:'pres_money',				index:'pres_money', 		width:50, 	sortable:false,	formatter:'currency',	formatoptions:{thousandsSeparator:','},	align:'right'},
+			{name:'cm_name',				index:'cm_name', 			width:180, 	sortable:true,	align:'center'},
+   			{name:'pres_money',				index:'pres_money', 		width:50, 	sortable:true,	formatter:'currency',	formatoptions:{thousandsSeparator:','},	align:'right'},
    			{name:'code_receipt',			index:'code_receipt', 		width:100,	sortable:false,	hidden:true},
-   			{name:'rc_name',				index:'rc_name', 			width:50,	sortable:false,	align:'center'},	
+   			{name:'rc_name',				index:'rc_name', 			width:50,	sortable:true,	align:'center'},	
 			{name:'code_pay_flag',			index:'code_pay_flag', 		width:40, 	sortable:false,	hidden:true},
-   			{name:'pf_name',				index:'pf_name', 			width:50,	sortable:false,	align:'center'},
+   			{name:'pf_name',				index:'pf_name', 			width:50,	sortable:true,	align:'center'},
    			{name:'bank_name',				index:'bank_name', 			width:60,	sortable:false,	align:'center'},
    			{name:'auth_start',				index:'auth_start', 		width:60,	sortable:false,	align:'center'},
    			{name:'auth_end',				index:'auth_end', 			width:60,	sortable:false,	align:'center'},
    			{name:'conform_yn',				index:'conform_yn', 		width:100,	sortable:false,	hidden:true},
-   			{name:'cf_name',				index:'cf_name', 			width:50,	sortable:false,	align:'center'},
-   			{name:'conform_dt',				index:'conform_dt', 		width:40,	sortable:false,	align:'center'},
+   			{name:'cf_name',				index:'cf_name', 			width:50,	sortable:true,	align:'center'},
+   			{name:'conform_dt',				index:'conform_dt', 		width:50,	sortable:false,	align:'center'},
    			{name:'incom_flag',				index:'incom_flag', 		width:100,	sortable:false,	hidden:true},
-   			{name:'if_name',				index:'if_name', 			width:50,	sortable:false,	align:'center'},
-   			{name:'register',				index:'register', 			width:60, 	sortable:false,	align:'center'},
+   			{name:'if_name',				index:'if_name', 			width:50,	sortable:true,	align:'center'},
+   			{name:'register',				index:'register', 			width:50, 	sortable:false,	align:'center'},
    			{name:'dues_h_seq',				index:'dues_h_seq', 		width:40, 	sortable:false,	hidden:true},
    			{name:'dues_b_seq',				index:'dues_b_seq', 		width:40, 	sortable:false,	hidden:true},
    			{name:'duesDelYn',				index:'duesDelYn',          width:40, 	sortable:false,	hidden:true}
@@ -122,6 +121,7 @@ jQuery("#list").jqGrid({
       pager: '#pager2',
       viewrecords: true,
       altRows:true,
+      loadonce: true,
       altclass:'myAltRowClass',
       rownumbers : true,
       onSelectRow: function(ids) {
@@ -784,16 +784,15 @@ $(function() {
              </tr>			 
         </table>
         
-        <p style="float:left;padding-top:10px;">
+		
+        <p class="btnSave">
             <%-- 2024.06.18 회원관리자 - kdamembership 추가   --%>
             <%-- dongbucni 추가   --%>
             <%-- 2025.08.05 박세은 separk153, 설아영 say1025, 김고은 goeun822 만 삭제 버튼 추가   --%>
-			<%if(G_ID.equals("dongbucni") || G_ID.equals("kdamembership") || G_ID.equals("separk153") || G_ID.equals("say1025") || G_ID.equals("goeun822") ){ %>
-			<a href="javascript:goDelete();"><img src="images/icon_delete.gif" alt="삭제" /></a> 
-			<%} %>
-		</p>
-		
-        <p class="btnSave">
+            <%if(G_ID.equals("dongbucni") || G_ID.equals("kdamembership") || G_ID.equals("separk153") || G_ID.equals("say1025") || G_ID.equals("goeun822") ){ %>
+            <a href="javascript:goDelete();"><img src="images/icon_delete.gif" alt="삭제" /></a> 
+            <%} %>
+            &emsp;&emsp;&emsp;&emsp;
 			<a href="javascript:reg_reset();"><img src="images/icon_new.gif" alt="신규" /></a>
 			<a href="javascript:reg();"><img src="images/icon_save.gif" alt="저장" /></a>
 			<%-- 2024.06.18 회원관리자 - kdamembership 추가   --%>

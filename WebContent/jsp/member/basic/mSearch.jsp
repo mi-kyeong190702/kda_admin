@@ -119,7 +119,7 @@ jQuery("#list").jqGrid({
 							//document.location.href="memberBasic.do?method=memInfo&pCode="+pCode;							
 							//그리드에서 클릭했을때 새창으로 띄우려면 윗줄의 document.location.href="memberBasic.do?method=memInfo&pCode="+pCode; 를 주석처리하고
 							//밑의 window.open을 주석해제하면 된다.
-							window.open("memberBasic.do?method=memInfo&pCode="+pCode,'dSearch','width=1130, height=700, resizable=no, scrollbars=yes');
+							window.open("memberBasic.do?method=memInfo&pCode="+pCode,'dSearch','width=1130, height=880, resizable=no, scrollbars=yes');
 						}
 						else {}
 					}
