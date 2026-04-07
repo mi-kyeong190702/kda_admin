@@ -1249,27 +1249,44 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 					Date def=sdf.parse(start_dt);
 					cal.setTime(def);
 					String auth_end="";
-					if("1".equals(tmpDgubun)||"3".equals(tmpDgubun)){  
+					
+					//2026.04 유효기간 변경
+					//연회비 인 경우 1년
+					if("1".equals(tmpDgubun)){  
 						cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 						cal.add(cal.DATE, -1); //1일을 뺀다.
 						auth_end=sdf.format(cal.getTime());
+					//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 					}else if("2".equals(tmpDgubun)){
-						auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-				////////////////////////////////CMS추가///////////////////////////
-					}else if("4".equals(tmpDgubun)){
-						//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-						//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-						if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+						auth_end="99991231";
+					//산하단체회비
+					}else if("3".equals(tmpDgubun)){
+						//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+						if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+							cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+							cal.add(cal.DATE, -1); //1일을 뺀다.
+							auth_end=sdf.format(cal.getTime());
+						//나머지 1년
+						}else{
 							cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
+						}
+					//CMS회비
+					}else if("4".equals(tmpDgubun)){
+						//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+						if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+							cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+							cal.add(cal.DATE, -1); //1일을 뺀다.
+							auth_end=sdf.format(cal.getTime());
+						//나머지 1개월
 						}else{
 							cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
 						}
-                ////////////////////////////////////////////////////////////////
-					}			
+					}
+					
 					map.put("dues_h_seq", dues_h_seq);
 					map.put("dues_gubun", 	tmpDgubun);
 					map.put("auth_start", start_dt);
@@ -1317,35 +1334,51 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 							map.put("dues_h_seq", dHSeq);
 							map.put("mem_dues", mem_dues);
 							map.put("incom_flag", "N");
-							System.out.println("start_dt====================>"+start_dt);
+							
+							//System.out.println("start_dt====================>"+start_dt);
 							Date def=sdf.parse(start_dt);
 							cal.setTime(def);
 							String auth_end="";
-							if("1".equals(dues_gubun)||"3".equals(dues_gubun)){  
+							
+							//2026.04 유효기간 변경
+							//연회비 인 경우 1년
+							if("1".equals(dues_gubun)){  
 								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
-								System.out.println("auth_end====================>"+auth_end);
+							//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 							}else if("2".equals(dues_gubun)){
-								auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-								////////////////////////////////CMS추가///////////////////////////
-							}else if("4".equals(dues_gubun)){
-								//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-								//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-								if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+								auth_end="99991231";
+							//산하단체회비
+							}else if("3".equals(dues_gubun)){
+								//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+								if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+									cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+									cal.add(cal.DATE, -1); //1일을 뺀다.
+									auth_end=sdf.format(cal.getTime());
+								//나머지 1년
+								}else{
 									cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 									cal.add(cal.DATE, -1); //1일을 뺀다.
 									auth_end=sdf.format(cal.getTime());
+								}
+							//CMS회비
+							}else if("4".equals(dues_gubun)){
+								//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+								if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+									cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+									cal.add(cal.DATE, -1); //1일을 뺀다.
+									auth_end=sdf.format(cal.getTime());
+								//나머지 1개월
 								}else{
 									cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 									cal.add(cal.DATE, -1); //1일을 뺀다.
 									auth_end=sdf.format(cal.getTime());
 								}
-		                        ////////////////////////////////////////////////////////////////
-							}	
+							}
 							
-							System.out.println("start_dt====================>"+start_dt);
-							System.out.println("auth_end====================>"+auth_end);
+							//System.out.println("start_dt====================>"+start_dt);
+							//System.out.println("auth_end====================>"+auth_end);
 							map.put("auth_start", start_dt);
 							map.put("auth_end", auth_end);
 	
@@ -1570,30 +1603,48 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 					if("Y".equals(iFlag)){
 						int dseq=Integer.parseInt(dHSeq)-1;
 						map.put("dues_h_seq", dseq);
+						
 						Date def=sdf.parse(start_dt);
 						cal.setTime(def);
 						String auth_end="";
-						if("1".equals(dues_gubun)||"3".equals(dues_gubun)){  
-							cal.add(cal.YEAR, 1);//받아온 auth_end에 1년을 더한 값을 구한다.
+						
+						//2026.04 유효기간 변경
+						//연회비 인 경우 1년
+						if("1".equals(dues_gubun)){  
+							cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
+						//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 						}else if("2".equals(dues_gubun)){
-							auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-							////////////////////////////////CMS추가///////////////////////////
-						}else if("4".equals(dues_gubun)){
-							//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-							//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-							if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+							auth_end="99991231";
+						//산하단체회비
+						}else if("3".equals(dues_gubun)){
+							//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+								cal.add(cal.DATE, -1); //1일을 뺀다.
+								auth_end=sdf.format(cal.getTime());
+							//나머지 1년
+							}else{
 								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
+							}
+						//CMS회비
+						}else if("4".equals(dues_gubun)){
+							//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+								cal.add(cal.DATE, -1); //1일을 뺀다.
+								auth_end=sdf.format(cal.getTime());
+							//나머지 1개월
 							}else{
 								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
 							}
-	                        ////////////////////////////////////////////////////////////////
-						}	
+						}
+						
 						map.put("auth_start", start_dt);
 						map.put("auth_end", auth_end);
 						
@@ -1622,30 +1673,48 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 					}else{
 						int dseq=Integer.parseInt(dHSeq);
 						map.put("dues_h_seq", dseq);
+						
 						Date def=sdf.parse(start_dt);
 						cal.setTime(def);
 						String auth_end="";
-						if("1".equals(dues_gubun)||"3".equals(dues_gubun)){  
+						
+						//2026.04 유효기간 변경
+						//연회비 인 경우 1년
+						if("1".equals(dues_gubun)){  
 							cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
+						//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 						}else if("2".equals(dues_gubun)){
-							auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-							////////////////////////////////CMS추가///////////////////////////
-	     				}else if("4".equals(dues_gubun)){
-	     					//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-							//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-	     					if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+							auth_end="99991231";
+						//산하단체회비
+						}else if("3".equals(dues_gubun)){
+							//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+								cal.add(cal.DATE, -1); //1일을 뺀다.
+								auth_end=sdf.format(cal.getTime());
+							//나머지 1년
+							}else{
 								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
+							}
+						//CMS회비
+						}else if("4".equals(dues_gubun)){
+							//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+								cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+								cal.add(cal.DATE, -1); //1일을 뺀다.
+								auth_end=sdf.format(cal.getTime());
+							//나머지 1개월
 							}else{
 								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
 							}
-                        ////////////////////////////////////////////////////////////////
-						}	
+						}
+						
 						map.put("auth_start", start_dt);
 						map.put("auth_end", auth_end);
 						
@@ -1823,30 +1892,48 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 			map.put("dues_gubun", dues_gubun);
 			map.put("dues_h_seq", dues_h_seq);
 			map.put("pres_money", pres_money);
+			
 			Date def=sdf.parse(start_dt);
 			cal.setTime(def);
 			String auth_end="";
-			if("1".equals(dues_gubun)||"3".equals(dues_gubun)){  
+			
+			//2026.04 유효기간 변경
+			//연회비 인 경우 1년
+			if("1".equals(dues_gubun)){  
 				cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 				cal.add(cal.DATE, -1); //1일을 뺀다.
 				auth_end=sdf.format(cal.getTime());
+			//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 			}else if("2".equals(dues_gubun)){
-				auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-        ////////////////////////////////CMS추가///////////////////////////
-			}else if("4".equals(dues_gubun)){
-				//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-				//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-				if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+				auth_end="99991231";
+			//산하단체회비
+			}else if("3".equals(dues_gubun)){
+				//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+					cal.add(cal.DATE, -1); //1일을 뺀다.
+					auth_end=sdf.format(cal.getTime());
+				//나머지 1년
+				}else{
 					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
+				}
+			//CMS회비
+			}else if("4".equals(dues_gubun)){
+				//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+					cal.add(cal.DATE, -1); //1일을 뺀다.
+					auth_end=sdf.format(cal.getTime());
+				//나머지 1개월
 				}else{
 					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
 				}
-        ////////////////////////////////////////////////////////////////
-			}					
+			}
+			
 			map.put("auth_start", start_dt);
 			map.put("auth_end", auth_end);
 
@@ -1933,30 +2020,48 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 			map.put("dues_gubun", dues_gubun);
 			map.put("dues_h_seq", dues_h_seq);
 			map.put("pres_money", -(Integer.parseInt(pres_money)));
+			
 			Date def=sdf.parse(start_dt);
 			cal.setTime(def);
 			String auth_end="";
-			if("1".equals(dues_gubun)||"3".equals(dues_gubun)){  
+			
+			//2026.04 유효기간 변경
+			//연회비 인 경우 1년
+			if("1".equals(dues_gubun)){  
 				cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 				cal.add(cal.DATE, -1); //1일을 뺀다.
 				auth_end=sdf.format(cal.getTime());
+			//평생회비 인 경우 유효 만료일을 9999년 12월 31일로
 			}else if("2".equals(dues_gubun)){
-				auth_end="99991231"; //평생회원의 경우 유효 만료일을 9999년 12월 31일로
-			////////////////////////////////CMS추가///////////////////////////
-			}else if("4".equals(dues_gubun)){
-				//39(C신규취업회원(년) A), 40(C기취업회원(년) A)인 경우 인증일 1년
-				//2026.03.19 53(C신규취업회원(년) B), 52(C기취업회원(년) B) 추가
-				if( "39".equals(code_member) || "40".equals(code_member) || "52".equals(code_member) || "53".equals(code_member) ){
+				auth_end="99991231";
+			//산하단체회비
+			}else if("3".equals(dues_gubun)){
+				//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
+				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
+					cal.add(cal.DATE, -1); //1일을 뺀다.
+					auth_end=sdf.format(cal.getTime());
+				//나머지 1년
+				}else{
 					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
+				}
+			//CMS회비
+			}else if("4".equals(dues_gubun)){
+				//40(C기취업회원(년) A), 52(C기취업회원(년) B), 39(C신규취업회원(년) A), 53(C신규취업회원(년) B) 인 경우 1년
+				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+					cal.add(cal.YEAR, 1);//받아온 start_dt에 1년을 더한 값을 구한다.
+					cal.add(cal.DATE, -1); //1일을 뺀다.
+					auth_end=sdf.format(cal.getTime());
+				//나머지 1개월
 				}else{
 					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
 				}
-			////////////////////////////////////////////////////////////////
-			}					
+			}
+			
 			map.put("auth_start", start_dt);
 			map.put("auth_end", auth_end);
 
