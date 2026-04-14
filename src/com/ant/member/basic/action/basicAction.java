@@ -1262,7 +1262,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 					//산하단체회비
 					}else if("3".equals(tmpDgubun)){
 						//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-						if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+						if( "74".equals(code_member) || "76".equals(code_member) ){
 							cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 							cal.add(cal.DATE, -1); //1일을 뺀다.
 							auth_end=sdf.format(cal.getTime());
@@ -1352,7 +1352,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 							//산하단체회비
 							}else if("3".equals(dues_gubun)){
 								//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-								if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+								if( "74".equals(code_member) || "76".equals(code_member) ){
 									cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 									cal.add(cal.DATE, -1); //1일을 뺀다.
 									auth_end=sdf.format(cal.getTime());
@@ -1620,7 +1620,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 						//산하단체회비
 						}else if("3".equals(dues_gubun)){
 							//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+							if( "74".equals(code_member) || "76".equals(code_member) ){
 								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
@@ -1690,7 +1690,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 						//산하단체회비
 						}else if("3".equals(dues_gubun)){
 							//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-							if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+							if( "74".equals(code_member) || "76".equals(code_member) ){
 								cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 								cal.add(cal.DATE, -1); //1일을 뺀다.
 								auth_end=sdf.format(cal.getTime());
@@ -1909,7 +1909,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 			//산하단체회비
 			}else if("3".equals(dues_gubun)){
 				//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+				if( "74".equals(code_member) || "76".equals(code_member) ){
 					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
@@ -2037,7 +2037,7 @@ public ActionForward iComp(ActionMapping mapping, ActionForm form,HttpServletReq
 			//산하단체회비
 			}else if("3".equals(dues_gubun)){
 				//74(C전국영양교사회(정회원)), 76(C전국학교영양사회(정회원)) 인 경우 1개월
-				if( "40".equals(code_member) || "52".equals(code_member) || "39".equals(code_member) || "53".equals(code_member) ){
+				if( "74".equals(code_member) || "76".equals(code_member) ){
 					cal.add(cal.MONTH, 1);//받아온 start_dt에 1달을 더한 값을 구한다.
 					cal.add(cal.DATE, -1); //1일을 뺀다.
 					auth_end=sdf.format(cal.getTime());
